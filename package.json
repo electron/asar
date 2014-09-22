@@ -12,6 +12,7 @@
       "url": "http://github.com/atom/asar/raw/master/LICENSE"
     }
   ],
+  "homepage": "https://github.com/atom/asar",
   "repository": {
     "type": "git",
     "url": "https://github.com/atom/asar.git"
