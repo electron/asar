@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+var asar = require('../lib/asar.js');
+
+asar.createPackage(process.argv[2], process.argv[3]);

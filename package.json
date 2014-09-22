@@ -1,0 +1,27 @@
+{
+  "main": "./lib/asar.js",
+  "name": "asar",
+  "description": "Creating atom-shell app packages",
+  "version": "0.1.0",
+  "bin": {
+    "asar": "bin/asar"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/atom/asar/raw/master/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atom/asar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atom/asar/issues"
+  },
+  "dependencies": {
+    "chromium-pickle": "0.1.0",
+    "cuint": "0.1.5",
+    "walkdir": "0.0.7"
+  }
+}
