@@ -9,6 +9,14 @@ program.command('pack <dir> <output>')
        .description('create asar archive')
        .action(function(dir, output) { asar.createPackage(dir, output); });
 
+program.command('list <archive>')
+       .description('list files of asar archive')
+       .action(function(archive) {
+         files = asar.listPackage(archive);
+         for (i in files)
+           console.log(files[i]);
+       });
+
 program.parse(process.argv);
 
 if (program.args.length == 0)
