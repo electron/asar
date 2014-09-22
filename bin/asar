@@ -17,6 +17,13 @@ program.command('list <archive>')
            console.log(files[i]);
        });
 
+program.command('extract <archive> <filename>')
+       .description('extract one file from archive')
+       .action(function(archive, filename) {
+         require('fs').writeFileSync(require('path').basename(filename),
+                                     asar.extractFile(archive, filename));
+       });
+
 program.parse(process.argv);
 
 if (program.args.length == 0)
