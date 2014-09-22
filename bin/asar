@@ -6,10 +6,12 @@ program.version('v' + require('../package.json').version)
        .description('Manipulate asar archive files')
 
 program.command('pack <dir> <output>')
+       .alias('p')
        .description('create asar archive')
        .action(function(dir, output) { asar.createPackage(dir, output); });
 
 program.command('list <archive>')
+       .alias('l')
        .description('list files of asar archive')
        .action(function(archive) {
          files = asar.listPackage(archive);
@@ -17,7 +19,8 @@ program.command('list <archive>')
            console.log(files[i]);
        });
 
-program.command('extract <archive> <filename>')
+program.command('extract-file <archive> <filename>')
+       .alias('ef')
        .description('extract one file from archive')
        .action(function(archive, filename) {
          require('fs').writeFileSync(require('path').basename(filename),
