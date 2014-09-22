@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "chromium-pickle": "0.1.1",
+    "commander": "2.3.0",
     "cuint": "0.1.5",
     "walkdir": "0.0.7"
   }

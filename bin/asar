@@ -1,5 +1,15 @@
 #!/usr/bin/env node
+var asar = require('../lib/asar');
+var program = require('commander');
 
-var asar = require('../lib/asar.js');
+program.version('v' + require('../package.json').version)
+       .description('Manipulate asar archive files')
 
-asar.createPackage(process.argv[2], process.argv[3]);
+program.command('pack <dir> <output>')
+       .description('create asar archive')
+       .action(function(dir, output) { asar.createPackage(dir, output); });
+
+program.parse(process.argv);
+
+if (program.args.length == 0)
+  program.help();
