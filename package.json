@@ -20,7 +20,7 @@
     "url": "https://github.com/atom/asar/issues"
   },
   "dependencies": {
-    "chromium-pickle": "0.1.0",
+    "chromium-pickle": "0.1.1",
     "cuint": "0.1.5",
     "walkdir": "0.0.7"
   }
