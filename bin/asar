@@ -1,14 +1,25 @@
 #!/usr/bin/env node
 var asar = require('../lib/asar');
 var program = require('commander');
+var excludes = [];
+var includes = [];
+
+function addExclude(val) {
+  excludes.push(val);
+}
+function addInclude(val) {
+  includes.push(val);
+}
 
 program.version('v' + require('../package.json').version)
        .description('Manipulate asar archive files')
+       .option('-e, --exclude <path>', 'exclude paths from being archived', addExclude)
+       .option('-i, --include <path>', 'include paths that have been excluded', addInclude);
 
 program.command('pack <dir> <output>')
        .alias('p')
        .description('create asar archive')
-       .action(function(dir, output) { asar.createPackage(dir, output); });
+       .action(function(dir, output) { asar.createPackage(dir, output, excludes, includes); });
 
 program.command('list <archive>')
        .alias('l')
