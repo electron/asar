@@ -43,6 +43,23 @@ $ asar --help
 
 ```
 
+## Using programatically
+
+### Example
+
+```js
+var asar = require('asar');
+
+var src = 'some/path/';
+var dest = 'name.asar';
+
+asar.createPackage(src, dest, function() {
+  console.log('done.');
+}) 
+```
+
+Please note that there is currently *no* error handling provided!
+
 ## Format
 
 Asar uses [Pickle][pickle] to safely serialize binary value to file, there is
