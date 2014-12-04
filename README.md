@@ -60,6 +60,10 @@ asar.createPackage(src, dest, function() {
 
 Please note that there is currently *no* error handling provided!
 
+## Using with grunt
+
+There is also an inofficial grunt plugin to generate asar archives at [bwin/grunt-asar][grunt-asar].
+
 ## Format
 
 Asar uses [Pickle][pickle] to safely serialize binary value to file, there is
@@ -128,3 +132,4 @@ safe to convert `Number` to UINT64.
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/master/base/pickle.h
 [node-pickle]: https://www.npmjs.org/package/chromium-pickle
+[grunt-asar]: https://github.com/bwin/grunt-asar
