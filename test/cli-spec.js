@@ -3,6 +3,7 @@
 var assert = require('assert');
 var exec = require('child_process').exec;
 var fs = require('fs');
+var os = require('os');
 
 describe('command line interface', function() {
   
@@ -18,6 +19,8 @@ describe('command line interface', function() {
     exec('node bin/asar l test/input/extractthis.asar', function (error, stdout, stderr) {
       var actual = stdout;
       var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
+      if ('win32' === os.platform())
+        expected = expected.replace(/\//g, '\\');
       done(assert.equal(actual, expected));
     });
   });
