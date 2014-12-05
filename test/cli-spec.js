@@ -19,8 +19,9 @@ describe('command line interface', function() {
     exec('node bin/asar l test/input/extractthis.asar', function (error, stdout, stderr) {
       var actual = stdout;
       var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
+      // on windows replace slashes with backslashes and crlf with lf
       if ('win32' === os.platform())
-        expected = expected.replace(/\//g, '\\');
+        expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
       done(assert.equal(actual, expected));
     });
   });

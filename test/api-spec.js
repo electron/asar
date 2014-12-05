@@ -19,8 +19,9 @@ describe('api', function() {
   it('should list files/dirs in archive', function() {
     var actual = asar.listPackage('test/input/extractthis.asar').join('\n');
     var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8');
+    // on windows replace slashes with backslashes and crlf with lf
     if ('win32' === os.platform())
-      expected = expected.replace(/\//g, '\\');
+      expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
     return assert.equal(actual, expected);
   });
 
