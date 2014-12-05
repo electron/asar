@@ -35,6 +35,9 @@ $ asar --help
     extract-file|ef <archive> <filename>
        extract one file from archive
 
+    extract|e <archive> <dest>
+       extract archive
+
 
   Options:
 

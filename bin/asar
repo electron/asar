@@ -27,6 +27,13 @@ program.command('extract-file <archive> <filename>')
                                      asar.extractFile(archive, filename));
        });
 
+program.command('extract <archive> <dest>')
+       .alias('e')
+       .description('extract archive')
+       .action(function(archive, dest) {
+         asar.extractAll(archive, dest);
+       });
+
 program.parse(process.argv);
 
 if (program.args.length == 0)
