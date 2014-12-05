@@ -1,5 +1,9 @@
 # asar - Atom-Shell Archive
 
+[![build status](http://img.shields.io/travis/atom/asar.svg?style=flat-square)](https://travis-ci.org/atom/asar)
+[![dependencies](http://img.shields.io/david/atom/asar.svg?style=flat-square)](https://david-dm.org/atom/asar)
+[![npm version](http://img.shields.io/npm/v/asar.svg?style=flat-square)](https://npmjs.org/package/asar)
+
 Asar is a simple extensive archive format, it works like `tar` that concatenates
 all files together without compression, while having random access support.
 
