@@ -5,23 +5,27 @@ _ = require('lodash');
 
 var crawlFilesystem = function(dir, cb) {
   var paths = [];
+  var metadata = {};
 
   var emitter = walkdir(dir);
   emitter.on('directory', function(p, stat) {
     p = path.relative(dir, p);
     paths.push(p);
+    metadata[p] = {type: 'directory', stat: stat};
   });
   emitter.on('file', function(p, stat) {
     p = path.relative(dir, p);
     paths.push(p);
+    metadata[p] = {type: 'file', stat: stat};
   });
   emitter.on('link', function(p, stat) {
     p = path.relative(dir, p);
     paths.push(p);
+    metadata[p] = {type: 'link', stat: stat};
   });
   emitter.on('end', function() {
     paths.sort();
-    cb(false, paths);
+    cb(false, paths, metadata);
   });
   emitter.on('error', function(err) {
     cb(err);
@@ -29,18 +33,26 @@ var crawlFilesystem = function(dir, cb) {
 };
 
 module.exports = function(dirA, dirB, cb) {
-  crawlFilesystem(dirA, function(err, pathsA) {
-    crawlFilesystem(dirB, function(err, pathsB) {
+  crawlFilesystem(dirA, function(err, pathsA, metadataA) {
+    crawlFilesystem(dirB, function(err, pathsB, metadataB) {
       var onlyInA = _.difference(pathsA, pathsB);
       var onlyInB = _.difference(pathsB, pathsA);
       var inBoth = _.intersection(pathsA, pathsB);
       var differentFiles = [];
-      var i, filename, fileContentA, fileContentB;
+      var i, filename, fileContentA, fileContentB, typeA, typeB;
       var isIdentical;
       var errorMsg = '\n';
 
       for (i in inBoth) {
         filename = inBoth[i];
+        typeA = metadataA[filename].type;
+        typeB = metadataB[filename].type;
+        // something is wrong if one entry is a file and the other is a directory
+        // (do a XOR with the ternary operator)
+        if('directory' === typeA ? 'directory' !== typeB : 'directory' === typeB) {
+          differentFiles.push(filename);
+          continue;
+        }
         fileContentA = fs.readFileSync(path.join(dirA, filename), 'utf8');
         fileContentB = fs.readFileSync(path.join(dirB, filename), 'utf8');
         if(fileContentA !== fileContentB)
