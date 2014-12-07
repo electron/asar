@@ -47,6 +47,9 @@ module.exports = function(dirA, dirB, cb) {
         filename = inBoth[i];
         typeA = metadataA[filename].type;
         typeB = metadataB[filename].type;
+        // skip if both are directories
+        if('directory' === typeA && 'directory' === typeB)
+          continue;
         // something is wrong if one entry is a file and the other is a directory
         // (do a XOR with the ternary operator)
         if('directory' === typeA ? 'directory' !== typeB : 'directory' === typeB) {
