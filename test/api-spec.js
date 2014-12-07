@@ -5,6 +5,7 @@ var fs = require('fs');
 var os = require('os');
 
 var asar = require('../lib/asar');
+var compDirs = require('./util/compareDirectories');
 
 describe('api', function() {
   
@@ -23,6 +24,26 @@ describe('api', function() {
     if ('win32' === os.platform())
       expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
     return assert.equal(actual, expected);
+  });
+
+  it('should extract a text file from archive', function() {
+    var actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString('utf8');
+    var expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
+    // on windows replace crlf with lf
+    if ('win32' === os.platform())
+      expected = expected.replace(/\r\n/g, '\n');
+    return assert.equal(actual, expected);
+  });
+
+  it('should extract a binary file from archive', function() {
+    var actual = asar.extractFile('test/input/extractthis.asar', 'dir2/file2.png');
+    var expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
+    return assert.equal(actual, expected);
+  });
+
+  it('should extract an archive', function(done) {
+    asar.extractAll('test/input/extractthis.asar','tmp/extractthis-api/');
+    compDirs('tmp/extractthis-api/', 'test/expected/extractthis', done);
   });
 
 });
