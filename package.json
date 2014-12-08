@@ -21,7 +21,9 @@
     "url": "https://github.com/atom/asar/issues"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "pretest": "npm run clean",
+    "test": "./node_modules/.bin/mocha --reporter spec",
+    "clean": "rm -rf tmp/"
   },
   "dependencies": {
     "chromium-pickle": "0.1.3",

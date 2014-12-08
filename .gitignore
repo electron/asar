@@ -2,3 +2,4 @@ node_modules/
 build/
 tmp/
 *.swp
+npm-debug.log
