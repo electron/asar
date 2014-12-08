@@ -22,7 +22,7 @@
   },
   "scripts": {
     "pretest": "npm run clean",
-    "test": "./node_modules/.bin/mocha --reporter spec",
+    "test": "mocha --reporter spec",
     "clean": "rm -rf tmp/"
   },
   "dependencies": {
