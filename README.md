@@ -62,7 +62,7 @@ var dest = 'name.asar';
 
 asar.createPackage(src, dest, function() {
   console.log('done.');
-}) 
+})
 ```
 
 Please note that there is currently *no* error handling provided!
@@ -131,11 +131,11 @@ Structure of `header` is something like this:
 `header` to the `offset` to get the real offset of the file.
 
 `offset` is a UINT64 number represented in string, because there is no way to
-precisely represent UINT64 in JavaScript `Number`. `size` is a UINT32 number for
-the same reason, which indicates that we can not save a file larger than 4.2GB
-(though the archive itself doesn't have size limitation). We didn't store `size`
-in UINT64 because file size in Node.js is represented as `Number` and it is not
-safe to convert `Number` to UINT64.
+precisely represent UINT64 in JavaScript `Number`. `size` is a JavaScript
+`Number` that is no larger than `Number.MAX_SAFE_INTEGER`, which has a value of
+`9007199254740991` and is about 8PB in size. We didn't store `size` in UINT64
+because file size in Node.js is represented as `Number` and it is not safe to
+convert `Number` to UINT64.
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/master/base/pickle.h
 [node-pickle]: https://www.npmjs.org/package/chromium-pickle
