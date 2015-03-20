@@ -8,7 +8,10 @@ program.version('v' + require('../package.json').version)
 program.command('pack <dir> <output>')
        .alias('p')
        .description('create asar archive')
-       .action(function(dir, output) { asar.createPackage(dir, output); });
+       .option('--unpack <expression>', 'do not pack files matching <expression>')
+       .action(function(dir, output, options) {
+         asar.createPackageWithOptions(dir, output, options);
+       });
 
 program.command('list <archive>')
        .alias('l')
