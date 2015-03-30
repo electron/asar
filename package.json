@@ -2,7 +2,7 @@
   "main": "./lib/asar.js",
   "name": "asar",
   "description": "Creating atom-shell app packages",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "bin": {
     "asar": "bin/asar"
   },
