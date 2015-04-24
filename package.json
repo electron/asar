@@ -26,7 +26,7 @@
     "clean": "rm -rf tmp/"
   },
   "dependencies": {
-    "chromium-pickle": "0.1.4",
+    "chromium-pickle-js": "0.1.0",
     "commander": "2.3.0",
     "cuint": "0.1.5",
     "minimatch": "2.0.4",
