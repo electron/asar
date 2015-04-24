@@ -31,7 +31,7 @@
     "cuint": "0.1.5",
     "minimatch": "2.0.4",
     "mkdirp": "^0.5.0",
-    "walkdir": "0.0.7"
+    "glob": "^5.0.5"
   },
   "devDependencies": {
     "lodash": "^2.4.1",

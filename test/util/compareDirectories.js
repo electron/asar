@@ -1,42 +1,21 @@
-fs = require('fs');
-path = require('path');
-walkdir = require('walkdir');
-_ = require('lodash');
+var fs = require('fs');
+var path = require('path');
 
-var crawlFilesystem = function(dir, cb) {
-  var paths = [];
-  var metadata = {};
-
-  var emitter = walkdir(dir);
-  emitter.on('directory', function(p, stat) {
-    p = path.relative(dir, p);
-    paths.push(p);
-    metadata[p] = {type: 'directory', stat: stat};
-  });
-  emitter.on('file', function(p, stat) {
-    p = path.relative(dir, p);
-    paths.push(p);
-    metadata[p] = {type: 'file', stat: stat};
-  });
-  emitter.on('link', function(p, stat) {
-    p = path.relative(dir, p);
-    paths.push(p);
-    metadata[p] = {type: 'link', stat: stat};
-  });
-  emitter.on('end', function() {
-    paths.sort();
-    cb(false, paths, metadata);
-  });
-  emitter.on('error', function(err) {
-    cb(err);
-  });
-};
+var _ = require('lodash');
+var crawlFilesystem = require('../../lib/crawlfs');
 
 module.exports = function(dirA, dirB, cb) {
   crawlFilesystem(dirA, function(err, pathsA, metadataA) {
     crawlFilesystem(dirB, function(err, pathsB, metadataB) {
-      var onlyInA = _.difference(pathsA, pathsB);
-      var onlyInB = _.difference(pathsB, pathsA);
+      var relativeA = _.map(pathsA, function(pathAItem) {
+        return path.relative(dirA, pathAItem);
+      });
+      var relativeB = _.map(pathsB, function(pathBItem) {
+        return path.relative(dirB, pathBItem);
+      });
+
+      var onlyInA = _.difference(relativeA, relativeB);
+      var onlyInB = _.difference(relativeB, relativeA);
       var inBoth = _.intersection(pathsA, pathsB);
       var differentFiles = [];
       var i, filename, fileContentA, fileContentB, typeA, typeB;
