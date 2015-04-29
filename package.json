@@ -3,7 +3,7 @@
   "name": "asar",
   "description": "Creating atom-shell app packages",
   "version": "0.6.0",
-  "bin"{
+  "bin": {
     "asar": "bin/asar"
   },
   "licenses": [
