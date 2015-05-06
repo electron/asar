@@ -10,7 +10,13 @@ program.command('pack <dir> <output>')
        .description('create asar archive')
        .option('--unpack <expression>', 'do not pack files matching <expression>')
        .action(function(dir, output, options) {
-         asar.createPackageWithOptions(dir, output, options);
+         asar.createPackageWithOptions(dir, output, options, function(error) {
+           if (error) {
+             console.error(error);
+             console.error(error.stack);
+             process.exit(1);
+           }
+         });
        });
 
 program.command('list <archive>')
