@@ -10,7 +10,7 @@ stripBOM = (content) ->
 
 wrapModuleCode = (script) ->
   script = script.replace(/^\#\!.*/, '')
-  "(function(exports, require, module, __filename, __dirname) { #{scrip} \n});"
+  "(function(exports, require, module, __filename, __dirname) { #{script} \n});"
 
 dumpObjectToJS = (content) ->
   result = 'var __ATOM_SHELL_SNAPSHOT = {\n'
