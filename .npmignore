@@ -1,10 +1,11 @@
-/node_modules
 /build
-/lib
+/spec
 /tmp
-*.swp
+*.coffee
 *.log
 *~
+*.swp
 .DS_Store
 .node-version
+.npmignore
 npm-debug.log

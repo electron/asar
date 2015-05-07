@@ -21,9 +21,10 @@
     "url": "https://github.com/atom/asar/issues"
   },
   "scripts": {
-    "pretest": "npm run clean",
+    "prepublish": "grunt coffee",
+    "pretest": "grunt clean coffeelint coffee",
     "test": "mocha --reporter spec",
-    "clean": "rm -rf tmp/"
+    "clean": "grunt clean"
   },
   "dependencies": {
     "chromium-pickle-js": "0.1.0",
@@ -35,6 +36,12 @@
     "glob": "^5.0.5"
   },
   "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-coffeelint": "0.0.6",
+    "grunt-contrib-coffee": "~0.6.6",
+    "grunt-cli": "~0.1.7",
+    "coffee-script": "~1.6.2",
+    "rimraf": "~2.1.4",
     "lodash": "^2.4.1",
     "mocha": "^2.0.1"
   }
