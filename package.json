@@ -31,6 +31,7 @@
     "cuint": "0.1.5",
     "minimatch": "2.0.4",
     "mkdirp": "^0.5.0",
+    "mksnapshot": "0.1.0",
     "glob": "^5.0.5"
   },
   "devDependencies": {
