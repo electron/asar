@@ -39,9 +39,10 @@ createSnapshot = (src, dest, filenames, metadata, options, callback) ->
     return callback(error)
 
   # run mksnapshot
-  target = path.resolve dest, '..', 'snapshot_blob.bin'
   str = dumpObjectToJS content
-  {version, arch, builddir} = options
+  {version, arch, builddir, snapshotdir} = options
+  snapshotdir ?= path.dirname dest
+  target = path.resolve snapshotdir, 'snapshot_blob.bin'
   mksnapshot str, target, version, arch, builddir, callback
 
 module.exports = createSnapshot
