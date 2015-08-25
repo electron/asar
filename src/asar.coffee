@@ -13,7 +13,9 @@ module.exports.createPackage = (src, dest, callback) ->
   module.exports.createPackageWithOptions src, dest, {}, callback
 
 module.exports.createPackageWithOptions = (src, dest, options, callback) ->
-  crawlFilesystem src, (error, filenames, metadata) ->
+  {dot} = options
+
+  crawlFilesystem src, { dot: dot }, (error, filenames, metadata) ->
     return callback(error) if error
     filesystem = new Filesystem(src)
     files = []

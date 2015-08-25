@@ -1,9 +1,9 @@
 fs = require 'fs'
 glob = require 'glob'
 
-module.exports = (dir, callback) ->
+module.exports = (dir, options, callback) ->
   metadata = {}
-  glob dir + '/**/*', (error, filenames) ->
+  glob dir + '/**/*', options, (error, filenames) ->
     return callback(error) if error
     for filename in filenames
       stat = fs.lstatSync filename
