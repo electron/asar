@@ -17,6 +17,14 @@ describe('command line interface', function() {
     });
   });
 
+  it('should create archive from directory with hidden files', function(done) {
+    exec('node bin/asar p test/input/packthis/ tmp/packthis-hidden-cli.asar --hidden', function (error, stdout, stderr) {
+      var actual = fs.readFileSync('tmp/packthis-hidden-cli.asar', 'utf8');
+      var expected = fs.readFileSync('test/expected/packthis-hidden.asar', 'utf8');
+      done(assert.equal(actual, expected));
+    });
+  });
+
   it('should create archive from directory with unpacked files', function(done) {
     exec('node bin/asar p test/input/packthis/ tmp/packthis-unpack-cli.asar --unpack *.png', function (error, stdout, stderr) {
       var actual = fs.readFileSync('tmp/packthis-unpack-cli.asar', 'utf8');

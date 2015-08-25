@@ -17,6 +17,16 @@ describe('api', function() {
     });
   });
 
+  it('should create archive from directory (with hidden files)', function(done) {
+    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-hidden-api.asar', {
+      dot: true
+    }, function (error) {
+      var actual = fs.readFileSync('tmp/packthis-hidden-api.asar', 'utf8');
+      var expected = fs.readFileSync('test/expected/packthis-hidden.asar', 'utf8');
+      done(assert.equal(actual, expected));
+    });
+  });
+
   it('should list files/dirs in archive', function() {
     var actual = asar.listPackage('test/input/extractthis.asar').join('\n');
     var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8');
