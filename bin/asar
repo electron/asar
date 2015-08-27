@@ -15,7 +15,6 @@ program.command('pack <dir> <output>')
        .option('--sa <arch>', '(snapshot) arch of Electron')
        .option('--sb <builddir>', '(snapshot) where to put downloaded files')
        .action(function(dir, output, options) {
-         console.log(options);
          var options = {
            unpack: options.unpack,
            snapshot: options.snapshot,
