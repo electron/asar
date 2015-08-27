@@ -17,12 +17,12 @@ describe('api', function() {
     });
   });
 
-  it('should create archive from directory (with hidden files)', function(done) {
-    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-hidden-api.asar', {
-      dot: true
+  it('should create archive from directory (without hidden files)', function(done) {
+    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {
+      dot: false
     }, function (error) {
-      var actual = fs.readFileSync('tmp/packthis-hidden-api.asar', 'utf8');
-      var expected = fs.readFileSync('test/expected/packthis-hidden.asar', 'utf8');
+      var actual = fs.readFileSync('tmp/packthis-api.asar', 'utf8');
+      var expected = fs.readFileSync('test/expected/packthis.asar', 'utf8');
       done(assert.equal(actual, expected));
     });
   });
