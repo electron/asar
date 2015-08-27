@@ -14,6 +14,7 @@ module.exports.createPackage = (src, dest, callback) ->
 
 module.exports.createPackageWithOptions = (src, dest, options, callback) ->
   {dot} = options
+  dot = true if dot is undefined
 
   crawlFilesystem src, { dot: dot }, (error, filenames, metadata) ->
     return callback(error) if error
