@@ -10,6 +10,7 @@ program.command('pack <dir> <output>')
        .description('create asar archive')
        .option('--unpack <expression>', 'do not pack files matching <expression>')
        .option('--snapshot', 'create snapshot')
+       .option('--exclude-hidden', 'exclude hidden files')
        .option('--sv <version>', '(snapshot) version of Electron')
        .option('--sa <arch>', '(snapshot) arch of Electron')
        .option('--sb <builddir>', '(snapshot) where to put downloaded files')
@@ -20,6 +21,7 @@ program.command('pack <dir> <output>')
            version: options.sv,
            arch: options.sa,
            builddir: options.sb,
+           dot: !options.excludeHidden
          };
          asar.createPackageWithOptions(dir, output, options, function(error) {
            if (error) {
