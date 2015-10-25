@@ -24,13 +24,23 @@ module.exports.createPackageWithOptions = (src, dest, options, callback) ->
       file = metadata[filename]
       switch file.type
         when 'directory'
-          filesystem.insertDirectory filename
+          shouldUnpack =
+            if options.unpackDir
+              minimatch path.basename(filename), options.unpackDir,
+                        matchBase:true
+            else
+              false
+          filesystem.insertDirectory filename, shouldUnpack
         when 'file'
           shouldUnpack =
             if options.unpack
               minimatch(filename, options.unpack, matchBase: true)
             else
-              false
+              if options.unpackDir
+                dirName = path.relative src, path.dirname(filename)
+                minimatch dirName, options.unpackDir, matchBase:true
+              else
+                false
           files.push filename: filename, unpack: shouldUnpack
           filesystem.insertFile filename, shouldUnpack, file.stat
         when 'link'

@@ -16,17 +16,21 @@ class Filesystem
 
   searchNodeFromPath: (p) ->
     p = path.relative @src, p
+    return @header if not p
     name = path.basename p
-    node = @searchNodeFromDirectory(path.dirname(p)).files[name] = {}
-    node
+    node = @searchNodeFromDirectory(path.dirname(p))
+    node.files[name] = {} if not node.files[name]
+    node.files[name]
 
-  insertDirectory: (p) ->
+  insertDirectory: (p, shouldUnpack) ->
     node = @searchNodeFromPath p
+    node.unpacked = shouldUnpack if shouldUnpack
     node.files = {}
 
   insertFile: (p, shouldUnpack, stat) ->
+    dirNode = @searchNodeFromPath path.dirname(p)
     node = @searchNodeFromPath p
-    if shouldUnpack
+    if shouldUnpack or dirNode.unpacked
       node.size = stat.size
       node.unpacked = true
       return

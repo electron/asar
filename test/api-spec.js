@@ -64,7 +64,18 @@ describe('api', function() {
 
   it('should extract an archive with unpacked files', function(done) {
     asar.extractAll('test/input/extractthis-unpack.asar','tmp/extractthis-unpack-api/');
-    compDirs('tmp/extractthis-api/', 'test/expected/extractthis', done);
+    compDirs('tmp/extractthis-unpack-api/', 'test/expected/extractthis', done);
+  });
+
+  it('should extract a binary file from archive with unpacked files', function() {
+    var actual = asar.extractFile('test/input/extractthis-unpack-dir.asar', 'dir1/file1.txt');
+    var expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
+    return assert.equal(actual, expected);
+  });
+
+  it('should extract an archive with unpacked dirs', function(done) {
+    asar.extractAll('test/input/extractthis-unpack-dir.asar','tmp/extractthis-unpack-dir-api/');
+    compDirs('tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis', done);
   });
 
 });

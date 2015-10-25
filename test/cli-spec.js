@@ -90,4 +90,29 @@ describe('command line interface', function() {
     });
   });
 
+  it('should create archive from directory with unpacked dirs', function(done) {
+    exec('node bin/asar p test/input/packthis/ tmp/packthis-unpack-dir-cli.asar --unpack-dir dir2 --exclude-hidden', function (error, stdout, stderr) {
+      var actual = fs.readFileSync('tmp/packthis-unpack-dir-cli.asar', 'utf8');
+      var expected = fs.readFileSync('test/expected/packthis-unpack-dir.asar', 'utf8');
+      done(assert.equal(actual, expected));
+    });
+  });
+
+  it('should list files/dirs in archive with unpacked dirs', function(done) {
+    exec('node bin/asar l tmp/packthis-unpack-dir-cli.asar', function (error, stdout, stderr) {
+      var actual = stdout;
+      var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
+      // on windows replace slashes with backslashes and crlf with lf
+      if ('win32' === os.platform())
+        expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
+      done(assert.equal(actual, expected));
+    });
+  });
+
+  it('should extract an archive with unpacked dirs', function(done) {
+    exec('node bin/asar e test/input/extractthis-unpack-dir.asar tmp/extractthis-unpack-dir/', function (error, stdout, stderr) {
+      compDirs('tmp/extractthis-unpack-dir/', 'test/expected/extractthis', done);
+    });
+  });
+
 });
