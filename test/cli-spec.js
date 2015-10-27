@@ -29,6 +29,7 @@ describe('command line interface', function() {
     exec('node bin/asar p test/input/packthis/ tmp/packthis-unpack-cli.asar --unpack *.png --exclude-hidden', function (error, stdout, stderr) {
       var actual = fs.readFileSync('tmp/packthis-unpack-cli.asar', 'utf8');
       var expected = fs.readFileSync('test/expected/packthis-unpack.asar', 'utf8');
+      assert.ok(fs.existsSync('tmp/packthis-unpack-cli.asar.unpacked/dir2/file2.png'));
       done(assert.equal(actual, expected));
     });
   });
@@ -94,6 +95,8 @@ describe('command line interface', function() {
     exec('node bin/asar p test/input/packthis/ tmp/packthis-unpack-dir-cli.asar --unpack-dir dir2 --exclude-hidden', function (error, stdout, stderr) {
       var actual = fs.readFileSync('tmp/packthis-unpack-dir-cli.asar', 'utf8');
       var expected = fs.readFileSync('test/expected/packthis-unpack-dir.asar', 'utf8');
+      assert.ok(fs.existsSync('tmp/packthis-unpack-dir-cli.asar.unpacked/dir2/file2.png'));
+      assert.ok(fs.existsSync('tmp/packthis-unpack-dir-cli.asar.unpacked/dir2/file3.txt'));
       done(assert.equal(actual, expected));
     });
   });
@@ -112,6 +115,26 @@ describe('command line interface', function() {
   it('should extract an archive with unpacked dirs', function(done) {
     exec('node bin/asar e test/input/extractthis-unpack-dir.asar tmp/extractthis-unpack-dir/', function (error, stdout, stderr) {
       compDirs('tmp/extractthis-unpack-dir/', 'test/expected/extractthis', done);
+    });
+  });
+
+  it('should create archive from directory with unpacked dirs and files', function(done) {
+    exec('node bin/asar p test/input/packthis/ tmp/packthis-unpack-dir-file-cli.asar --unpack *.png --unpack-dir dir2 --exclude-hidden', function (error, stdout, stderr) {
+      var actual = fs.readFileSync('tmp/packthis-unpack-dir-file-cli.asar', 'utf8');
+      var expected = fs.readFileSync('test/expected/packthis-unpack-dir.asar', 'utf8');
+      assert.ok(fs.existsSync('tmp/packthis-unpack-dir-file-cli.asar.unpacked/dir2/file2.png'));
+      assert.ok(fs.existsSync('tmp/packthis-unpack-dir-file-cli.asar.unpacked/dir2/file3.txt'));
+      done(assert.equal(actual, expected));
+    });
+  });
+
+  it('should create archive from directory with unpacked subdirs and files', function(done) {
+    exec('node bin/asar p test/input/packthis-subdir/ tmp/packthis-unpack-subdir-cli.asar --unpack *.txt --unpack-dir dir2/subdir --exclude-hidden', function (error, stdout, stderr) {
+      assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/file0.txt'));
+      assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir1/file1.txt'));
+      assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file2.png'));
+      assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file3.txt'));
+      done();
     });
   });
 

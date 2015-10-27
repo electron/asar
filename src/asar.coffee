@@ -9,6 +9,9 @@ disk = require './disk'
 crawlFilesystem = require './crawlfs'
 createSnapshot = require './snapshot'
 
+startWith = (path, prefix) ->
+  path.indexOf(prefix) is 0
+
 module.exports.createPackage = (src, dest, callback) ->
   module.exports.createPackageWithOptions src, dest, {}, callback
 
@@ -26,21 +29,17 @@ module.exports.createPackageWithOptions = (src, dest, options, callback) ->
         when 'directory'
           shouldUnpack =
             if options.unpackDir
-              minimatch path.basename(filename), options.unpackDir,
-                        matchBase:true
+              startWith path.relative(src, filename), options.unpackDir
             else
               false
           filesystem.insertDirectory filename, shouldUnpack
         when 'file'
-          shouldUnpack =
-            if options.unpack
-              minimatch(filename, options.unpack, matchBase: true)
-            else
-              if options.unpackDir
-                dirName = path.relative src, path.dirname(filename)
-                minimatch dirName, options.unpackDir, matchBase:true
-              else
-                false
+          shouldUnpack = false
+          if options.unpack
+            shouldUnpack = minimatch filename, options.unpack, matchBase: true
+          if not shouldUnpack and options.unpackDir
+            dirName = path.relative src, path.dirname(filename)
+            shouldUnpack = startWith dirName, options.unpackDir
           files.push filename: filename, unpack: shouldUnpack
           filesystem.insertFile filename, shouldUnpack, file.stat
         when 'link'
