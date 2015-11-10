@@ -18,8 +18,9 @@ class Filesystem
     p = path.relative @src, p
     return @header if not p
     name = path.basename p
-    node = @searchNodeFromDirectory(path.dirname(p))
-    node.files[name] = {} if not node.files[name]
+    node = @searchNodeFromDirectory path.dirname p
+    node.files ?= {}
+    node.files[name] ?= {}
     node.files[name]
 
   insertDirectory: (p, shouldUnpack) ->
