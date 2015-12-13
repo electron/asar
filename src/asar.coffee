@@ -23,6 +23,29 @@ module.exports.createPackageWithOptions = (src, dest, options, callback) ->
     return callback(error) if error
     filesystem = new Filesystem(src)
     files = []
+
+
+    if options.ordering
+      ordering = fs.readFileSync(options.ordering).toString().split('\n').map (line) ->
+        line = line.split(':').pop() if line.indexOf(':') isnt -1
+        line = line.trim()
+        line = line[1..-1] if line[0] is '/'
+        line
+
+      missing = 0
+      total = filenames.length
+      for filename in filenames
+        if ordering.indexOf(path.relative(src, filename)) is -1
+          missing += 1
+
+      console.log("Ordering file has #{(total - missing) / total * 100}% coverage.
+                   Sorting ASAR contents to match.")
+
+      filenames = filenames.sort (a, b) ->
+        a = path.relative(src, a)
+        b = path.relative(src, b)
+        ordering.indexOf(a) - ordering.indexOf(b)
+
     for filename in filenames
       file = metadata[filename]
       switch file.type
