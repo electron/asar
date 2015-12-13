@@ -24,29 +24,39 @@ module.exports.createPackageWithOptions = (src, dest, options, callback) ->
     filesystem = new Filesystem(src)
     files = []
 
-
     if options.ordering
-      ordering = fs.readFileSync(options.ordering).toString().split('\n').map (line) ->
+      orderingFiles = fs.readFileSync(options.ordering).toString().split('\n').map (line) ->
         line = line.split(':').pop() if line.indexOf(':') isnt -1
         line = line.trim()
         line = line[1..-1] if line[0] is '/'
         line
 
+      ordering = []
+      for file in orderingFiles
+        pathComponents = file.split(path.sep)
+        str = src
+        for pathComponent in pathComponents
+          str = path.join(str, pathComponent)
+          ordering.push(str)
+
+      filenamesSorted = []
       missing = 0
       total = filenames.length
-      for filename in filenames
-        if ordering.indexOf(path.relative(src, filename)) is -1
+
+      for file in ordering
+        if filenamesSorted.indexOf(file) is -1 and filenames.indexOf(file) isnt -1
+          filenamesSorted.push(file)
+
+      for file in filenames
+        if filenamesSorted.indexOf(file) is -1
+          filenamesSorted.push(file)
           missing += 1
 
-      console.log("Ordering file has #{(total - missing) / total * 100}% coverage.
-                   Sorting ASAR contents to match.")
+      console.log("Ordering file has #{(total - missing) / total * 100}% coverage.")
+    else
+      filenamesSorted = filenames
 
-      filenames = filenames.sort (a, b) ->
-        a = path.relative(src, a)
-        b = path.relative(src, b)
-        ordering.indexOf(a) - ordering.indexOf(b)
-
-    for filename in filenames
+    for filename in filenamesSorted
       file = metadata[filename]
       switch file.type
         when 'directory'
