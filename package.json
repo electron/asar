@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-coffeelint": "0.0.6",
+    "grunt-coffeelint": "git+https://github.com/atom/grunt-coffeelint.git#cfb99aa99811d52687969532bd5a98011ed95bfe",
     "grunt-contrib-coffee": "~0.6.6",
     "grunt-cli": "~0.1.7",
     "coffee-script": "~1.6.2",

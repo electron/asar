@@ -11,6 +11,8 @@ module.exports = (grunt) ->
         ext: '.js'
 
     coffeelint:
+      options:
+        configFile: 'coffeelint.json'
       src: ['src/**/*.coffee']
 
   grunt.loadNpmTasks('grunt-contrib-coffee')
