@@ -23,7 +23,40 @@ module.exports.createPackageWithOptions = (src, dest, options, callback) ->
     return callback(error) if error
     filesystem = new Filesystem(src)
     files = []
-    for filename in filenames
+
+    if options.ordering
+      orderingFiles = fs.readFileSync(options.ordering).toString().split('\n').map (line) ->
+        line = line.split(':').pop() if line.indexOf(':') isnt -1
+        line = line.trim()
+        line = line[1..-1] if line[0] is '/'
+        line
+
+      ordering = []
+      for file in orderingFiles
+        pathComponents = file.split(path.sep)
+        str = src
+        for pathComponent in pathComponents
+          str = path.join(str, pathComponent)
+          ordering.push(str)
+
+      filenamesSorted = []
+      missing = 0
+      total = filenames.length
+
+      for file in ordering
+        if filenamesSorted.indexOf(file) is -1 and filenames.indexOf(file) isnt -1
+          filenamesSorted.push(file)
+
+      for file in filenames
+        if filenamesSorted.indexOf(file) is -1
+          filenamesSorted.push(file)
+          missing += 1
+
+      console.log("Ordering file has #{(total - missing) / total * 100}% coverage.")
+    else
+      filenamesSorted = filenames
+
+    for filename in filenamesSorted
       file = metadata[filename]
       switch file.type
         when 'directory'
