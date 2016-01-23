@@ -50,6 +50,36 @@ $ asar --help
 
 ```
 
+#### Excluding multiple resources from being packed
+
+Given:
+```
+    app
+(a) ├── x1
+(b) ├── x2
+(c) ├── y3
+(d) │   ├── x1
+(e) │   └── z1
+(f) │       └── x2
+(g) └── z4
+(h)     └── w1
+```
+
+Exclude: a, b
+```bash
+$ asar pack app app.asar --unpack-dir "{x1,x2}"
+```
+
+Exclude: a, b, d, f
+```bash
+$ asar pack app app.asar --unpack-dir "**/{x1,x2}"
+```
+
+Exclude: a, b, d, f, h
+```bash
+$ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
+```
+
 ## Using programatically
 
 ### Example
