@@ -101,6 +101,32 @@ describe('command line interface', function() {
     });
   });
 
+  it('should create archive from directory with unpacked dirs specified by glob pattern', function(done) {
+    var tmpFile     = 'tmp/packthis-unpack-dir-glob-cli.asar';
+    var tmpUnpacked = 'tmp/packthis-unpack-dir-glob-cli.asar.unpacked';
+    exec('node bin/asar p test/input/packthis-glob/ ' + tmpFile + ' --unpack-dir "{x1,x2}" --exclude-hidden', function (error, stdout, stderr) {
+      var actual = fs.readFileSync(tmpFile, 'utf8');
+      var expected = fs.readFileSync('test/expected/packthis-unpack-dir-glob.asar', 'utf8');
+      assert.ok(fs.existsSync(tmpUnpacked + '/x1/file1.txt'));
+      assert.ok(fs.existsSync(tmpUnpacked + '/x2/file2.txt'));
+      done(assert.equal(actual, expected));
+    });
+  });
+
+  it('should create archive from directory with unpacked dirs specified by globstar pattern', function(done) {
+    var tmpFile     = 'tmp/packthis-unpack-dir-globstar-cli.asar';
+    var tmpUnpacked = 'tmp/packthis-unpack-dir-globstar-cli.asar.unpacked';
+    exec('node bin/asar p test/input/packthis-glob/ ' + tmpFile + ' --unpack-dir "**/{x1,x2}" --exclude-hidden', function (error, stdout, stderr) {
+      var actual = fs.readFileSync(tmpFile, 'utf8');
+      var expected = fs.readFileSync('test/expected/packthis-unpack-dir-globstar.asar', 'utf8');
+      assert.ok(fs.existsSync(tmpUnpacked + '/x1/file1.txt'));
+      assert.ok(fs.existsSync(tmpUnpacked + '/x2/file2.txt'));
+      assert.ok(fs.existsSync(tmpUnpacked + '/y3/x1/file4.txt'));
+      assert.ok(fs.existsSync(tmpUnpacked + '/y3/z1/x2/file5.txt'));
+      done(assert.equal(actual, expected));
+    });
+  });
+
   it('should list files/dirs in archive with unpacked dirs', function(done) {
     exec('node bin/asar l tmp/packthis-unpack-dir-cli.asar', function (error, stdout, stderr) {
       var actual = stdout;

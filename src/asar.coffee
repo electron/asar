@@ -9,8 +9,14 @@ disk = require './disk'
 crawlFilesystem = require './crawlfs'
 createSnapshot = require './snapshot'
 
-startWith = (path, prefix) ->
-  path.indexOf(prefix) is 0
+# Return whether or not a directory should be excluded from packing due to
+# "--unpack-dir" option
+#
+# @param {string} path - diretory path to check
+# @param {string} pattern - literal prefix [for backward compatibility] or glob pattern
+#
+isUnpackDir = (path, pattern) ->
+  path.indexOf(pattern) is 0 || minimatch path, pattern
 
 module.exports.createPackage = (src, dest, callback) ->
   module.exports.createPackageWithOptions src, dest, {}, callback
@@ -62,7 +68,7 @@ module.exports.createPackageWithOptions = (src, dest, options, callback) ->
         when 'directory'
           shouldUnpack =
             if options.unpackDir
-              startWith path.relative(src, filename), options.unpackDir
+              isUnpackDir path.relative(src, filename), options.unpackDir
             else
               false
           filesystem.insertDirectory filename, shouldUnpack
@@ -72,7 +78,7 @@ module.exports.createPackageWithOptions = (src, dest, options, callback) ->
             shouldUnpack = minimatch filename, options.unpack, matchBase: true
           if not shouldUnpack and options.unpackDir
             dirName = path.relative src, path.dirname(filename)
-            shouldUnpack = startWith dirName, options.unpackDir
+            shouldUnpack = isUnpackDir dirName, options.unpackDir
           files.push filename: filename, unpack: shouldUnpack
           filesystem.insertFile filename, shouldUnpack, file.stat
         when 'link'
