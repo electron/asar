@@ -23,7 +23,7 @@
   "scripts": {
     "prepublish": "grunt coffee",
     "pretest": "grunt clean coffeelint coffee",
-    "test": "mocha --reporter spec",
+    "test": "mocha --reporter spec --compilers coffee:coffee-script/register",
     "clean": "grunt clean"
   },
   "dependencies": {
