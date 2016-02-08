@@ -6,12 +6,7 @@
   "bin": {
     "asar": "bin/asar"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://github.com/atom/asar/raw/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "homepage": "https://github.com/atom/asar",
   "repository": {
     "type": "git",
