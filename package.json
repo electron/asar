@@ -27,22 +27,22 @@
     "clean": "grunt clean"
   },
   "dependencies": {
-    "chromium-pickle-js": "0.1.0",
-    "commander": "2.3.0",
-    "cuint": "0.1.5",
-    "minimatch": "2.0.4",
+    "chromium-pickle-js": "^0.1.0",
+    "commander": "^2.9.0",
+    "cuint": "^0.2.1",
+    "glob": "^6.0.4",
+    "minimatch": "^3.0.0",
     "mkdirp": "^0.5.0",
-    "mksnapshot": "0.1.0",
-    "glob": "^5.0.5"
+    "mksnapshot": "^0.1.0"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
+    "coffee-script": "^1.10.0",
+    "grunt": "^0.4.1",
+    "grunt-cli": "^0.1.13",
     "grunt-coffeelint": "git+https://github.com/atom/grunt-coffeelint.git#cfb99aa99811d52687969532bd5a98011ed95bfe",
-    "grunt-contrib-coffee": "~0.6.6",
-    "grunt-cli": "~0.1.7",
-    "coffee-script": "~1.6.2",
-    "rimraf": "~2.1.4",
-    "lodash": "^2.4.1",
-    "mocha": "^2.0.1"
+    "grunt-contrib-coffee": "^0.13.0",
+    "lodash": "^4.2.1",
+    "mocha": "^2.0.1",
+    "rimraf": "^2.5.1"
   }
 }
