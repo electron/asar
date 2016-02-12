@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+
 _ = require 'lodash'
 
 crawlFilesystem = require '../../lib/crawlfs'
@@ -21,30 +22,23 @@ module.exports = (dirA, dirB, cb) ->
         typeB = metadataB[filename].type
         # skip if both are directories
         continue if 'directory' is typeA and 'directory' is typeB
-        # something is wrong if one entry is a file and the other is a directory
-        #if (typeA is 'directory' and typeB isnt 'directory') \
-        #or (typeA isnt 'directory' and typeB is 'directory')
+        # something is wrong if the types don't match up
         if typeA isnt typeB
           differentFiles.push filename
           continue
-        fileContentA = fs.readFileSync(path.join(dirA, filename), 'utf8')
-        fileContentB = fs.readFileSync(path.join(dirB, filename), 'utf8')
+        fileContentA = fs.readFileSync path.join(dirA, filename), 'utf8'
+        fileContentB = fs.readFileSync path.join(dirB, filename), 'utf8'
         differentFiles.push filename if fileContentA isnt fileContentB
       if onlyInA.length
         errorMsgBuilder.push "\tEntries only in '#{dirA}':"
-        for file in onlyInA
-          errorMsgBuilder.push "\t  #{file}"
+        errorMsgBuilder.push "\t  #{file}" for file in onlyInA
       if onlyInB.length
         errorMsgBuilder.push "\tEntries only in '#{dirB}':"
-        for file in onlyInB
-          errorMsgBuilder.push "\t  #{file}"
+        errorMsgBuilder.push "\t  #{file}" for file in onlyInB
       if differentFiles.length
         errorMsgBuilder.push "\tDifferent file content:"
-        for file in differentFiles
-          errorMsgBuilder.push "\t  #{file}"
+        errorMsgBuilder.push "\t  #{file}" for file in differentFiles
       err = new Error "\n" + errorMsgBuilder.join "\n" if errorMsgBuilder.length
-      #isIdentical =  not (onlyInA.length or onlyInB.length or differentFiles.length)
-      #cb if isIdentical then null else new Error(errorMsg)
       cb err
       return
     return

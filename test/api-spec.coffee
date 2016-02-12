@@ -4,35 +4,31 @@ os = require 'os'
 
 asar = require '../lib/asar'
 compDirs = require './util/compareDirectories'
+compFiles = require './util/compareFiles'
 
 describe 'api', ->
   it 'should create archive from directory', (done) ->
     asar.createPackage 'test/input/packthis/', 'tmp/packthis-api.asar', (error) ->
-      actual = fs.readFileSync 'tmp/packthis-api.asar', 'utf8'
-      expected = fs.readFileSync 'test/expected/packthis.asar', 'utf8'
-      done assert.equal actual, expected
+      done compFiles 'tmp/packthis-api.asar', 'test/expected/packthis.asar'
       return
     return
   it 'should create archive from directory (without hidden files)', (done) ->
-    asar.createPackageWithOptions 'test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', { dot: false }, (error) ->
-      actual = fs.readFileSync 'tmp/packthis-api.asar', 'utf8'
-      expected = fs.readFileSync 'test/expected/packthis.asar', 'utf8'
-      done assert.equal actual, expected
+    asar.createPackageWithOptions 'test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {dot: false}, (error) ->
+      done compFiles 'tmp/packthis-api.asar', 'test/expected/packthis.asar'
       return
     return
   it 'should list files/dirs in archive', ->
     actual = asar.listPackage('test/input/extractthis.asar').join('\n')
     expected = fs.readFileSync 'test/expected/extractthis-filelist.txt', 'utf8'
     # on windows replace slashes with backslashes and crlf with lf
-    if 'win32' is os.platform()
+    if os.platform() is 'win32'
       expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
     assert.equal actual, expected
   it 'should extract a text file from archive', ->
-    actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString('utf8')
+    actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString 'utf8'
     expected = fs.readFileSync 'test/expected/extractthis/dir1/file1.txt', 'utf8'
     # on windows replace crlf with lf
-    if 'win32' is os.platform()
-      expected = expected.replace /\r\n/g, '\n'
+    expected = expected.replace /\r\n/g, '\n' if os.platform() is 'win32'
     assert.equal actual, expected
   it 'should extract a binary file from archive', ->
     actual = asar.extractFile 'test/input/extractthis.asar', 'dir2/file2.png'
