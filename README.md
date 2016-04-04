@@ -1,7 +1,7 @@
-# asar - Atom-Shell Archive
+# asar - Electron Archive
 
-[![build status](http://img.shields.io/travis/atom/asar.svg?style=flat-square)](https://travis-ci.org/atom/asar)
-[![dependencies](http://img.shields.io/david/atom/asar.svg?style=flat-square)](https://david-dm.org/atom/asar)
+[![build status](http://img.shields.io/travis/electron/asar.svg?style=flat-square)](https://travis-ci.org/electron/asar)
+[![dependencies](http://img.shields.io/david/electron/asar.svg?style=flat-square)](https://david-dm.org/electron/asar)
 [![npm version](http://img.shields.io/npm/v/asar.svg?style=flat-square)](https://npmjs.org/package/asar)
 
 Asar is a simple extensive archive format, it works like `tar` that concatenates

@@ -7,13 +7,13 @@
     "asar": "bin/asar"
   },
   "license": "MIT",
-  "homepage": "https://github.com/atom/asar",
+  "homepage": "https://github.com/electron/asar",
   "repository": {
     "type": "git",
-    "url": "https://github.com/atom/asar.git"
+    "url": "https://github.com/electron/asar.git"
   },
   "bugs": {
-    "url": "https://github.com/atom/asar/issues"
+    "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
     "prepublish": "grunt coffee",
