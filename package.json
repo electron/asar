@@ -28,7 +28,7 @@
     "glob": "^6.0.4",
     "minimatch": "^3.0.0",
     "mkdirp": "^0.5.0",
-    "mksnapshot": "^0.1.0"
+    "mksnapshot": "^0.3.0"
   },
   "devDependencies": {
     "coffee-script": "^1.10.0",
