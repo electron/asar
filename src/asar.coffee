@@ -9,6 +9,8 @@ disk = require './disk'
 crawlFilesystem = require './crawlfs'
 createSnapshot = require './snapshot'
 
+_UnpackDirs = []
+
 # Return whether or not a directory should be excluded from packing due to
 # "--unpack-dir" option
 #
@@ -16,7 +18,13 @@ createSnapshot = require './snapshot'
 # @param {string} pattern - literal prefix [for backward compatibility] or glob pattern
 #
 isUnpackDir = (path, pattern) ->
-  path.indexOf(pattern) is 0 || minimatch path, pattern
+  if path.indexOf(pattern) is 0 || minimatch path, pattern
+    _UnpackDirs.push path if _UnpackDirs.indexOf(path) is -1
+    return true
+  else
+    for dir in _UnpackDirs
+      return true if path.indexOf(dir) is 0
+    return false
 
 module.exports.createPackage = (src, dest, callback) ->
   module.exports.createPackageWithOptions src, dest, {}, callback
