@@ -12,6 +12,11 @@ describe 'command line interface', ->
       done compFiles 'tmp/packthis-cli.asar', 'test/expected/packthis.asar'
       return
     return
+  it 'should create archive from directory with weird name', (done) ->
+    exec 'node bin/asar p test/input/pa[ck]this/ tmp/packthis-cli.asar', (error, stdout, stderr) ->
+      done compFiles 'tmp/packthis-cli.asar', 'test/expected/packthis.asar'
+      return
+    return
   it 'should create archive from directory without hidden files', (done) ->
     exec 'node bin/asar p test/input/packthis/ tmp/packthis-without-hidden-cli.asar --exclude-hidden', (error, stdout, stderr) ->
       done compFiles 'tmp/packthis-without-hidden-cli.asar', 'test/expected/packthis-without-hidden.asar'
