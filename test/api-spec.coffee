@@ -5,6 +5,7 @@ os = require 'os'
 asar = require '../lib/asar'
 compDirs = require './util/compareDirectories'
 compFiles = require './util/compareFiles'
+transform = require './util/transformStream'
 
 describe 'api', ->
   it 'should create archive from directory', (done) ->
@@ -15,6 +16,11 @@ describe 'api', ->
   it 'should create archive from directory (without hidden files)', (done) ->
     asar.createPackageWithOptions 'test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {dot: false}, (error) ->
       done compFiles 'tmp/packthis-api.asar', 'test/expected/packthis.asar'
+      return
+    return
+  it 'should create archive from directory (with transformed files)', (done) ->
+    asar.createPackageWithOptions 'test/input/packthis/', 'tmp/packthis-api-transformed.asar', {transform}, (error) ->
+      done compFiles 'tmp/packthis-api-transformed.asar', 'test/expected/packthis-transformed.asar'
       return
     return
   it 'should list files/dirs in archive', ->

@@ -76,7 +76,7 @@ module.exports.createPackageFromFiles = (src, dest, filenames, metadata, options
   else
     filenamesSorted = filenames
 
-  for filename in filenamesSorted
+  handleFile = (filename, done) ->
     file = metadata[filename]
     unless file
       stat = fs.lstatSync filename
@@ -101,18 +101,31 @@ module.exports.createPackageFromFiles = (src, dest, filenames, metadata, options
           dirName = path.relative src, path.dirname(filename)
           shouldUnpack = isUnpackDir dirName, options.unpackDir
         files.push filename: filename, unpack: shouldUnpack
-        filesystem.insertFile filename, shouldUnpack, file.stat
+        filesystem.insertFile filename, shouldUnpack, file, options, done
+        return
       when 'link'
         filesystem.insertLink filename, file.stat
+    done()
 
-  mkdirp path.dirname(dest), (error) ->
-    return callback(error) if error
-    disk.writeFilesystem dest, filesystem, files, (error) ->
+  insertsDone = ->
+    mkdirp path.dirname(dest), (error) ->
       return callback(error) if error
-      if options.snapshot
-        createSnapshot src, dest, filenames, metadata, options, callback
-      else
-        callback null
+      disk.writeFilesystem dest, filesystem, files, metadata, (error) ->
+        return callback(error) if error
+        if options.snapshot
+          createSnapshot src, dest, filenames, metadata, options, callback
+        else
+          callback null
+
+  names = filenamesSorted.slice()
+
+  next = (name) ->
+    if !name then return insertsDone()
+
+    handleFile name, ->
+      next names.shift()
+
+  next names.shift()
 
 module.exports.statFile = (archive, filename, followLinks) ->
   filesystem = disk.readFilesystemSync archive
