@@ -38,8 +38,7 @@ class Filesystem
       callback()
       return
 
-    self = this
-    handler = ->
+    handler = =>
       size = if file.transformed then file.transformed.stat.size else file.stat.size
 
       # JavaScript can not precisely present integers >= UINT32_MAX.
@@ -47,10 +46,10 @@ class Filesystem
         throw new Error("#{p}: file size can not be larger than 4.2GB")
 
       node.size = size
-      node.offset = self.offset.toString()
+      node.offset = this.offset.toString()
       if process.platform isnt 'win32' and file.stat.mode & 0o100
         node.executable = true
-      self.offset.add UINT64(size)
+      this.offset.add UINT64(size)
 
       callback()
 
