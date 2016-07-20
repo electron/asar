@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+tmp = require 'tmp'
 UINT64 = require('cuint').UINT64
 
 class Filesystem
@@ -28,23 +29,46 @@ class Filesystem
     node.unpacked = shouldUnpack if shouldUnpack
     node.files = {}
 
-  insertFile: (p, shouldUnpack, stat) ->
+  insertFile: (p, shouldUnpack, file, options, callback) ->
     dirNode = @searchNodeFromPath path.dirname(p)
     node = @searchNodeFromPath p
     if shouldUnpack or dirNode.unpacked
-      node.size = stat.size
+      node.size = file.stat.size
       node.unpacked = true
+      callback()
       return
 
-    # JavaScript can not precisely present integers >= UINT32_MAX.
-    if stat.size > 4294967295
-      throw new Error("#{p}: file size can not be larger than 4.2GB")
+    handler = =>
+      size = if file.transformed then file.transformed.stat.size else file.stat.size
 
-    node.size = stat.size
-    node.offset = @offset.toString()
-    if process.platform isnt 'win32' and stat.mode & 0o100
-      node.executable = true
-    @offset.add UINT64(stat.size)
+      # JavaScript can not precisely present integers >= UINT32_MAX.
+      if size > 4294967295
+        throw new Error("#{p}: file size can not be larger than 4.2GB")
+
+      node.size = size
+      node.offset = this.offset.toString()
+      if process.platform isnt 'win32' and file.stat.mode & 0o100
+        node.executable = true
+      this.offset.add UINT64(size)
+
+      callback()
+
+    tr = options.transform && options.transform(p)
+    if tr
+      tmp.file (err, path) ->
+        return handler() if err
+        out = fs.createWriteStream(path)
+        stream = fs.createReadStream p
+
+        stream.pipe(tr).pipe(out)
+        tr.on 'end', ->
+          file.transformed = {
+            path,
+            stat: fs.lstatSync path
+          }
+          handler()
+    else
+      handler()
 
   insertLink: (p, stat) ->
     link = path.relative fs.realpathSync(@src), fs.realpathSync(p)

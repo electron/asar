@@ -15,7 +15,7 @@ copyFileToSync = (dest, src, filename) ->
   mkdirp.sync path.dirname(targetFile)
   fs.writeFileSync targetFile, content, mode: stats.mode
 
-writeFileListToStream = (dest, filesystem, out, list, callback) ->
+writeFileListToStream = (dest, filesystem, out, list, metadata, callback) ->
   if list.length is 0
     out.end()
     return callback null
@@ -28,15 +28,16 @@ writeFileListToStream = (dest, filesystem, out, list, callback) ->
       copyFileToSync "#{dest}.unpacked", filesystem.src, filename
     catch error
       return callback error
-    writeFileListToStream dest, filesystem, out, list.slice(1), callback
+    writeFileListToStream dest, filesystem, out, list.slice(1), metadata, callback
   else
-    stream = fs.createReadStream(file.filename)
+    tr = metadata[file.filename].transformed
+    stream = fs.createReadStream (if tr then tr.path else file.filename)
+    stream.pipe out, end: false
     stream.on 'error', callback
     stream.on 'end', ->
-      writeFileListToStream dest, filesystem, out, list.slice(1), callback
-    stream.pipe out, end: false
+      writeFileListToStream dest, filesystem, out, list.slice(1), metadata, callback
 
-module.exports.writeFilesystem = (dest, filesystem, files, callback) ->
+module.exports.writeFilesystem = (dest, filesystem, files, metadata, callback) ->
   try
     headerPickle = pickle.createEmpty()
     headerPickle.writeString JSON.stringify(filesystem.header)
@@ -52,7 +53,7 @@ module.exports.writeFilesystem = (dest, filesystem, files, callback) ->
   out.on 'error', callback
   out.write sizeBuf
   out.write headerBuf, ->
-    writeFileListToStream dest, filesystem, out, files, callback
+    writeFileListToStream dest, filesystem, out, files, metadata, callback
 
 module.exports.readArchiveHeaderSync = (archive) ->
   fd = fs.openSync archive, 'r'

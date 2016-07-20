@@ -97,6 +97,26 @@ asar.createPackage(src, dest, function() {
 
 Please note that there is currently *no* error handling provided!
 
+### Transform
+You can pass in a `transform` option, that is a function, which either returns
+nothing, or a `stream.Transform`. The latter will be used on files that will be
+in the `.asar` file to transform them (e.g. compress).
+
+```js
+var asar = require('asar');
+
+var src = 'some/path/';
+var dest = 'name.asar';
+
+function transform(filename) {
+  return new CustomTransformStream()
+}
+
+asar.createPackageWithOptions(src, dest, { transform: transform }, function() {
+  console.log('done.');
+})
+```
+
 ## Using with grunt
 
 There is also an unofficial grunt plugin to generate asar archives at [bwin/grunt-asar][grunt-asar].
