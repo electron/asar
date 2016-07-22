@@ -105,7 +105,7 @@ module.exports.createPackageFromFiles = (src, dest, filenames, metadata, options
         return
       when 'link'
         filesystem.insertLink filename, file.stat
-    done()
+    process.nextTick(done)
 
   insertsDone = ->
     mkdirp path.dirname(dest), (error) ->

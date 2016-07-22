@@ -35,7 +35,7 @@ class Filesystem
     if shouldUnpack or dirNode.unpacked
       node.size = file.stat.size
       node.unpacked = true
-      callback()
+      process.nextTick(callback)
       return
 
     handler = =>
@@ -68,7 +68,7 @@ class Filesystem
           }
           handler()
     else
-      handler()
+      process.nextTick(handler)
 
   insertLink: (p, stat) ->
     link = path.relative fs.realpathSync(@src), fs.realpathSync(p)
