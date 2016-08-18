@@ -9,3 +9,8 @@
 .node-version
 .npmignore
 npm-debug.log
+/test
+.gitattributes
+appveyor.yml
+.travis.yml
+coffeelint.json
