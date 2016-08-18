@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Upgraded `minimatch` to `^3.0.3` from `^3.0.0` for [RegExp DOS fix](https://nodesecurity.io/advisories/minimatch_regular-expression-denial-of-service).
+
 ## 0.12.1 - 2016-07-25
 
 ### Fixed
