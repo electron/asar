@@ -1,7 +1,7 @@
 {
   "main": "./lib/asar.js",
   "name": "asar",
-  "description": "Creating atom-shell app packages",
+  "description": "Creating Electron app packages",
   "version": "0.12.1",
   "bin": {
     "asar": "bin/asar"

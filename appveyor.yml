@@ -1,0 +1,17 @@
+build: off
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+
+install:
+  - ps: Install-Product node LTS
+  - npm install npm
+  - .\node_modules\.bin\npm install
+
+test_script:
+  - node --version
+  - .\node_modules\.bin\npm --version
+  - .\node_modules\.bin\npm test
