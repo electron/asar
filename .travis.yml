@@ -5,6 +5,10 @@ node_js:
   - "4"
   - "5"
 
+branches:
+  only:
+  - master
+
 notifications:
   email:
     on_success: never
