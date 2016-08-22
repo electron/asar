@@ -1,6 +1,6 @@
 # Changes By Version
 
-## [Unreleased]
+## 0.12.2 - 2016-08-22
 
 ### Fixed
 
