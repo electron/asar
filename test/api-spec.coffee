@@ -65,4 +65,10 @@ describe 'api', ->
       done compFiles 'tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar'
       return
     return
+  it 'should extract a text file from archive with multibyte characters in path', ->
+    actual = asar.extractFile('test/expected/packthis-unicode-path.asar', 'dir1/女の子.txt').toString 'utf8'
+    expected = fs.readFileSync 'test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8'
+    # on windows replace crlf with lf
+    expected = expected.replace /\r\n/g, '\n' if os.platform() is 'win32'
+    assert.equal actual, expected
   return
