@@ -43,6 +43,16 @@ describe 'command line interface', ->
       done assert.equal actual, expected
       return
     return
+  it 'should list files/dirs with multibyte characters in path', (done) ->
+    exec 'node bin/asar l test/expected/packthis-unicode-path.asar', (error, stdout, stderr) ->
+      actual = stdout
+      expected = fs.readFileSync('test/expected/packthis-unicode-path-filelist.txt', 'utf8') + '\n'
+      # on windows replace slashes with backslashes and crlf with lf
+      if os.platform() is 'win32'
+        expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
+      done assert.equal actual, expected
+      return
+    return
   # we need a way to set a path to extract to first, otherwise we pollute our project dir
   # or we fake it by setting our cwd, but I don't like that
   ###

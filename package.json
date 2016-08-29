@@ -22,7 +22,7 @@
     "clean": "grunt clean"
   },
   "dependencies": {
-    "chromium-pickle-js": "^0.1.0",
+    "chromium-pickle-js": "^0.2.0",
     "commander": "^2.9.0",
     "cuint": "^0.2.1",
     "glob": "^6.0.4",

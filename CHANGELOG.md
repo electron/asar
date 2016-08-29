@@ -1,5 +1,11 @@
 # Changes By Version
 
+## Unreleased
+
+### Fixed
+
+- Multibyte characters in paths are now supported (#86)
+
 ## 0.12.2 - 2016-08-22
 
 ### Fixed
