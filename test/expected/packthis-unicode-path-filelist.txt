@@ -1,0 +1,3 @@
+/dir1
+/dir1/file1.txt
+/dir1/女の子.txt

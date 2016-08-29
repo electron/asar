@@ -60,4 +60,9 @@ describe 'api', ->
     asar.extractAll 'test/input/extractthis-unpack-dir.asar', 'tmp/extractthis-unpack-dir-api/'
     compDirs 'tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis', done
     return
+  it 'should handle multibyte characters in paths', (done) ->
+    asar.createPackage 'test/input/packthis-unicode-path/', 'tmp/packthis-unicode-path.asar', (error) ->
+      done compFiles 'tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar'
+      return
+    return
   return
