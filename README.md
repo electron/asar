@@ -96,7 +96,7 @@ asar.createPackage(src, dest, function() {
 })
 ```
 
-Please note that there is currently *no* error handling provided!
+Please note that there is currently **no** error handling provided!
 
 ### Transform
 You can pass in a `transform` option, that is a function, which either returns
