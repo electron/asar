@@ -9,20 +9,19 @@ disk = require './disk'
 crawlFilesystem = require './crawlfs'
 createSnapshot = require './snapshot'
 
-_UnpackDirs = []
-
 # Return whether or not a directory should be excluded from packing due to
 # "--unpack-dir" option
 #
 # @param {string} path - diretory path to check
 # @param {string} pattern - literal prefix [for backward compatibility] or glob pattern
+# @param {array} unpackDirs - Array of directory paths previously marked as unpacked
 #
-isUnpackDir = (path, pattern) ->
+isUnpackDir = (path, pattern, unpackDirs) ->
   if path.indexOf(pattern) is 0 || minimatch path, pattern
-    _UnpackDirs.push path if _UnpackDirs.indexOf(path) is -1
+    unpackDirs.push path if unpackDirs.indexOf(path) is -1
     return true
   else
-    for dir in _UnpackDirs
+    for dir in unpackDirs
       return true if path.indexOf(dir) is 0
     return false
 
@@ -51,6 +50,7 @@ module.exports.createPackageFromFiles = (src, dest, filenames, metadata, options
   metadata ?= {}
   filesystem = new Filesystem(src)
   files = []
+  unpackDirs = []
 
   if options.ordering
     orderingFiles = fs.readFileSync(options.ordering).toString().split('\n').map (line) ->
@@ -97,7 +97,7 @@ module.exports.createPackageFromFiles = (src, dest, filenames, metadata, options
       when 'directory'
         shouldUnpack =
           if options.unpackDir
-            isUnpackDir path.relative(src, filename), options.unpackDir
+            isUnpackDir path.relative(src, filename), options.unpackDir, unpackDirs
           else
             false
         filesystem.insertDirectory filename, shouldUnpack
@@ -107,7 +107,7 @@ module.exports.createPackageFromFiles = (src, dest, filenames, metadata, options
           shouldUnpack = minimatch filename, options.unpack, matchBase: true
         if not shouldUnpack and options.unpackDir
           dirName = path.relative src, path.dirname(filename)
-          shouldUnpack = isUnpackDir dirName, options.unpackDir
+          shouldUnpack = isUnpackDir dirName, options.unpackDir, unpackDirs
         files.push filename: filename, unpack: shouldUnpack
         filesystem.insertFile filename, shouldUnpack, file, options, done
         return
