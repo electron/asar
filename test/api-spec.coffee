@@ -15,7 +15,7 @@ describe 'api', ->
     return
   it 'should create archive from directory (without hidden files)', (done) ->
     asar.createPackageWithOptions 'test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {dot: false}, (error) ->
-      done compFiles 'tmp/packthis-api.asar', 'test/expected/packthis.asar'
+      done compFiles 'tmp/packthis-without-hidden-api.asar', 'test/expected/packthis-without-hidden.asar'
       return
     return
   it 'should create archive from directory (with transformed files)', (done) ->
