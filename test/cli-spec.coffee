@@ -2,11 +2,16 @@ assert = require 'assert'
 {exec} = require 'child_process'
 fs = require 'fs'
 os = require 'os'
+path = require 'path'
+rimraf = require 'rimraf'
 
 compDirs = require './util/compareDirectories'
 compFiles = require './util/compareFiles'
 
 describe 'command line interface', ->
+  beforeEach ->
+    rimraf.sync path.join(__dirname, '..', 'tmp')
+
   it 'should create archive from directory', (done) ->
     exec 'node bin/asar p test/input/packthis/ tmp/packthis-cli.asar', (error, stdout, stderr) ->
       done compFiles 'tmp/packthis-cli.asar', 'test/expected/packthis.asar'
