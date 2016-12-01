@@ -113,7 +113,8 @@ describe 'command line interface', ->
       return
     return
   it 'should list files/dirs in archive with unpacked dirs', (done) ->
-    exec 'node bin/asar l tmp/packthis-unpack-dir-cli.asar', (error, stdout, stderr) ->
+    exec 'node bin/asar l test/expected/packthis-unpack-dir.asar', (error, stdout, stderr) ->
+      return done(error) if error?
       actual = stdout
       expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n'
       # on windows replace slashes with backslashes and crlf with lf
