@@ -117,6 +117,15 @@ describe 'command line interface', ->
       done compFiles tmpFile, 'test/expected/packthis-unpack-dir-globstar.asar'
       return
     return
+  it 'should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern', (done) ->
+    tmpFile = 'tmp/packthis-unpack-dir-globstar-cli.asar'
+    tmpUnpacked = 'tmp/packthis-unpack-dir-globstar-cli.asar.unpacked'
+    exec 'node bin/asar p test/input/packthis-glob/ ' + tmpFile + ' --unpack-dir "y3/{x1,z1}" --exclude-hidden', (error, stdout, stderr) ->
+      assert.ok fs.existsSync tmpUnpacked + '/y3/x1/file4.txt'
+      assert.ok fs.existsSync tmpUnpacked + '/y3/z1/x2/file5.txt'
+      done()
+      return
+    return
   it 'should list files/dirs in archive with unpacked dirs', (done) ->
     exec 'node bin/asar l test/expected/packthis-unpack-dir.asar', (error, stdout, stderr) ->
       return done(error) if error?
