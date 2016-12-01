@@ -1,6 +1,8 @@
 assert = require 'assert'
 fs = require 'fs'
 os = require 'os'
+path = require 'path'
+rimraf = require 'rimraf'
 
 asar = require '../lib/asar'
 compDirs = require './util/compareDirectories'
@@ -8,6 +10,9 @@ compFiles = require './util/compareFiles'
 transform = require './util/transformStream'
 
 describe 'api', ->
+  beforeEach ->
+    rimraf.sync path.join(__dirname, '..', 'tmp')
+
   it 'should create archive from directory', (done) ->
     asar.createPackage 'test/input/packthis/', 'tmp/packthis-api.asar', (error) ->
       done compFiles 'tmp/packthis-api.asar', 'test/expected/packthis.asar'

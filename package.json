@@ -39,6 +39,6 @@
     "grunt-contrib-coffee": "^0.13.0",
     "lodash": "^4.2.1",
     "mocha": "^2.0.1",
-    "rimraf": "^2.5.1"
+    "rimraf": "^2.5.4"
   }
 }
