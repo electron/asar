@@ -6,6 +6,9 @@
   "bin": {
     "asar": "bin/asar"
   },
+  "engines": {
+    "node": ">=4.6"
+  },
   "license": "MIT",
   "homepage": "https://github.com/electron/asar",
   "repository": {
