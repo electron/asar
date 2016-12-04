@@ -16,10 +16,7 @@
     "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
-    "prepublish": "grunt coffee",
-    "pretest": "grunt clean coffeelint coffee",
-    "test": "mocha --reporter spec --compilers coffee:coffee-script/register",
-    "clean": "grunt clean"
+    "test": "mocha --reporter spec"
   },
   "dependencies": {
     "chromium-pickle-js": "^0.2.0",
@@ -32,11 +29,6 @@
     "tmp": "0.0.28"
   },
   "devDependencies": {
-    "coffee-script": "^1.10.0",
-    "grunt": "^0.4.1",
-    "grunt-cli": "^0.1.13",
-    "grunt-coffeelint": "git+https://github.com/atom/grunt-coffeelint.git#cfb99aa99811d52687969532bd5a98011ed95bfe",
-    "grunt-contrib-coffee": "^0.13.0",
     "lodash": "^4.2.1",
     "mocha": "^2.0.1",
     "rimraf": "^2.5.1"
