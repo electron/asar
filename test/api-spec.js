@@ -1,8 +1,9 @@
+'use strict';
 var assert = require('assert');
 var fs = require('fs');
 var os = require('os');
 
-var asar = require('../lib/asar');
+var asar = require('../src/asar');
 var compDirs = require('./util/compareDirectories');
 var compFiles = require('./util/compareFiles');
 var transform = require('./util/transformStream');

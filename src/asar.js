@@ -1,3 +1,4 @@
+'use strict';
 var fs = require('fs');
 var path = require('path');
 var os = require('os');
@@ -24,7 +25,7 @@ module.exports.createPackage = function(src, dest, callback) {
 };
 
 module.exports.createPackageWithOptions = function(src, dest, options, callback) {
-  var {dot} = options;
+  var dot = options.dot;
   if (dot === undefined) { dot = true; }
 
   return crawlFilesystem(src, { dot: dot }, function(error, filenames, metadata) {

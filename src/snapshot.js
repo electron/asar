@@ -1,3 +1,4 @@
+'use strict';
 var fs = require('fs');
 var path = require('path');
 var mksnapshot = require('mksnapshot');
@@ -49,7 +50,11 @@ var createSnapshot = function(src, dest, filenames, metadata, options, callback)
 
   // run mksnapshot
   var str = dumpObjectToJS(content);
-  var {version, arch, builddir, snapshotdir} = options;
+  var version = options.version;
+  var arch = options.arch;
+  var builddir = options.builddir;
+  var snapshotdir = options.snapshotdir;
+
   if (typeof snapshotdir === 'undefined' || snapshotdir === null) { snapshotdir = path.dirname(dest); }
   var target = path.resolve(snapshotdir, 'snapshot_blob.bin');
   return mksnapshot(str, target, version, arch, builddir, callback);

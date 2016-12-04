@@ -1,9 +1,10 @@
+'use strict';
 var fs = require('fs');
 var path = require('path');
 
 var _ = require('lodash');
 
-var crawlFilesystem = require('../../lib/crawlfs');
+var crawlFilesystem = require('../../src/crawlfs');
 
 module.exports = function(dirA, dirB, cb) {
   crawlFilesystem(dirA, function(err, pathsA, metadataA) {

@@ -1,3 +1,4 @@
+'use strict';
 var fs = require('fs');
 var path = require('path');
 var tmp = require('tmp');
@@ -122,8 +123,10 @@ class Filesystem {
     }
   }
 
-  getFile(p, followLinks=true) {
+  getFile(p, followLinks) {
+    followLinks = typeof followLinks === 'undefined' ? true : followLinks;
     var info = this.getNode(p);
+
 
     // if followLinks is false we don't resolve symlinks
     if (info.link && followLinks) {

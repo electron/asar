@@ -1,5 +1,6 @@
-var { Transform } = require('stream');
-var { basename } = require('path');
+'use strict';
+var Transform = require('stream').Transform;
+var basename = require('path').basename;
 
 class Reverser extends Transform {
   constructor() {

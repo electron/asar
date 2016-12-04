@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var asar = require('../lib/asar');
+var asar = require('../src/asar');
 var program = require('commander');
 
 program.version('v' + require('../package.json').version)
