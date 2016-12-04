@@ -76,9 +76,11 @@ describe('api', function() {
   });
   it('should extract a text file from archive with multibyte characters in path', function() {
     const actual = asar.extractFile('test/expected/packthis-unicode-path.asar', 'dir1/女の子.txt').toString('utf8');
-    const expected = fs.readFileSync('test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8');
+    let expected = fs.readFileSync('test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8');
     // on windows replace crlf with lf
-    if (os.platform() === 'win32') { expected = expected.replace(/\r\n/g, '\n'); }
+    if (os.platform() === 'win32') {
+      expected = expected.replace(/\r\n/g, '\n');
+    }
     return assert.equal(actual, expected);
   });
 });
