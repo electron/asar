@@ -1,12 +1,12 @@
 'use strict';
-var assert = require('assert');
-var fs = require('fs');
-var os = require('os');
+const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
 
-var asar = require('../src/asar');
-var compDirs = require('./util/compareDirectories');
-var compFiles = require('./util/compareFiles');
-var transform = require('./util/transformStream');
+const asar = require('../src/asar');
+const compDirs = require('./util/compareDirectories');
+const compFiles = require('./util/compareFiles');
+const transform = require('./util/transformStream');
 
 describe('api', function() {
   it('should create archive from directory', function(done) {
@@ -25,8 +25,8 @@ describe('api', function() {
     });
   });
   it('should list files/dirs in archive', function() {
-    var actual = asar.listPackage('test/input/extractthis.asar').join('\n');
-    var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8');
+    const actual = asar.listPackage('test/input/extractthis.asar').join('\n');
+    let expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8');
     // on windows replace slashes with backslashes and crlf with lf
     if (os.platform() === 'win32') {
       expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
@@ -34,20 +34,22 @@ describe('api', function() {
     return assert.equal(actual, expected);
   });
   it('should extract a text file from archive', function() {
-    var actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString('utf8');
-    var expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
+    const actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString('utf8');
+    let expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
     // on windows replace crlf with lf
-    if (os.platform() === 'win32') { expected = expected.replace(/\r\n/g, '\n'); }
+    if (os.platform() === 'win32') {
+      expected = expected.replace(/\r\n/g, '\n');
+    }
     return assert.equal(actual, expected);
   });
   it('should extract a binary file from archive', function() {
-    var actual = asar.extractFile('test/input/extractthis.asar', 'dir2/file2.png');
-    var expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
+    const actual = asar.extractFile('test/input/extractthis.asar', 'dir2/file2.png');
+    const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
     return assert.equal(actual, expected);
   });
   it('should extract a binary file from archive with unpacked files', function() {
-    var actual = asar.extractFile('test/input/extractthis-unpack.asar', 'dir2/file2.png');
-    var expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
+    const actual = asar.extractFile('test/input/extractthis-unpack.asar', 'dir2/file2.png');
+    const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
     return assert.equal(actual, expected);
   });
   it('should extract an archive', function(done) {
@@ -59,8 +61,8 @@ describe('api', function() {
     compDirs('tmp/extractthis-unpack-api/', 'test/expected/extractthis', done);
   });
   it('should extract a binary file from archive with unpacked files', function() {
-    var actual = asar.extractFile('test/input/extractthis-unpack-dir.asar', 'dir1/file1.txt');
-    var expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
+    const actual = asar.extractFile('test/input/extractthis-unpack-dir.asar', 'dir1/file1.txt');
+    const expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
     return assert.equal(actual, expected);
   });
   it('should extract an archive with unpacked dirs', function(done) {
@@ -73,8 +75,8 @@ describe('api', function() {
     });
   });
   it('should extract a text file from archive with multibyte characters in path', function() {
-    var actual = asar.extractFile('test/expected/packthis-unicode-path.asar', 'dir1/女の子.txt').toString('utf8');
-    var expected = fs.readFileSync('test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8');
+    const actual = asar.extractFile('test/expected/packthis-unicode-path.asar', 'dir1/女の子.txt').toString('utf8');
+    const expected = fs.readFileSync('test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8');
     // on windows replace crlf with lf
     if (os.platform() === 'win32') { expected = expected.replace(/\r\n/g, '\n'); }
     return assert.equal(actual, expected);

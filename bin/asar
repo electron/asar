@@ -40,7 +40,7 @@ program.command('list <archive>')
        .description('list files of asar archive')
        .action(function(archive) {
          files = asar.listPackage(archive);
-         for (i in files)
+         for (var i in files)
            console.log(files[i]);
        });
 

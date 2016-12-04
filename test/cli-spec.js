@@ -1,11 +1,11 @@
 'use strict';
-var assert = require('assert');
-var exec = require('child_process').exec;
-var fs = require('fs');
-var os = require('os');
+const assert = require('assert');
+const exec = require('child_process').exec;
+const fs = require('fs');
+const os = require('os');
 
-var compDirs = require('./util/compareDirectories');
-var compFiles = require('./util/compareFiles');
+const compDirs = require('./util/compareDirectories');
+const compFiles = require('./util/compareFiles');
 
 describe('command line interface', function() {
   it('should create archive from directory', function(done) {
@@ -26,8 +26,8 @@ describe('command line interface', function() {
   });
   it('should list files/dirs in archive', function(done) {
     exec('node bin/asar l test/input/extractthis.asar', function(error, stdout, stderr) {
-      var actual = stdout;
-      var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
+      const actual = stdout;
+      let expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
       // on windows replace slashes with backslashes and crlf with lf
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
@@ -37,8 +37,8 @@ describe('command line interface', function() {
   });
   it('should list files/dirs in archive with unpacked files', function(done) {
     exec('node bin/asar l test/input/extractthis-unpack.asar', function(error, stdout, stderr) {
-      var actual = stdout;
-      var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
+      const actual = stdout;
+      let expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
       // on windows replace slashes with backslashes and crlf with lf
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
@@ -48,8 +48,8 @@ describe('command line interface', function() {
   });
   it('should list files/dirs with multibyte characters in path', function(done) {
     exec('node bin/asar l test/expected/packthis-unicode-path.asar', function(error, stdout, stderr) {
-      var actual = stdout;
-      var expected = fs.readFileSync('test/expected/packthis-unicode-path-filelist.txt', 'utf8') + '\n';
+      const actual = stdout;
+      let expected = fs.readFileSync('test/expected/packthis-unicode-path-filelist.txt', 'utf8') + '\n';
       // on windows replace slashes with backslashes and crlf with lf
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
@@ -97,8 +97,8 @@ describe('command line interface', function() {
     });
   });
   it('should create archive from directory with unpacked dirs specified by glob pattern', function(done) {
-    var tmpFile = 'tmp/packthis-unpack-dir-glob-cli.asar';
-    var tmpUnpacked = 'tmp/packthis-unpack-dir-glob-cli.asar.unpacked';
+    const tmpFile = 'tmp/packthis-unpack-dir-glob-cli.asar';
+    const tmpUnpacked = 'tmp/packthis-unpack-dir-glob-cli.asar.unpacked';
     exec('node bin/asar p test/input/packthis-glob/ ' + tmpFile + ' --unpack-dir "{x1,x2}" --exclude-hidden', function(error, stdout, stderr) {
       assert.ok(fs.existsSync(tmpUnpacked + '/x1/file1.txt'));
       assert.ok(fs.existsSync(tmpUnpacked + '/x2/file2.txt'));
@@ -106,8 +106,8 @@ describe('command line interface', function() {
     });
   });
   it('should create archive from directory with unpacked dirs specified by globstar pattern', function(done) {
-    var tmpFile = 'tmp/packthis-unpack-dir-globstar-cli.asar';
-    var tmpUnpacked = 'tmp/packthis-unpack-dir-globstar-cli.asar.unpacked';
+    const tmpFile = 'tmp/packthis-unpack-dir-globstar-cli.asar';
+    const tmpUnpacked = 'tmp/packthis-unpack-dir-globstar-cli.asar.unpacked';
     exec('node bin/asar p test/input/packthis-glob/ ' + tmpFile + ' --unpack-dir "**/{x1,x2}" --exclude-hidden', function(error, stdout, stderr) {
       assert.ok(fs.existsSync(tmpUnpacked + '/x1/file1.txt'));
       assert.ok(fs.existsSync(tmpUnpacked + '/x2/file2.txt'));
@@ -118,8 +118,8 @@ describe('command line interface', function() {
   });
   it('should list files/dirs in archive with unpacked dirs', function(done) {
     exec('node bin/asar l tmp/packthis-unpack-dir-cli.asar', function(error, stdout, stderr) {
-      var actual = stdout;
-      var expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
+      const actual = stdout;
+      let expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n';
       // on windows replace slashes with backslashes and crlf with lf
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');

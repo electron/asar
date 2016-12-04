@@ -1,6 +1,6 @@
 'use strict';
-var Transform = require('stream').Transform;
-var basename = require('path').basename;
+const Transform = require('stream').Transform;
+const basename = require('path').basename;
 
 class Reverser extends Transform {
   constructor() {
@@ -14,7 +14,7 @@ class Reverser extends Transform {
   }
 
   _flush(cb) {
-    var txt = this._data.toString().split('').reverse().join('');
+    const txt = this._data.toString().split('').reverse().join('');
     this.push(txt);
     return cb();
   }
