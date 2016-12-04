@@ -62,22 +62,23 @@ describe('command line interface', function() {
   /*
   it('should extract a text file from archive', function(done) {
     exec('node bin/asar ef test/input/extractthis.asar dir1/file1.txt', function (error, stdout, stderr) {
-      var actual = fs.readFileSync('tmp/file1.txt', 'utf8');
-      var expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
+      const actual = fs.readFileSync('tmp/file1.txt', 'utf8');
+      let expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8');
       // on windows replace crlf with lf
-      if ('win32' is os.platform())
+      if (os.platform() === 'win32') {
         expected = expected.replace(/\r\n/g, '\n');
+      }
       done(assert.equal(actual, expected));
     });
   });
 
     it('should extract a binary file from archive', function(done) {
-    exec('node bin/asar ef test/input/extractthis.asar dir2/file2.png', function (error, stdout, stderr) {
-      var actual = fs.readFileSync('tmp/file2.png', 'utf8');
-      var expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
-      done(assert.equal(actual, expected));
+      exec('node bin/asar ef test/input/extractthis.asar dir2/file2.png', function (error, stdout, stderr) {
+        const actual = fs.readFileSync('tmp/file2.png', 'utf8');
+        const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
+        done(assert.equal(actual, expected));
+      });
     });
-  });
   */
   it('should extract an archive', function(done) {
     exec('node bin/asar e test/input/extractthis.asar tmp/extractthis-cli/', function(error, stdout, stderr) {
