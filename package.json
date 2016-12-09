@@ -16,10 +16,7 @@
     "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
-    "prepublish": "grunt coffee",
-    "pretest": "grunt clean coffeelint coffee",
-    "test": "mocha --reporter spec --compilers coffee:coffee-script/register",
-    "clean": "grunt clean"
+    "test": "mocha --reporter spec --compilers coffee:coffee-script/register"
   },
   "dependencies": {
     "chromium-pickle-js": "^0.2.0",
