@@ -1,5 +1,11 @@
 # Changes By Version
 
+## 0.12.4 - 2016-12-28
+
+### Fixed
+
+- Unpack glob patterns containing `{}` characters not working properly (#99)
+
 ## 0.12.3 - 2016-08-29
 
 ### Fixed

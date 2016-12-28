@@ -2,6 +2,8 @@
 const assert = require('assert')
 const fs = require('fs')
 const os = require('os')
+const path = require('path')
+const rimraf = require('rimraf')
 
 const asar = require('../src/asar')
 const compDirs = require('./util/compareDirectories')
@@ -9,6 +11,9 @@ const compFiles = require('./util/compareFiles')
 const transform = require('./util/transformStream')
 
 describe('api', function () {
+  beforeEach(function () {
+    rimraf.sync(path.join(__dirname, '..', 'tmp'))
+  })
   it('should create archive from directory', function (done) {
     asar.createPackage('test/input/packthis/', 'tmp/packthis-api.asar', function (error) {
       if (error != null) return done(error)
@@ -18,7 +23,7 @@ describe('api', function () {
   it('should create archive from directory (without hidden files)', function (done) {
     asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {dot: false}, function (error) {
       if (error != null) return done(error)
-      done(compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar'))
+      done(compFiles('tmp/packthis-without-hidden-api.asar', 'test/expected/packthis-without-hidden.asar'))
     })
   })
   it('should create archive from directory (with transformed files)', function (done) {

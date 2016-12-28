@@ -3,11 +3,16 @@ const assert = require('assert')
 const exec = require('child_process').exec
 const fs = require('fs')
 const os = require('os')
+const path = require('path')
+const rimraf = require('rimraf')
 
 const compDirs = require('./util/compareDirectories')
 const compFiles = require('./util/compareFiles')
 
 describe('command line interface', function () {
+  beforeEach(function () {
+    rimraf.sync(path.join(__dirname, '..', 'tmp'))
+  })
   it('should create archive from directory', function (done) {
     exec('node bin/asar p test/input/packthis/ tmp/packthis-cli.asar', function (error, stdout, stderr) {
       if (error != null) return done(error)
@@ -128,8 +133,18 @@ describe('command line interface', function () {
       done(compFiles(tmpFile, 'test/expected/packthis-unpack-dir-globstar.asar'))
     })
   })
+  it('should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern', function (done) {
+    const tmpFile = 'tmp/packthis-unpack-dir-globstar-cli.asar'
+    const tmpUnpacked = 'tmp/packthis-unpack-dir-globstar-cli.asar.unpacked'
+    exec('node bin/asar p test/input/packthis-glob/ ' + tmpFile + ' --unpack-dir "y3/{x1,z1}" --exclude-hidden', function (error, stdout, stderr) {
+      if (error != null) return done(error)
+      assert.ok(fs.existsSync(tmpUnpacked + '/y3/x1/file4.txt'))
+      assert.ok(fs.existsSync(tmpUnpacked + '/y3/z1/x2/file5.txt'))
+      done()
+    })
+  })
   it('should list files/dirs in archive with unpacked dirs', function (done) {
-    exec('node bin/asar l tmp/packthis-unpack-dir-cli.asar', function (error, stdout, stderr) {
+    exec('node bin/asar l test/expected/packthis-unpack-dir.asar', function (error, stdout, stderr) {
       if (error != null) return done(error)
       const actual = stdout
       let expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n'

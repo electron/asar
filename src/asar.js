@@ -14,9 +14,22 @@ const createSnapshot = require('./snapshot')
 //
 // @param {string} path - diretory path to check
 // @param {string} pattern - literal prefix [for backward compatibility] or glob pattern
+// @param {array} unpackDirs - Array of directory paths previously marked as unpacked
 //
-const isUnpackDir = function (path, pattern) {
-  return path.startsWith(pattern) || minimatch(path, pattern)
+const isUnpackDir = function (path, pattern, unpackDirs) {
+  if (path.indexOf(pattern) === 0 || minimatch(path, pattern)) {
+    if (unpackDirs.indexOf(path) === -1) {
+      unpackDirs.push(path)
+    }
+    return true
+  } else {
+    for (let i = 0; i < unpackDirs.length; i++) {
+      if (path.indexOf(unpackDirs[i]) === 0) {
+        return true
+      }
+    }
+    return false
+  }
 }
 
 module.exports.createPackage = function (src, dest, callback) {
@@ -45,6 +58,7 @@ module.exports.createPackageFromFiles = function (src, dest, filenames, metadata
   if (typeof metadata === 'undefined' || metadata === null) { metadata = {} }
   const filesystem = new Filesystem(src)
   const files = []
+  const unpackDirs = []
 
   let filenamesSorted = []
   if (options.ordering) {
@@ -101,7 +115,7 @@ module.exports.createPackageFromFiles = function (src, dest, filenames, metadata
     switch (file.type) {
       case 'directory':
         shouldUnpack = options.unpackDir
-          ? isUnpackDir(path.relative(src, filename), options.unpackDir)
+          ? isUnpackDir(path.relative(src, filename), options.unpackDir, unpackDirs)
           : false
         filesystem.insertDirectory(filename, shouldUnpack)
         break
@@ -112,7 +126,7 @@ module.exports.createPackageFromFiles = function (src, dest, filenames, metadata
         }
         if (!shouldUnpack && options.unpackDir) {
           const dirName = path.relative(src, path.dirname(filename))
-          shouldUnpack = isUnpackDir(dirName, options.unpackDir)
+          shouldUnpack = isUnpackDir(dirName, options.unpackDir, unpackDirs)
         }
         files.push({filename: filename, unpack: shouldUnpack})
         filesystem.insertFile(filename, shouldUnpack, file, options, done)
