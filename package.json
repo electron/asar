@@ -25,6 +25,7 @@
     "chromium-pickle-js": "^0.2.0",
     "commander": "^2.9.0",
     "cuint": "^0.2.1",
+    "escape-string-regexp": "^1.0.5",
     "glob": "^6.0.4",
     "minimatch": "^3.0.3",
     "mkdirp": "^0.5.0",

@@ -1,9 +1,10 @@
 fs = require 'fs'
 glob = require 'glob'
+escapeStringRegexp = require 'escape-string-regexp'
 
 module.exports = (dir, options, callback) ->
   metadata = {}
-  glob dir + '/**/*', options, (error, filenames) ->
+  glob escapeStringRegexp(dir) + '/**/*', options, (error, filenames) ->
     return callback(error) if error
     for filename in filenames
       stat = fs.lstatSync filename
