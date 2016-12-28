@@ -8,7 +8,9 @@ const crawlFilesystem = require('../../src/crawlfs')
 
 module.exports = function (dirA, dirB, cb) {
   crawlFilesystem(dirA, function (err, pathsA, metadataA) {
+    if (err != null) return cb(err)
     crawlFilesystem(dirB, function (err, pathsB, metadataB) {
+      if (err != null) return cb(err)
       const relativeA = _.map(pathsA, function (pathAItem) { return path.relative(dirA, pathAItem) })
       const relativeB = _.map(pathsB, function (pathBItem) { return path.relative(dirB, pathBItem) })
       const onlyInA = _.difference(relativeA, relativeB)

@@ -11,16 +11,19 @@ const transform = require('./util/transformStream')
 describe('api', function () {
   it('should create archive from directory', function (done) {
     asar.createPackage('test/input/packthis/', 'tmp/packthis-api.asar', function (error) {
+      if (error != null) return done(error)
       done(compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar'))
     })
   })
   it('should create archive from directory (without hidden files)', function (done) {
     asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {dot: false}, function (error) {
+      if (error != null) return done(error)
       done(compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar'))
     })
   })
   it('should create archive from directory (with transformed files)', function (done) {
     asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-transformed.asar', {transform}, function (error) {
+      if (error != null) return done(error)
       done(compFiles('tmp/packthis-api-transformed.asar', 'test/expected/packthis-transformed.asar'))
     })
   })
@@ -71,6 +74,7 @@ describe('api', function () {
   })
   it('should handle multibyte characters in paths', function (done) {
     asar.createPackage('test/input/packthis-unicode-path/', 'tmp/packthis-unicode-path.asar', function (error) {
+      if (error != null) return done(error)
       done(compFiles('tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar'))
     })
   })
