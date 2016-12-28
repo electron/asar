@@ -19,7 +19,8 @@
     "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
-    "test": "mocha --reporter spec"
+    "test": "mocha --reporter spec",
+    "lint": "standard"
   },
   "dependencies": {
     "chromium-pickle-js": "^0.2.0",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "lodash": "^4.2.1",
     "mocha": "^2.0.1",
-    "rimraf": "^2.5.1"
+    "rimraf": "^2.5.1",
+    "standard": "^8.6.0"
   }
 }
