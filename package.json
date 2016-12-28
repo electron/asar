@@ -19,8 +19,13 @@
     "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
-    "test": "mocha --reporter spec",
+    "test": "mocha --reporter spec && npm run lint",
     "lint": "standard"
+  },
+  "standard": {
+    "env": {
+      "mocha": true
+    }
   },
   "dependencies": {
     "chromium-pickle-js": "^0.2.0",
