@@ -2,11 +2,16 @@ assert = require 'assert'
 {exec} = require 'child_process'
 fs = require 'fs'
 os = require 'os'
+path = require 'path'
+rimraf = require 'rimraf'
 
 compDirs = require './util/compareDirectories'
 compFiles = require './util/compareFiles'
 
 describe 'command line interface', ->
+  beforeEach ->
+    rimraf.sync path.join(__dirname, '..', 'tmp')
+
   it 'should create archive from directory', (done) ->
     exec 'node bin/asar p test/input/packthis/ tmp/packthis-cli.asar', (error, stdout, stderr) ->
       done compFiles 'tmp/packthis-cli.asar', 'test/expected/packthis.asar'
@@ -112,8 +117,18 @@ describe 'command line interface', ->
       done compFiles tmpFile, 'test/expected/packthis-unpack-dir-globstar.asar'
       return
     return
+  it 'should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern', (done) ->
+    tmpFile = 'tmp/packthis-unpack-dir-globstar-cli.asar'
+    tmpUnpacked = 'tmp/packthis-unpack-dir-globstar-cli.asar.unpacked'
+    exec 'node bin/asar p test/input/packthis-glob/ ' + tmpFile + ' --unpack-dir "y3/{x1,z1}" --exclude-hidden', (error, stdout, stderr) ->
+      assert.ok fs.existsSync tmpUnpacked + '/y3/x1/file4.txt'
+      assert.ok fs.existsSync tmpUnpacked + '/y3/z1/x2/file5.txt'
+      done()
+      return
+    return
   it 'should list files/dirs in archive with unpacked dirs', (done) ->
-    exec 'node bin/asar l tmp/packthis-unpack-dir-cli.asar', (error, stdout, stderr) ->
+    exec 'node bin/asar l test/expected/packthis-unpack-dir.asar', (error, stdout, stderr) ->
+      return done(error) if error?
       actual = stdout
       expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8') + '\n'
       # on windows replace slashes with backslashes and crlf with lf
