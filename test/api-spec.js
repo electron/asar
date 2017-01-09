@@ -5,7 +5,7 @@ const os = require('os')
 const path = require('path')
 const rimraf = require('rimraf')
 
-const asar = require('../src/asar')
+const asar = require('..')
 const compDirs = require('./util/compareDirectories')
 const compFiles = require('./util/compareFiles')
 const transform = require('./util/transformStream')
