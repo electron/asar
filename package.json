@@ -4,7 +4,7 @@
   "description": "Creating Electron app packages",
   "version": "0.12.4",
   "bin": {
-    "asar": "bin/asar"
+    "asar": "./bin/asar.js"
   },
   "engines": {
     "node": ">=4.6"
@@ -20,7 +20,7 @@
   },
   "scripts": {
     "test": "mocha --reporter spec && npm run lint",
-    "lint": "standard lib test bin/asar"
+    "lint": "standard"
   },
   "standard": {
     "env": {
