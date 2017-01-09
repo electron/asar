@@ -20,7 +20,7 @@
   },
   "scripts": {
     "test": "mocha --reporter spec && npm run lint",
-    "lint": "standard"
+    "lint": "standard lib test bin/asar"
   },
   "standard": {
     "env": {
