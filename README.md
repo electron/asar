@@ -118,6 +118,29 @@ asar.createPackageWithOptions(src, dest, { transform: transform }, function() {
 })
 ```
 
+You can also pass an array of functions for the `transform` option and they will
+be executed in order:
+
+```js
+```javascript
+var asar = require('asar');
+
+var src = 'some/path/';
+var dest = 'name.asar';
+
+function firstTransform(filename) {
+  return new FirstTransformStream()
+}
+
+function secondTransform(filename) {
+  return new SecondTransformStream()
+}
+
+asar.createPackageWithOptions(src, dest, { transform: [firstTransform, secondTransform] }, function() {
+  console.log('done.');
+})
+```
+
 ## Using with grunt
 
 There is also an unofficial grunt plugin to generate asar archives at [bwin/grunt-asar][grunt-asar].
