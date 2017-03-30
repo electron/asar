@@ -1,7 +1,7 @@
 'use strict'
 const assert = require('assert')
 const exec = require('child_process').exec
-const fs = require('fs')
+const fs = process.versions.electron ? require('original-fs') : require('fs')
 const os = require('os')
 const path = require('path')
 const rimraf = require('rimraf')
@@ -11,7 +11,7 @@ const compFiles = require('./util/compareFiles')
 
 describe('command line interface', function () {
   beforeEach(function () {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'))
+    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs)
   })
   it('should create archive from directory', function (done) {
     exec('node bin/asar p test/input/packthis/ tmp/packthis-cli.asar', function (error, stdout, stderr) {
