@@ -19,7 +19,7 @@
     "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
-    "test": "electron-mocha --reporter spec && mocha --reporter spec && npm run lint",
+    "test": "xvfb-maybe electron-mocha --reporter spec && mocha --reporter spec && npm run lint",
     "lint": "standard"
   },
   "standard": {
@@ -43,6 +43,7 @@
     "lodash": "^4.2.1",
     "mocha": "^2.0.1",
     "rimraf": "^2.5.1",
-    "standard": "^8.6.0"
+    "standard": "^8.6.0",
+    "xvfb-maybe": "^0.1.3"
   }
 }
