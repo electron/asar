@@ -39,8 +39,11 @@ describe('api', function () {
         done(compFiles('tmp/packthis-api-double-transformed.asar', 'test/expected/packthis-double-transformed.asar'))
       })
     })
-    it('should create archive from directory (files transformed by an array of functions in reverse order)', function (done) {
-      asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-double-transformed-alt.asar', {transform: [ transform.zeroPad, transform.reverser ]}, function (error) {
+    it('should create archive from directory (files transformed by an array of functions in reverse order and non-contiguous keys)', function (done) {
+      const transforms = []
+      transforms[1] = transform.zeroPad
+      transforms[5] = transform.reverser
+      asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-double-transformed-alt.asar', {transform: transforms}, function (error) {
         if (error != null) return done(error)
         done(compFiles('tmp/packthis-api-double-transformed-alt.asar', 'test/expected/packthis-double-transformed-alt.asar'))
       })
