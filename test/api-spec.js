@@ -26,10 +26,27 @@ describe('api', function () {
       done(compFiles('tmp/packthis-without-hidden-api.asar', 'test/expected/packthis-without-hidden.asar'))
     })
   })
-  it('should create archive from directory (with transformed files)', function (done) {
-    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-transformed.asar', {transform}, function (error) {
-      if (error != null) return done(error)
-      done(compFiles('tmp/packthis-api-transformed.asar', 'test/expected/packthis-transformed.asar'))
+  describe('transform', () => {
+    it('should create archive from directory (files transformed by a single function)', function (done) {
+      asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-transformed.asar', {transform: transform.reverser}, function (error) {
+        if (error != null) return done(error)
+        done(compFiles('tmp/packthis-api-transformed.asar', 'test/expected/packthis-transformed.asar'))
+      })
+    })
+    it('should create archive from directory (files transformed by an array of functions)', function (done) {
+      asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-double-transformed.asar', {transform: [ transform.reverser, transform.zeroPad ]}, function (error) {
+        if (error != null) return done(error)
+        done(compFiles('tmp/packthis-api-double-transformed.asar', 'test/expected/packthis-double-transformed.asar'))
+      })
+    })
+    it('should create archive from directory (files transformed by an array of functions in reverse order and non-contiguous keys)', function (done) {
+      const transforms = []
+      transforms[1] = transform.zeroPad
+      transforms[5] = transform.reverser
+      asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-double-transformed-alt.asar', {transform: transforms}, function (error) {
+        if (error != null) return done(error)
+        done(compFiles('tmp/packthis-api-double-transformed-alt.asar', 'test/expected/packthis-double-transformed-alt.asar'))
+      })
     })
   })
   it('should list files/dirs in archive', function () {
