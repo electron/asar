@@ -14,3 +14,4 @@ npm-debug.log
 appveyor.yml
 .travis.yml
 coffeelint.json
+.idea

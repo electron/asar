@@ -7,3 +7,4 @@
 .DS_Store
 .node-version
 npm-debug.log
+.idea

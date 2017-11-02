@@ -1,6 +1,6 @@
 'use strict'
 const assert = require('assert')
-const fs = require('fs')
+const fs = process.versions.electron ? require('original-fs') : require('fs')
 const os = require('os')
 const path = require('path')
 const rimraf = require('rimraf')
@@ -12,7 +12,7 @@ const transform = require('./util/transformStream')
 
 describe('api', function () {
   beforeEach(function () {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'))
+    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs)
   })
   it('should create archive from directory', function (done) {
     asar.createPackage('test/input/packthis/', 'tmp/packthis-api.asar', function (error) {
