@@ -1,5 +1,22 @@
 # Changes By Version
 
+## 0.14.0 - 2017-11-02
+
+### Added
+
+* Snapcraft metadata (#130)
+* `uncache` and `uncacheAll` (#118)
+
+### Fixed
+
+* Use of asar inside of an Electron app (#118)
+
+## 0.13.1 - 2017-11-02
+
+### Fixed
+
+- Do not return before the write stream fully closes (#113)
+
 ## 0.13.0 - 2017-01-09
 
 ### Changed
