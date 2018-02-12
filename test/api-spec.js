@@ -32,6 +32,13 @@ describe('api', function () {
       done(compFiles('tmp/packthis-api-transformed.asar', 'test/expected/packthis-transformed.asar'))
     })
   })
+  it('should create archive from directory (with nothing packed)', function (done) {
+    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-unpacked.asar', { unpackDir: '**' }, function (error) {
+      if (error != null) return done(error)
+      compFiles('tmp/packthis-api-unpacked.asar', 'test/expected/packthis-all-unpacked.asar')
+      compDirs('tmp/packthis-api-unpacked.asar.unpacked', 'test/expected/extractthis', done)
+    })
+  })
   it('should list files/dirs in archive', function () {
     const actual = asar.listPackage('test/input/extractthis.asar').join('\n')
     let expected = fs.readFileSync('test/expected/extractthis-filelist.txt', 'utf8')
