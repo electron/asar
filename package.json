@@ -2,7 +2,7 @@
   "main": "./lib/asar.js",
   "name": "asar",
   "description": "Creating Electron app packages",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "bin": {
     "asar": "./bin/asar.js"
   },
