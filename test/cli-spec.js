@@ -155,6 +155,18 @@ describe('command line interface', function () {
       done(assert.equal(actual, expected))
     })
   })
+  it('should list files/dirs in archive with unpacked dirs & is-pack option', function (done) {
+    exec('node bin/asar l test/expected/packthis-unpack-dir.asar --is-pack', function (error, stdout, stderr) {
+      if (error != null) return done(error)
+      const actual = stdout
+      let expected = fs.readFileSync('test/expected/extractthis-filelist-with-option.txt', 'utf8') + '\n'
+      // on windows replace slashes with backslashes and crlf with lf
+      if (os.platform() === 'win32') {
+        expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
+      }
+      done(assert.equal(actual, expected))
+    })
+  })
   it('should extract an archive with unpacked dirs', function (done) {
     exec('node bin/asar e test/input/extractthis-unpack-dir.asar tmp/extractthis-unpack-dir/', function (error, stdout, stderr) {
       if (error != null) return done(error)
