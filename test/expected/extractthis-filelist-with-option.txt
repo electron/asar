@@ -1,0 +1,7 @@
+pack   : /dir1
+pack   : /dir1/file1.txt
+unpack : /dir2
+unpack : /dir2/file2.png
+unpack : /dir2/file3.txt
+pack   : /emptyfile.txt
+pack   : /file0.txt

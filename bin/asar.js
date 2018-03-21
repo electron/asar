@@ -38,11 +38,17 @@ program.command('pack <dir> <output>')
 program.command('list <archive>')
        .alias('l')
        .description('list files of asar archive')
-       .action(function (archive) {
-         var files = asar.listPackage(archive)
+       .option('-i, --is-pack', 'each file in the asar is pack or unpack')
+       .action(function (archive, options) {
+         options = {
+           isPack: options.isPack
+         }
+         var files = asar.listPackage(archive, options)
          for (var i in files) {
            console.log(files[i])
          }
+         // This is in order to disappear help
+         process.exit(0)
        })
 
 program.command('extract-file <archive> <filename>')

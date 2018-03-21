@@ -48,6 +48,15 @@ describe('api', function () {
     }
     return assert.equal(actual, expected)
   })
+  it('should list files/dirs in archive with option', function () {
+    const actual = asar.listPackage('test/input/extractthis-unpack-dir.asar', {isPack: true}).join('\n')
+    let expected = fs.readFileSync('test/expected/extractthis-filelist-with-option.txt', 'utf8')
+    // on windows replace slashes with backslashes and crlf with lf
+    if (os.platform() === 'win32') {
+      expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
+    }
+    return assert.equal(actual, expected)
+  })
   it('should extract a text file from archive', function () {
     const actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString('utf8')
     let expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8')
