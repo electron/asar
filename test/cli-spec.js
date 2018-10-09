@@ -19,6 +19,14 @@ describe('command line interface', function () {
       done(compFiles('tmp/packthis-cli.asar', 'test/expected/packthis.asar'))
     })
   })
+  if (os.platform() === 'win32') {
+    it('should create archive from directory with windows-style path separators', function (done) {
+      exec('node bin/asar p test\\input\\packthis\\ tmp\\packthis-cli.asar', function (error, stdout, stderr) {
+        if (error != null) return done(error)
+        done(compFiles('tmp/packthis-cli.asar', 'test/expected/packthis.asar'))
+      })
+    })
+  }
   it('should create archive from directory without hidden files', function (done) {
     exec('node bin/asar p test/input/packthis/ tmp/packthis-without-hidden-cli.asar --exclude-hidden', function (error, stdout, stderr) {
       if (error != null) return done(error)

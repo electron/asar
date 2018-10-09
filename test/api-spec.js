@@ -20,6 +20,14 @@ describe('api', function () {
       done(compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar'))
     })
   })
+  if (os.platform() === 'win32') {
+    it('should create archive with windows-style path separators', function (done) {
+      asar.createPackage('test\\input\\packthis\\', 'tmp\\packthis-api.asar', function (error) {
+        if (error != null) return done(error)
+        done(compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar'))
+      })
+    })
+  }
   it('should create archive from directory (without hidden files)', function (done) {
     asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {dot: false}, function (error) {
       if (error != null) return done(error)
