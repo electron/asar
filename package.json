@@ -34,14 +34,14 @@
     "glob": "^6.0.4",
     "minimatch": "^3.0.3",
     "mkdirp": "^0.5.0",
-    "mksnapshot": "^0.3.0",
+    "mksnapshot": "^0.3.4",
     "tmp": "0.0.28"
   },
   "devDependencies": {
     "electron": "^1.6.2",
-    "electron-mocha": "^3.4.0",
+    "electron-mocha": "^6.0.4",
     "lodash": "^4.2.1",
-    "mocha": "^2.0.1",
+    "mocha": "^5.2.0",
     "rimraf": "^2.5.1",
     "standard": "^8.6.0",
     "xvfb-maybe": "^0.1.3"
