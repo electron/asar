@@ -29,13 +29,13 @@ describe('api', function () {
     })
   }
   it('should create archive from directory (without hidden files)', function (done) {
-    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', {dot: false}, function (error) {
+    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-without-hidden-api.asar', { dot: false }, function (error) {
       if (error != null) return done(error)
       done(compFiles('tmp/packthis-without-hidden-api.asar', 'test/expected/packthis-without-hidden.asar'))
     })
   })
   it('should create archive from directory (with transformed files)', function (done) {
-    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-transformed.asar', {transform}, function (error) {
+    asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-transformed.asar', { transform }, function (error) {
       if (error != null) return done(error)
       done(compFiles('tmp/packthis-api-transformed.asar', 'test/expected/packthis-transformed.asar'))
     })
@@ -54,16 +54,16 @@ describe('api', function () {
     if (os.platform() === 'win32') {
       expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
     }
-    return assert.equal(actual, expected)
+    return assert.strictEqual(actual, expected)
   })
   it('should list files/dirs in archive with option', function () {
-    const actual = asar.listPackage('test/input/extractthis-unpack-dir.asar', {isPack: true}).join('\n')
+    const actual = asar.listPackage('test/input/extractthis-unpack-dir.asar', { isPack: true }).join('\n')
     let expected = fs.readFileSync('test/expected/extractthis-filelist-with-option.txt', 'utf8')
     // on windows replace slashes with backslashes and crlf with lf
     if (os.platform() === 'win32') {
       expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
     }
-    return assert.equal(actual, expected)
+    return assert.strictEqual(actual, expected)
   })
   it('should extract a text file from archive', function () {
     const actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString('utf8')
@@ -72,17 +72,17 @@ describe('api', function () {
     if (os.platform() === 'win32') {
       expected = expected.replace(/\r\n/g, '\n')
     }
-    return assert.equal(actual, expected)
+    return assert.strictEqual(actual, expected)
   })
   it('should extract a binary file from archive', function () {
     const actual = asar.extractFile('test/input/extractthis.asar', 'dir2/file2.png')
-    const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8')
-    return assert.equal(actual, expected)
+    const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png')
+    return assert.strictEqual(actual.toString(), expected.toString())
   })
   it('should extract a binary file from archive with unpacked files', function () {
     const actual = asar.extractFile('test/input/extractthis-unpack.asar', 'dir2/file2.png')
-    const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8')
-    return assert.equal(actual, expected)
+    const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png')
+    return assert.strictEqual(actual.toString(), expected.toString())
   })
   it('should extract an archive', function (done) {
     asar.extractAll('test/input/extractthis.asar', 'tmp/extractthis-api/')
@@ -94,8 +94,8 @@ describe('api', function () {
   })
   it('should extract a binary file from archive with unpacked files', function () {
     const actual = asar.extractFile('test/input/extractthis-unpack-dir.asar', 'dir1/file1.txt')
-    const expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt', 'utf8')
-    return assert.equal(actual, expected)
+    const expected = fs.readFileSync('test/expected/extractthis/dir1/file1.txt')
+    return assert.strictEqual(actual.toString(), expected.toString())
   })
   it('should extract an archive with unpacked dirs', function (done) {
     asar.extractAll('test/input/extractthis-unpack-dir.asar', 'tmp/extractthis-unpack-dir-api/')
@@ -114,6 +114,6 @@ describe('api', function () {
     if (os.platform() === 'win32') {
       expected = expected.replace(/\r\n/g, '\n')
     }
-    return assert.equal(actual, expected)
+    return assert.strictEqual(actual, expected)
   })
 })

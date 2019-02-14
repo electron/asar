@@ -49,7 +49,7 @@ describe('command line interface', function () {
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
       }
-      done(assert.equal(actual, expected))
+      done(assert.strictEqual(actual, expected))
     })
   })
   it('should list files/dirs in archive with unpacked files', function (done) {
@@ -61,7 +61,7 @@ describe('command line interface', function () {
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
       }
-      done(assert.equal(actual, expected))
+      done(assert.strictEqual(actual, expected))
     })
   })
   it('should list files/dirs with multibyte characters in path', function (done) {
@@ -73,7 +73,7 @@ describe('command line interface', function () {
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
       }
-      done(assert.equal(actual, expected))
+      done(assert.strictEqual(actual, expected))
     })
   })
   // we need a way to set a path to extract to first, otherwise we pollute our project dir
@@ -87,7 +87,7 @@ describe('command line interface', function () {
       if (os.platform() === 'win32') {
         expected = expected.replace(/\r\n/g, '\n');
       }
-      done(assert.equal(actual, expected));
+      done(assert.strictEqual(actual, expected));
     });
   });
 
@@ -95,7 +95,7 @@ describe('command line interface', function () {
       exec('node bin/asar ef test/input/extractthis.asar dir2/file2.png', function (error, stdout, stderr) {
         const actual = fs.readFileSync('tmp/file2.png', 'utf8');
         const expected = fs.readFileSync('test/expected/extractthis/dir2/file2.png', 'utf8');
-        done(assert.equal(actual, expected));
+        done(assert.strictEqual(actual, expected));
       });
     });
   */
@@ -160,7 +160,7 @@ describe('command line interface', function () {
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
       }
-      done(assert.equal(actual, expected))
+      done(assert.strictEqual(actual, expected))
     })
   })
   it('should list files/dirs in archive with unpacked dirs & is-pack option', function (done) {
@@ -172,7 +172,7 @@ describe('command line interface', function () {
       if (os.platform() === 'win32') {
         expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n')
       }
-      done(assert.equal(actual, expected))
+      done(assert.strictEqual(actual, expected))
     })
   })
   it('should extract an archive with unpacked dirs', function (done) {
