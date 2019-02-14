@@ -2,7 +2,7 @@
   "main": "./lib/asar.js",
   "name": "asar",
   "description": "Creating Electron app packages",
-  "version": "0.14.6",
+  "version": "1.0.0",
   "bin": {
     "asar": "./bin/asar.js"
   },
@@ -34,7 +34,6 @@
     "glob": "^6.0.4",
     "minimatch": "^3.0.3",
     "mkdirp": "^0.5.0",
-    "mksnapshot": "^0.3.4",
     "tmp": "0.0.28"
   },
   "devDependencies": {

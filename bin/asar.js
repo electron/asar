@@ -11,16 +11,11 @@ program.command('pack <dir> <output>')
        .option('--ordering <file path>', 'path to a text file for ordering contents')
        .option('--unpack <expression>', 'do not pack files matching glob <expression>')
        .option('--unpack-dir <expression>', 'do not pack dirs matching glob <expression> or starting with literal <expression>')
-       .option('--snapshot', 'create snapshot')
        .option('--exclude-hidden', 'exclude hidden files')
-       .option('--sv <version>', '(snapshot) version of Electron')
-       .option('--sa <arch>', '(snapshot) arch of Electron')
-       .option('--sb <builddir>', '(snapshot) where to put downloaded files')
        .action(function (dir, output, options) {
          options = {
            unpack: options.unpack,
            unpackDir: options.unpackDir,
-           snapshot: options.snapshot,
            ordering: options.ordering,
            version: options.sv,
            arch: options.sa,
