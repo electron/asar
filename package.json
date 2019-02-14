@@ -37,7 +37,7 @@
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "electron": "^1.6.2",
+    "electron": "^4.0.4",
     "electron-mocha": "^6.0.4",
     "lodash": "^4.17.11",
     "mocha": "^5.2.0",
