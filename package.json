@@ -7,7 +7,7 @@
     "asar": "./bin/asar.js"
   },
   "engines": {
-    "node": ">=8.0"
+    "node": ">=6.0"
   },
   "license": "MIT",
   "homepage": "https://github.com/electron/asar",
