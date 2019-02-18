@@ -1,30 +1,29 @@
 'use strict'
-const fs = process.versions.electron ? require('original-fs') : require('fs')
-const path = require('path')
 
 const _ = require('lodash')
+const fs = process.versions.electron ? require('original-fs') : require('fs')
+const path = require('path')
+const pify = require('pify')
 
-const crawlFilesystem = require('../../lib/crawlfs')
+const crawlFilesystem = pify(require('../../lib/crawlfs'), { multiArgs: true })
 
-module.exports = function (dirA, dirB, cb) {
-  crawlFilesystem(dirA, function (err, pathsA, metadataA) {
-    if (err != null) return cb(err)
-    crawlFilesystem(dirB, function (err, pathsB, metadataB) {
-      if (err != null) return cb(err)
-      const relativeA = _.map(pathsA, function (pathAItem) { return path.relative(dirA, pathAItem) })
-      const relativeB = _.map(pathsB, function (pathBItem) { return path.relative(dirB, pathBItem) })
+module.exports = function (dirA, dirB) {
+  return Promise.all([crawlFilesystem(dirA, null), crawlFilesystem(dirB, null)])
+    .then(([[pathsA, metadataA], [pathsB, metadataB]]) => {
+      const relativeA = _.map(pathsA, pathAItem => path.relative(dirA, pathAItem))
+      const relativeB = _.map(pathsB, pathBItem => path.relative(dirB, pathBItem))
       const onlyInA = _.difference(relativeA, relativeB)
       const onlyInB = _.difference(relativeB, relativeA)
       const inBoth = _.intersection(pathsA, pathsB)
       const differentFiles = []
       const errorMsgBuilder = []
-      err = null
-      for (let i in inBoth) {
-        const filename = inBoth[i]
+      for (const filename of inBoth) {
         const typeA = metadataA[filename].type
         const typeB = metadataB[filename].type
         // skip if both are directories
-        if (typeA === 'directory' && typeB === 'directory') { continue }
+        if (typeA === 'directory' && typeB === 'directory') {
+          continue
+        }
         // something is wrong if the types don't match up
         if (typeA !== typeB) {
           differentFiles.push(filename)
@@ -32,7 +31,9 @@ module.exports = function (dirA, dirB, cb) {
         }
         const fileContentA = fs.readFileSync(path.join(dirA, filename), 'utf8')
         const fileContentB = fs.readFileSync(path.join(dirB, filename), 'utf8')
-        if (fileContentA !== fileContentB) { differentFiles.push(filename) }
+        if (fileContentA !== fileContentB) {
+          differentFiles.push(filename)
+        }
       }
       if (onlyInA.length) {
         errorMsgBuilder.push(`\tEntries only in '${dirA}':`)
@@ -46,8 +47,10 @@ module.exports = function (dirA, dirB, cb) {
         errorMsgBuilder.push('\tDifferent file content:')
         for (const file of differentFiles) { errorMsgBuilder.push(`\t  ${file}`) }
       }
-      if (errorMsgBuilder.length) { err = new Error('\n' + errorMsgBuilder.join('\n')) }
-      cb(err)
+      if (errorMsgBuilder.length) {
+        throw new Error('\n' + errorMsgBuilder.join('\n'))
+      }
+
+      return Promise.resolve()
     })
-  })
 }
