@@ -8,7 +8,7 @@ const os = require('os')
 const path = require('path')
 const rimraf = pify(require('rimraf'))
 
-const asar = pify(require('..'), { include: ['createPackage', 'createPackageWithOptions'] })
+const asar = require('..')
 const compDirs = require('./util/compareDirectories')
 const compFileLists = require('./util/compareFileLists')
 const compFiles = require('./util/compareFiles')
