@@ -3,9 +3,7 @@
 const _ = require('lodash')
 const fs = process.versions.electron ? require('original-fs') : require('fs')
 const path = require('path')
-const pify = require('pify')
-
-const crawlFilesystem = pify(require('../../lib/crawlfs'), { multiArgs: true })
+const crawlFilesystem = require('../../lib/crawlfs')
 
 module.exports = function (dirA, dirB) {
   return Promise.all([crawlFilesystem(dirA, null), crawlFilesystem(dirB, null)])
