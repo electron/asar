@@ -1,5 +1,61 @@
 # Changes By Version
 
+## 1.0.0 - 2019-02-19
+
+## Added
+
+* Promise-based async API (#165)
+
+## Changed
+
+* This module requires Node 6 or later (#165)
+
+## Removed
+
+* V8 snapshot support, which was undocumented and used an unmaintained dependency, which itself had a dependency with a security vulnerability (#165)
+* callback-style async API - if you still need to use this style of API, please check out the `nodeify` module (#165)
+
+## 0.14.6 - 2018-12-10
+
+### Fixed
+
+* Normalize file paths in `asar.createPackageFromFiles` (#159)
+
+## 0.14.5 - 2018-10-01
+
+### Fixed
+
+* Regression from #154
+
+## 0.14.4 - 2018-09-30
+
+### Added
+
+* `--is-pack` CLI option / `isPack` option to `asar.listPackage` (#145)
+
+### Fixed
+
+* Allow `asar.createPackageFromFiles` to not pass `metadata` or `options` (#154)
+
+## 0.14.3 - 2018-03-07
+
+### Added
+
+* `globOptions` option to pass options to the `glob` module
+* `pattern` option
+
+## 0.14.2 - 2018-02-11
+
+### Fixed
+
+* Invoke callback if the last file in the list was marked as unpacked (#142)
+
+## 0.14.1 - 2018-01-30
+
+### Fixed
+
+* Maximum call stack size exceeded during unpack (#140)
+
 ## 0.14.0 - 2017-11-02
 
 ### Added
