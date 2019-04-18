@@ -85,15 +85,14 @@ $ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
 
 ### Example
 
-```js
-var asar = require('asar');
+```javascript
+const asar = require('asar');
 
-var src = 'some/path/';
-var dest = 'name.asar';
+const src = 'some/path/';
+const dest = 'name.asar';
 
-asar.createPackage(src, dest).then(function() {
-  console.log('done.');
-})
+await asar.createPackage(src, dest);
+console.log('done.');
 ```
 
 Please note that there is currently **no** error handling provided!
@@ -103,19 +102,18 @@ You can pass in a `transform` option, that is a function, which either returns
 nothing, or a `stream.Transform`. The latter will be used on files that will be
 in the `.asar` file to transform them (e.g. compress).
 
-```js
-var asar = require('asar');
+```javascript
+const asar = require('asar');
 
-var src = 'some/path/';
-var dest = 'name.asar';
+const src = 'some/path/';
+const dest = 'name.asar';
 
-function transform(filename) {
+function transform (filename) {
   return new CustomTransformStream()
 }
 
-asar.createPackageWithOptions(src, dest, { transform: transform }).then(function() {
-  console.log('done.');
-})
+await asar.createPackageWithOptions(src, dest, { transform: transform });
+console.log('done.');
 ```
 
 ## Using with grunt
