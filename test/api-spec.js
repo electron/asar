@@ -1,12 +1,12 @@
 'use strict'
 
-const pify = require('pify')
+const { promisify } = require('util')
 
 const assert = require('assert')
-const fs = pify(process.versions.electron ? require('original-fs') : require('fs'))
+const fs = promisify(process.versions.electron ? require('original-fs') : require('fs'))
 const os = require('os')
 const path = require('path')
-const rimraf = pify(require('rimraf'))
+const rimraf = promisify(require('rimraf'))
 
 const asar = require('..')
 const compDirs = require('./util/compareDirectories')

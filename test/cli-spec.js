@@ -1,13 +1,13 @@
 'use strict'
 
-const pify = require('pify')
+const { promisify } = require('util')
 
 const assert = require('assert')
 const { exec } = require('mz/child_process')
-const fs = pify(process.versions.electron ? require('original-fs') : require('fs'))
+const fs = promisify(process.versions.electron ? require('original-fs') : require('fs'))
 const os = require('os')
 const path = require('path')
-const rimraf = pify(require('rimraf'))
+const rimraf = promisify(require('rimraf'))
 
 const compDirs = require('./util/compareDirectories')
 const compFileLists = require('./util/compareFileLists')
