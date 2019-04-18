@@ -91,7 +91,7 @@ var asar = require('asar');
 var src = 'some/path/';
 var dest = 'name.asar';
 
-asar.createPackage(src, dest, function() {
+asar.createPackage(src, dest).then(function() {
   console.log('done.');
 })
 ```
@@ -113,7 +113,7 @@ function transform(filename) {
   return new CustomTransformStream()
 }
 
-asar.createPackageWithOptions(src, dest, { transform: transform }, function() {
+asar.createPackageWithOptions(src, dest, { transform: transform }).then(function() {
   console.log('done.');
 })
 ```
