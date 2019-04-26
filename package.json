@@ -2,7 +2,7 @@
   "main": "./lib/asar.js",
   "name": "asar",
   "description": "Creating Electron app packages",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "bin": {
     "asar": "./bin/asar.js"
   },
@@ -38,12 +38,14 @@
     "tmp-promise": "^1.0.5"
   },
   "devDependencies": {
+    "@continous-auth/semantic-release-npm": "^1.0.0",
     "electron": "^4.0.5",
     "electron-mocha": "^6.0.4",
     "lodash": "^4.17.11",
     "mocha": "^6.0.0",
     "mz": "^2.7.0",
     "rimraf": "^2.6.3",
+    "semantic-release": "^15.13.3",
     "standard": "^12.0.1",
     "xvfb-maybe": "^0.2.1"
   }
