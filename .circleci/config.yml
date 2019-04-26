@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/node:8
     steps:
-      - run: sudo apt-get install -y libnss3
+      - run: sudo apt-get install --no-install-recommends -y libgtk-3-0 libnss3
       - checkout
       - restore_cache:
           keys:
