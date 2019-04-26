@@ -10,7 +10,7 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "package-lock.json" }}
             - v1-dependencies-
-      - run: npm ci
+      - run: npm install
       - save_cache:
           paths:
             - node_modules
@@ -25,7 +25,7 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "package-lock.json" }}
             - v1-dependencies-
-      - run: npm ci
+      - run: npm install
       - run: npx semantic-release
 workflows:
   version: 2
