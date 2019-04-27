@@ -19,7 +19,7 @@ async function execAsar (args) {
 }
 
 async function assertAsarOutputMatches (args, expectedFilename) {
-  const [{ stdout, stderr }, expectedContents] = await Promise.all([execAsar(args), fs.readFile(expectedFilename, 'utf8')])
+  const [{ stdout }, expectedContents] = await Promise.all([execAsar(args), fs.readFile(expectedFilename, 'utf8')])
   return compFileLists(stdout, `${expectedContents}\n`)
 }
 
