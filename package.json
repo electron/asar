@@ -38,7 +38,7 @@
     "tmp-promise": "^1.0.5"
   },
   "devDependencies": {
-    "@continous-auth/semantic-release-npm": "^1.0.0",
+    "@continuous-auth/semantic-release-npm": "^1.0.3",
     "electron": "^4.0.5",
     "electron-mocha": "^6.0.4",
     "lodash": "^4.17.11",

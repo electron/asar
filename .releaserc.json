@@ -2,7 +2,7 @@
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
-    "@continous-auth/semantic-release-npm",
+    "@continuous-auth/semantic-release-npm",
     "@semantic-release/github"
   ]
 }
