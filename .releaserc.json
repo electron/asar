@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@continuous-auth/semantic-release-npm",
+    "@semantic-release/github"
+  ]
+}

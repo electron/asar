@@ -1,5 +1,7 @@
 # asar - Electron Archive
 
+[![CircleCI build status](https://circleci.com/gh/electron/asar/tree/master.svg?style=svg)](https://circleci.com/gh/electron/asar/tree/master)
+
 [![Travis build status](https://travis-ci.org/electron/asar.svg?branch=master)](https://travis-ci.org/electron/asar)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/mrfwfr0uxlbwkuq3?svg=true)](https://ci.appveyor.com/project/electron-bot/asar)
 [![dependencies](http://img.shields.io/david/electron/asar.svg?style=flat-square)](https://david-dm.org/electron/asar)
