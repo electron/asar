@@ -1,18 +1,21 @@
 'use strict'
 
 const assert = require('assert')
-const { exec } = require('mz/child_process')
+const childProcess = require('child_process')
 const fs = require('../lib/wrapped-fs')
 const os = require('os')
 const path = require('path')
+const { promisify } = require('util')
 const rimraf = require('rimraf')
 
 const compDirs = require('./util/compareDirectories')
 const compFileLists = require('./util/compareFileLists')
 const compFiles = require('./util/compareFiles')
 
+childProcess.exec = promisify(childProcess.exec)
+
 async function execAsar (args) {
-  return exec(`node bin/asar ${args}`)
+  return childProcess.exec(`node bin/asar ${args}`)
 }
 
 async function assertAsarOutputMatches (args, expectedFilename) {
