@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@continuous-auth/semantic-release-npm": "^1.0.3",
+    "@semantic-release/changelog": "^3.0.2",
     "electron": "^5.0.0",
     "electron-mocha": "^8.0.1",
     "lodash": "^4.17.11",
