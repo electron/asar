@@ -1,16 +1,28 @@
 # Changes By Version
 
+## [2.0.1](https://github.com/electron/asar/compare/v2.0.0...v2.0.1) - 2019-04-29
+
+### Fixed
+
+* Don't monkeypatch fs with promisified versions ([#176](https://github.com/electron/asar/issues/176)) ([319dd81](https://github.com/electron/asar/commit/319dd81))
+
+## [2.0.0](https://github.com/electron/asar/compare/v1.0.0...v2.0.0) - 2019-04-27
+
+### Removed
+
+* Support for Node &lt; 8 ([#170](https://github.com/electron/asar/issues/170)) ([8a03eae](https://github.com/electron/asar/commit/8a03eae))
+
 ## 1.0.0 - 2019-02-19
 
-## Added
+### Added
 
 * Promise-based async API (#165)
 
-## Changed
+### Changed
 
 * This module requires Node 6 or later (#165)
 
-## Removed
+### Removed
 
 * V8 snapshot support, which was undocumented and used an unmaintained dependency, which itself had a dependency with a security vulnerability (#165)
 * callback-style async API - if you still need to use this style of API, please check out the `nodeify` module (#165)
