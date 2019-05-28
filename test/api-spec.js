@@ -82,7 +82,11 @@ describe('api', function () {
     return compDirs('tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis')
   })
   it('should handle multibyte characters in paths', async () => {
-    await asar.createPackage('test/input/packthis-unicode-path/', 'tmp/packthis-unicode-path.asar')
+    await asar.createPackageWithOptions('test/input/packthis-unicode-path/', 'tmp/packthis-unicode-path.asar', {
+      globOptions: {
+        nosort: true
+      }
+    })
     return compFiles('tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar')
   })
   it('should extract a text file from archive with multibyte characters in path', async () => {
