@@ -1,73 +1,59 @@
 #!/usr/bin/env node
-var asar = require('../lib/asar')
-var program = require('commander')
+const asar = require('..')
+const path = require('path')
+const yargs = require('yargs')
 
-program.version('v' + require('../package.json').version)
-  .description('Manipulate asar archive files')
-
-program.command('pack <dir> <output>')
-  .alias('p')
-  .description('create asar archive')
-  .option('--ordering <file path>', 'path to a text file for ordering contents')
-  .option('--unpack <expression>', 'do not pack files matching glob <expression>')
-  .option('--unpack-dir <expression>', 'do not pack dirs matching glob <expression> or starting with literal <expression>')
-  .option('--exclude-hidden', 'exclude hidden files')
-  .action(function (dir, output, options) {
-    options = {
-      unpack: options.unpack,
-      unpackDir: options.unpackDir,
-      ordering: options.ordering,
-      version: options.sv,
-      arch: options.sa,
-      builddir: options.sb,
-      dot: !options.excludeHidden
+const args = yargs
+  .usage('Usage: $0 <command> [options] [arguments]')
+  .strict()
+  .help()
+  .version(`v${require('../package.json').version}`)
+  .command(['pack <dir> <output>', 'p'], 'create asar archive', {
+    'exclude-hidden': {
+      boolean: true,
+      description: 'exclude hidden files'
+    },
+    ordering: {
+      description: 'path to a text file for ordering contents'
+    },
+    unpack: {
+      description: 'do not pack files matching glob <expression>'
+    },
+    'unpack-dir': {
+      description: 'do not pack dirs matching glob <expression> or starting with literal <expression>'
     }
-    asar.createPackageWithOptions(dir, output, options, function (error) {
-      if (error) {
-        console.error(error.stack)
-        process.exit(1)
-      }
-    })
-  })
-
-program.command('list <archive>')
-  .alias('l')
-  .description('list files of asar archive')
-  .option('-i, --is-pack', 'each file in the asar is pack or unpack')
-  .action(function (archive, options) {
-    options = {
-      isPack: options.isPack
+  }, async pack => {
+    try {
+      await asar.createPackageWithOptions(pack.dir, pack.output, {
+        unpack: pack.unpack,
+        unpackDir: pack.unpackDir,
+        ordering: pack.ordering,
+        dot: !pack.excludeHidden
+      })
+    } catch (error) {
+      console.error(error.stack)
+      process.exit(1)
     }
-    var files = asar.listPackage(archive, options)
-    for (var i in files) {
-      console.log(files[i])
+  }).command(['list <archive>', 'l'], 'list files of asar archive', {
+    'is-pack': {
+      alias: 'i',
+      boolean: true,
+      description: 'describe whether a file is packed or unpacked'
     }
-    // This is in order to disappear help
-    process.exit(0)
+  }, list => {
+    for (const file of asar.listPackage(list.archive, { isPack: list.isPack })) {
+      console.log(file)
+    }
+  }).command(['extract-file <archive> <filename>', 'ef'], 'extract one file from the archive', {}, extractFile => {
+    require('fs').writeFileSync(
+      path.basename(extractFile.filename),
+      asar.extractFile(extractFile.archive, extractFile.filename)
+    )
+  }).command(['extract <archive> <dest>', 'e'], 'extract archive', {}, extract => {
+    asar.extractAll(extract.archive, extract.dest)
   })
 
-program.command('extract-file <archive> <filename>')
-  .alias('ef')
-  .description('extract one file from archive')
-  .action(function (archive, filename) {
-    require('fs').writeFileSync(require('path').basename(filename),
-      asar.extractFile(archive, filename))
-  })
-
-program.command('extract <archive> <dest>')
-  .alias('e')
-  .description('extract archive')
-  .action(function (archive, dest) {
-    asar.extractAll(archive, dest)
-  })
-
-program.command('*')
-  .action(function (cmd) {
-    console.log('asar: \'%s\' is not an asar command. See \'asar --help\'.', cmd)
-  })
-
-program.parse(process.argv)
-
-if (program.args.length === 0) {
-  program.help()
+const command = args.argv._[0]
+if (!command) {
+  args.showHelp()
 }

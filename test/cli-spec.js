@@ -12,10 +12,10 @@ const compDirs = require('./util/compareDirectories')
 const compFileLists = require('./util/compareFileLists')
 const compFiles = require('./util/compareFiles')
 
-childProcess.exec = promisify(childProcess.exec)
+const exec = promisify(childProcess.exec)
 
 async function execAsar (args) {
-  return childProcess.exec(`node bin/asar ${args}`)
+  return exec(`node bin/asar ${args}`)
 }
 
 async function assertAsarOutputMatches (args, expectedFilename) {
@@ -25,6 +25,15 @@ async function assertAsarOutputMatches (args, expectedFilename) {
 
 describe('command line interface', function () {
   beforeEach(() => { rimraf.sync(path.join(__dirname, '..', 'tmp'), fs) })
+
+  it('should print help when no subcommands are present', async () => {
+    const { stderr } = await execAsar([])
+    assert.ok(stderr.includes('Usage:'))
+  })
+
+  it('should print help when an invalid subcommand is given', async () => {
+    assert.rejects(execAsar(['nonexistent']), { message: /Usage:/ })
+  })
 
   it('should create archive from directory', async () => {
     await execAsar('p test/input/packthis/ tmp/packthis-cli.asar')
