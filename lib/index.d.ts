@@ -1,8 +1,9 @@
+import { IOptions as GlobOptions } from 'glob';
 import { Stats } from 'fs';
 
 export type CreateOptions = {
   dot?: boolean;
-  globOptions?: {};
+  globOptions?: GlobOptions;
   ordering?: string;
   pattern?: string;
   transform?: (filePath: string) => string;

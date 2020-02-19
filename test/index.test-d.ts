@@ -3,7 +3,13 @@ import * as fs from 'fs';
 import { expectType } from 'tsd';
 
 await asar.createPackage('bin', 'tmp/foo.asar');
-await asar.createPackageWithOptions('bin', 'tmp/foo.asar', { dot: true });
+await asar.createPackageWithOptions('bin', 'tmp/foo.asar', {
+  dot: true,
+  globOptions: {
+    debug: true,
+  },
+  transform: (filePath: string) => filePath.replace('/', ':'),
+});
 await asar.createPackageFromFiles('bin', 'tmp/foo.asar', ['bin/asar.js']);
 const stat = fs.statSync('bin/asar.js');
 await asar.createPackageFromFiles('bin', 'tmp/foo.asar', ['bin/asar.js'], {

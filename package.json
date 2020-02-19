@@ -43,6 +43,9 @@
     "mkdirp": "^0.5.1",
     "tmp-promise": "^1.0.5"
   },
+  "optionalDependencies": {
+    "@types/glob": "^7.1.1"
+  },
   "devDependencies": {
     "@continuous-auth/semantic-release-npm": "^2.0.0",
     "@semantic-release/changelog": "^3.0.2",
