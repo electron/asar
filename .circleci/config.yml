@@ -22,7 +22,9 @@ steps-test: &steps-test
     - run: npm test
 
 
-version: 2
+version: 2.1
+orbs:
+  win: circleci/windows@2.4.0
 jobs:
   test-linux-8:
     docker:
@@ -35,6 +37,11 @@ jobs:
   test-mac:
     macos:
       xcode: "10.2.0"
+    <<: *steps-test
+  test-windows:
+    executor:
+      name: win/default
+      shell: bash.exe
     <<: *steps-test
 
   release:
@@ -53,11 +60,13 @@ workflows:
       - test-linux-8
       - test-linux-10
       - test-mac
+      - test-windows
       - release:
           requires:
             - test-linux-8
             - test-linux-10
             - test-mac
+            - test-windows
           filters:
             branches:
               only:
