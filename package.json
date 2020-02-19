@@ -20,13 +20,19 @@
     "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
-    "test": "xvfb-maybe electron-mocha --reporter spec && mocha --reporter spec && npm run lint",
-    "lint": "standard"
+    "mocha": "xvfb-maybe electron-mocha --reporter spec && mocha --reporter spec",
+    "test": "npm run lint && npm run mocha",
+    "lint": "tsd && standard",
+    "standard": "standard",
+    "tsd": "tsd"
   },
   "standard": {
     "env": {
       "mocha": true
     }
+  },
+  "tsd": {
+    "directory": "test"
   },
   "dependencies": {
     "chromium-pickle-js": "^0.2.0",
@@ -47,6 +53,7 @@
     "rimraf": "^2.6.3",
     "semantic-release": "^15.13.3",
     "standard": "^12.0.1",
+    "tsd": "^0.11.0",
     "xvfb-maybe": "^0.2.1"
   }
 }

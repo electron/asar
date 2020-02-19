@@ -53,12 +53,12 @@ export function createPackageFromFiles(
   src: string,
   dest: string,
   filenames: string[],
-  metadata: InputMetadata,
-  options: CreateOptions
+  metadata?: InputMetadata,
+  options?: CreateOptions
 ): Promise<void>;
 
-export function statFile(archive: string, filename: string, followLinks: boolean): Metadata;
-export function listPackage(archive: string, options: ListOptions): string[];
+export function statFile(archive: string, filename: string, followLinks?: boolean): Metadata;
+export function listPackage(archive: string, options?: ListOptions): string[];
 export function extractFile(archive: string, filename: string): Buffer;
 export function extractAll(archive: string, dest: string): void;
 export function uncache(archive: string): boolean;
