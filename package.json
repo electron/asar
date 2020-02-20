@@ -46,13 +46,13 @@
   },
   "devDependencies": {
     "@continuous-auth/semantic-release-npm": "^2.0.0",
-    "@semantic-release/changelog": "^3.0.2",
+    "@semantic-release/changelog": "^5.0.0",
     "electron": "^5.0.0",
     "electron-mocha": "^8.2.1",
     "lodash": "^4.17.15",
     "mocha": "^7.0.1",
     "rimraf": "^3.0.2",
-    "semantic-release": "^15.13.3",
+    "semantic-release": "^17.0.4",
     "standard": "^14.3.1",
     "tsd": "^0.11.0",
     "xvfb-maybe": "^0.2.1"
