@@ -29,7 +29,10 @@
   "standard": {
     "env": {
       "mocha": true
-    }
+    },
+    "globals": [
+      "BigInt"
+    ]
   },
   "tsd": {
     "directory": "test"
@@ -37,7 +40,6 @@
   "dependencies": {
     "chromium-pickle-js": "^0.2.0",
     "commander": "^2.20.0",
-    "cuint": "^0.2.2",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4"
   },
