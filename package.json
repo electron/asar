@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "chromium-pickle-js": "^0.2.0",
-    "commander": "^2.20.0",
+    "commander": "^4.1.1",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4"
   },
