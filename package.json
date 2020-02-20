@@ -51,7 +51,7 @@
     "electron-mocha": "^8.0.1",
     "lodash": "^4.17.11",
     "mocha": "^6.1.4",
-    "rimraf": "^2.6.3",
+    "rimraf": "^3.0.2",
     "semantic-release": "^15.13.3",
     "standard": "^14.3.1",
     "tsd": "^0.11.0",
