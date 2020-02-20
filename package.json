@@ -39,8 +39,7 @@
     "commander": "^2.20.0",
     "cuint": "^0.2.2",
     "glob": "^7.1.6",
-    "minimatch": "^3.0.4",
-    "tmp-promise": "^1.0.5"
+    "minimatch": "^3.0.4"
   },
   "optionalDependencies": {
     "@types/glob": "^7.1.1"
