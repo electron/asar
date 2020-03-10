@@ -7,6 +7,10 @@
   "bin": {
     "asar": "./bin/asar.js"
   },
+  "files": [
+    "bin",
+    "lib"
+  ],
   "engines": {
     "node": ">=10.12.0"
   },
