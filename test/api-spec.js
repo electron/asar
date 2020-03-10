@@ -51,7 +51,7 @@ describe('api', function () {
   })
   it('should extract a text file from archive', async () => {
     const actual = asar.extractFile('test/input/extractthis.asar', 'dir1/file1.txt').toString('utf8')
-    let expected = await fs.readFile('test/expected/extractthis/dir1/file1.txt', 'utf8')
+    const expected = await fs.readFile('test/expected/extractthis/dir1/file1.txt', 'utf8')
     return compFileLists(actual, expected)
   })
   it('should extract a binary file from archive', async () => {
@@ -91,7 +91,7 @@ describe('api', function () {
   })
   it('should extract a text file from archive with multibyte characters in path', async () => {
     const actual = asar.extractFile('test/expected/packthis-unicode-path.asar', 'dir1/女の子.txt').toString('utf8')
-    let expected = await fs.readFile('test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8')
+    const expected = await fs.readFile('test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8')
     return compFileLists(actual, expected)
   })
 })
