@@ -9,7 +9,8 @@
   },
   "files": [
     "bin",
-    "lib"
+    "lib",
+    "lib/index.d.ts"
   ],
   "engines": {
     "node": ">=10.12.0"
