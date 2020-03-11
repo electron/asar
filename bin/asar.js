@@ -1,8 +1,21 @@
 #!/usr/bin/env node
+
+var packageJSON = require('../package.json')
+var splitVersion = function (version) { return version.split('.').map(function (part) { return Number(part) }) }
+var requiredNodeVersion = splitVersion(packageJSON.engines.node.slice(2))
+var actualNodeVersion = splitVersion(process.versions.node)
+
+if (actualNodeVersion[0] < requiredNodeVersion[0] || (actualNodeVersion[0] == requiredNodeVersion[0] && actualNodeVersion[1] < requiredNodeVersion[1])) {
+  console.error('CANNOT RUN WITH NODE ' + process.versions.node)
+  console.error('asar requires Node ' + packageJSON.engines.node + '.')
+  process.exit(1)
+}
+
+// Not consts so that this file can load in Node < 4.0
 var asar = require('../lib/asar')
 var program = require('commander')
 
-program.version('v' + require('../package.json').version)
+program.version('v' + packageJSON.version)
   .description('Manipulate asar archive files')
 
 program.command('pack <dir> <output>')
