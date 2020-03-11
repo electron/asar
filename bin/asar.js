@@ -5,7 +5,7 @@ var splitVersion = function (version) { return version.split('.').map(function (
 var requiredNodeVersion = splitVersion(packageJSON.engines.node.slice(2))
 var actualNodeVersion = splitVersion(process.versions.node)
 
-if (actualNodeVersion[0] < requiredNodeVersion[0] || (actualNodeVersion[0] == requiredNodeVersion[0] && actualNodeVersion[1] < requiredNodeVersion[1])) {
+if (actualNodeVersion[0] < requiredNodeVersion[0] || (actualNodeVersion[0] === requiredNodeVersion[0] && actualNodeVersion[1] < requiredNodeVersion[1])) {
   console.error('CANNOT RUN WITH NODE ' + process.versions.node)
   console.error('asar requires Node ' + packageJSON.engines.node + '.')
   process.exit(1)
