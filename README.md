@@ -17,8 +17,10 @@ all files together without compression, while having random access support.
 
 ### Install
 
+This module requires Node 10 or later.
+
 ```bash
-$ npm install asar
+$ npm install --engine-strict asar
 ```
 
 ### Usage
