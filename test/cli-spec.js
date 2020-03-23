@@ -12,10 +12,10 @@ const compDirs = require('./util/compareDirectories')
 const compFileLists = require('./util/compareFileLists')
 const compFiles = require('./util/compareFiles')
 
-childProcess.exec = promisify(childProcess.exec)
+const exec = promisify(childProcess.exec)
 
 async function execAsar (args) {
-  return childProcess.exec(`node bin/asar ${args}`)
+  return exec(`node bin/asar ${args}`)
 }
 
 async function assertAsarOutputMatches (args, expectedFilename) {
@@ -118,7 +118,7 @@ describe('command line interface', function () {
     return assertAsarOutputMatches('l test/expected/packthis-unpack-dir.asar', 'test/expected/extractthis-filelist.txt')
   })
   it('should list files/dirs in archive with unpacked dirs & is-pack option', async () => {
-    return assertAsarOutputMatches('l test/expected/packthis-unpack-dir.asar --is-pack', 'test/expected/extractthis-filelist-with-option.txt')
+    return assertAsarOutputMatches('l --is-pack test/expected/packthis-unpack-dir.asar', 'test/expected/extractthis-filelist-with-option.txt')
   })
   it('should extract an archive with unpacked dirs', async () => {
     await execAsar('e test/input/extractthis-unpack-dir.asar tmp/extractthis-unpack-dir/')

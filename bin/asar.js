@@ -55,8 +55,6 @@ program.command('list <archive>')
     for (var i in files) {
       console.log(files[i])
     }
-    // This is in order to disappear help
-    process.exit(0)
   })
 
 program.command('extract-file <archive> <filename>')
