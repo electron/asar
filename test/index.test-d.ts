@@ -1,5 +1,6 @@
 import * as asar from '..';
 import * as fs from 'fs';
+import * as crypto from 'crypto'
 import { expectType } from 'tsd';
 
 await asar.createPackage('bin', 'tmp/foo.asar');
@@ -8,7 +9,11 @@ await asar.createPackageWithOptions('bin', 'tmp/foo.asar', {
   globOptions: {
     debug: true,
   },
-  transform: (filePath: string) => filePath.replace('/', ':'),
+  transform: (filePath: string) => {
+    if (process.env.TRANSFORM_ASAR) {
+      return crypto.createCipheriv('aes-256-cbc', crypto.randomBytes(32), crypto.randomBytes(16)).setAutoPadding(true).setEncoding('base64')
+    }
+  }
 });
 await asar.createPackageFromFiles('bin', 'tmp/foo.asar', ['bin/asar.js']);
 const stat = fs.statSync('bin/asar.js');
