@@ -6,7 +6,7 @@ export type CreateOptions = {
   globOptions?: GlobOptions;
   ordering?: string;
   pattern?: string;
-  transform?: (filePath: string) => NodeJS.ReadWriteStream;
+  transform?: (filePath: string) => NodeJS.ReadWriteStream | void;
   unpack?: string;
   unpackDir?: string;
 };
