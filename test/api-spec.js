@@ -81,6 +81,33 @@ describe('api', function () {
     asar.extractAll('test/input/extractthis-unpack-dir.asar', 'tmp/extractthis-unpack-dir-api/')
     return compDirs('tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis')
   })
+  it('should extract a binary file from archive asynchronously', async () => {
+    const actual = await asar.extractFileAsync('test/input/extractthis.asar', 'dir2/file2.png')
+    const expected = await fs.readFile('test/expected/extractthis/dir2/file2.png')
+    return assert.strictEqual(actual.toString(), expected.toString())
+  })
+  it('should extract a binary file from archive with unpacked files asynchronously', async () => {
+    const actual = await asar.extractFileAsync('test/input/extractthis-unpack.asar', 'dir2/file2.png')
+    const expected = await fs.readFile('test/expected/extractthis/dir2/file2.png')
+    return assert.strictEqual(actual.toString(), expected.toString())
+  })
+  it('should extract an archive asynchronously', async () => {
+    await asar.extractAllAsync('test/input/extractthis.asar', 'tmp/extractthis-api/')
+    return compDirs('tmp/extractthis-api/', 'test/expected/extractthis')
+  })
+  it('should extract an archive with unpacked files asynchronously', async () => {
+    await asar.extractAllAsync('test/input/extractthis-unpack.asar', 'tmp/extractthis-unpack-api/')
+    return compDirs('tmp/extractthis-unpack-api/', 'test/expected/extractthis')
+  })
+  it('should extract a binary file from archive with unpacked files asynchronously', async () => {
+    const actual = await asar.extractFileAsync('test/input/extractthis-unpack-dir.asar', 'dir1/file1.txt')
+    const expected = await fs.readFile('test/expected/extractthis/dir1/file1.txt')
+    assert.strictEqual(actual.toString(), expected.toString())
+  })
+  it('should extract an archive with unpacked dirs asynchronously', async () => {
+    await asar.extractAllAsync('test/input/extractthis-unpack-dir.asar', 'tmp/extractthis-unpack-dir-api/')
+    return compDirs('tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis')
+  })
   it('should handle multibyte characters in paths', async () => {
     await asar.createPackageWithOptions('test/input/packthis-unicode-path/', 'tmp/packthis-unicode-path.asar', {
       globOptions: {
