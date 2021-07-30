@@ -1,7 +1,7 @@
 step-restore-cache: &step-restore-cache
   restore_cache:
     keys:
-      - v1-dependencies-{{ arch }}-{{ checksum "package-lock.json" }}
+      - v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
       - v1-dependencies-{{ arch }}
 
 steps-test: &steps-test
@@ -14,12 +14,12 @@ steps-test: &steps-test
           fi
     - checkout
     - *step-restore-cache
-    - run: npm install
+    - run: yarn install
     - save_cache:
         paths:
           - node_modules
-        key: v1-dependencies-{{ arch }}-{{ checksum "package-lock.json" }}
-    - run: npm test
+        key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
+    - run: yarn test
 
 
 version: 2.1
@@ -50,7 +50,7 @@ jobs:
     steps:
       - checkout
       - *step-restore-cache
-      - run: npm install
+      - run: yarn install
       - run: npx semantic-release
 workflows:
   version: 2
