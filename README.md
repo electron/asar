@@ -1,6 +1,6 @@
 # asar - Electron Archive
 
-[![CircleCI build status](https://circleci.com/gh/electron/asar/tree/master.svg?style=svg)](https://circleci.com/gh/electron/asar/tree/master)
+[![CircleCI build status](https://circleci.com/gh/electron/asar/tree/main.svg?style=svg)](https://circleci.com/gh/electron/asar/tree/main)
 [![dependencies](http://img.shields.io/david/electron/asar.svg?style=flat-square)](https://david-dm.org/electron/asar)
 [![npm version](http://img.shields.io/npm/v/asar.svg?style=flat-square)](https://npmjs.org/package/asar)
 
