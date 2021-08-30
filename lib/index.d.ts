@@ -44,9 +44,20 @@ export type InputMetadata = {
   }
 };
 
+export type DirectoryRecord = {
+  files: Record<string, DirectoryRecord | FileRecord>;
+};
+
+export type FileRecord = {
+  offset: string;
+  size: number;
+  executable?: boolean;
+  hashes: Record<string, string>;
+}
+
 export type ArchiveHeader = {
   // The JSON parsed header string
-  header: any;
+  header: DirectoryRecord;
   headerString: string;
   headerSize: number;
 }

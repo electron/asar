@@ -153,12 +153,18 @@ Structure of `header` is something like this:
                "ls": {
                  "offset": "0",
                  "size": 100,
-                 "executable": true
+                 "executable": true,
+                 "hashes": {
+                   "SHA256": "..."
+                 }
                },
                "cd": {
                  "offset": "100",
                  "size": 100,
-                 "executable": true
+                 "executable": true,
+                 "hashes": {
+                   "SHA256": "..."
+                 }
                }
              }
            }
@@ -168,7 +174,10 @@ Structure of `header` is something like this:
          "files": {
            "hosts": {
              "offset": "200",
-             "size": 32
+             "size": 32,
+             "hashes": {
+                "SHA256": "..."
+              }
            }
          }
       }
@@ -186,6 +195,10 @@ precisely represent UINT64 in JavaScript `Number`. `size` is a JavaScript
 `9007199254740991` and is about 8PB in size. We didn't store `size` in UINT64
 because file size in Node.js is represented as `Number` and it is not safe to
 convert `Number` to UINT64.
+
+`hashes` is an object consisting of key-value pairs where the key is the
+identifier of a hashing algorithm and the value is the base64 encoded hash
+of the file.
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/master/base/pickle.h
 [node-pickle]: https://www.npmjs.org/package/chromium-pickle
