@@ -154,16 +154,18 @@ Structure of `header` is something like this:
                  "offset": "0",
                  "size": 100,
                  "executable": true,
-                 "hashes": {
-                   "SHA256": "..."
+                 "integrity": {
+                   "algorithm": "SHA256",
+                   "hash": "..."
                  }
                },
                "cd": {
                  "offset": "100",
                  "size": 100,
                  "executable": true,
-                 "hashes": {
-                   "SHA256": "..."
+                 "integrity": {
+                   "algorithm": "SHA256",
+                   "hash": "..."
                  }
                }
              }
@@ -175,8 +177,9 @@ Structure of `header` is something like this:
            "hosts": {
              "offset": "200",
              "size": 32,
-             "hashes": {
-                "SHA256": "..."
+             "integrity": {
+                "algorithm": "SHA256",
+                "hash": "..."
               }
            }
          }
@@ -196,9 +199,8 @@ precisely represent UINT64 in JavaScript `Number`. `size` is a JavaScript
 because file size in Node.js is represented as `Number` and it is not safe to
 convert `Number` to UINT64.
 
-`hashes` is an object consisting of key-value pairs where the key is the
-identifier of a hashing algorithm and the value is the base64 encoded hash
-of the file.
+`integrity` is an object consisting of a hashing `algorithm` and a hex encoded
+`hash` value.
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/master/base/pickle.h
 [node-pickle]: https://www.npmjs.org/package/chromium-pickle

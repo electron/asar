@@ -52,7 +52,10 @@ export type FileRecord = {
   offset: string;
   size: number;
   executable?: boolean;
-  hashes: Record<string, string>;
+  integrity: {
+    hash: string;
+    algorithm: 'SHA256';
+  };
 }
 
 export type ArchiveHeader = {
