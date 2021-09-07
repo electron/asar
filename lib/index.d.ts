@@ -55,6 +55,8 @@ export type FileRecord = {
   integrity: {
     hash: string;
     algorithm: 'SHA256';
+    blocks: string[];
+    blockSize: number;
   };
 }
 
