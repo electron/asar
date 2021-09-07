@@ -199,8 +199,11 @@ precisely represent UINT64 in JavaScript `Number`. `size` is a JavaScript
 because file size in Node.js is represented as `Number` and it is not safe to
 convert `Number` to UINT64.
 
-`integrity` is an object consisting of a hashing `algorithm` and a hex encoded
-`hash` value.
+`integrity` is an object consisting of a few keys:
+* A hashing `algorithm`, currently only `SHA256` is supported.
+* A hex encoded `hash` value representing the hash of the entire file.
+* An array of hex encoded hashes for the `blocks` of the file.  i.e. for a blockSize of 4KB this array contains the hash of every block if you split the file into N 4KB blocks.
+* A integer value `blockSize` representing the size in bytes of each block in the `blocks` hashes above
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/master/base/pickle.h
 [node-pickle]: https://www.npmjs.org/package/chromium-pickle
