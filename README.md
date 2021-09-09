@@ -156,7 +156,9 @@ Structure of `header` is something like this:
                  "executable": true,
                  "integrity": {
                    "algorithm": "SHA256",
-                   "hash": "..."
+                   "hash": "...",
+                   "blockSize": 1024,
+                   "blocks": ["...", "..."]
                  }
                },
                "cd": {
@@ -165,7 +167,9 @@ Structure of `header` is something like this:
                  "executable": true,
                  "integrity": {
                    "algorithm": "SHA256",
-                   "hash": "..."
+                   "hash": "...",
+                   "blockSize": 1024,
+                   "blocks": ["...", "..."]
                  }
                }
              }
@@ -179,7 +183,9 @@ Structure of `header` is something like this:
              "size": 32,
              "integrity": {
                 "algorithm": "SHA256",
-                "hash": "..."
+                "hash": "...",
+                "blockSize": 1024,
+                "blocks": ["...", "..."]
               }
            }
          }
