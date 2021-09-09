@@ -44,6 +44,29 @@ export type InputMetadata = {
   }
 };
 
+export type DirectoryRecord = {
+  files: Record<string, DirectoryRecord | FileRecord>;
+};
+
+export type FileRecord = {
+  offset: string;
+  size: number;
+  executable?: boolean;
+  integrity: {
+    hash: string;
+    algorithm: 'SHA256';
+    blocks: string[];
+    blockSize: number;
+  };
+}
+
+export type ArchiveHeader = {
+  // The JSON parsed header string
+  header: DirectoryRecord;
+  headerString: string;
+  headerSize: number;
+}
+
 export function createPackage(src: string, dest: string): Promise<void>;
 export function createPackageWithOptions(
   src: string,
@@ -59,6 +82,7 @@ export function createPackageFromFiles(
 ): Promise<void>;
 
 export function statFile(archive: string, filename: string, followLinks?: boolean): Metadata;
+export function getRawHeader(archive: string): ArchiveHeader;
 export function listPackage(archive: string, options?: ListOptions): string[];
 export function extractFile(archive: string, filename: string): Buffer;
 export function extractAll(archive: string, dest: string): void;
