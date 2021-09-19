@@ -67,21 +67,22 @@ Given:
 (h)     └── w1
 ```
 
-Exclude: a, b
+Unpack: a, b
 ```bash
 $ asar pack app app.asar --unpack-dir "{x1,x2}"
 ```
 
-Exclude: a, b, d, f
+Unpack: a, b, d, f
 ```bash
 $ asar pack app app.asar --unpack-dir "**/{x1,x2}"
 ```
 
-Exclude: a, b, d, f, h
+Unpack: a, b, d, f, h
 ```bash
 $ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
 ```
 
+Similarly, `--ignore-dir` flag can be used to ignore certain directories and `--ignore` flag can be used to ignore certain files while packaging.
 ## Using programatically
 
 ### Example

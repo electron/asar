@@ -45,6 +45,10 @@ describe('command line interface', function () {
     assert.ok(fs.existsSync('tmp/packthis-unpack-cli.asar.unpacked/dir2/file2.png'))
     await compFiles('tmp/packthis-unpack-cli.asar', 'test/expected/packthis-unpack.asar')
   })
+  it('should create archive from directory without ignored files', async () => {
+    await execAsar('p test/input/packthis/ tmp/packthis-ignore-cli.asar --ignore *.png')
+    await compFiles('tmp/packthis-ignore-cli.asar', 'test/expected/packthis-ignore-cli.asar')
+  })
   it('should list files/dirs in archive', async () => {
     return assertAsarOutputMatches('l test/input/extractthis.asar', 'test/expected/extractthis-filelist.txt')
   })
@@ -136,5 +140,25 @@ describe('command line interface', function () {
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir1/file1.txt'))
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file2.png'))
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file3.txt'))
+  })
+  it('should create archive from directory without ignored dirs', async () => {
+    await execAsar('p test/input/packthis/ tmp/packthis-ignore-dir-cli.asar --ignore-dir dir2')
+    return compFiles('tmp/packthis-ignore-dir-cli.asar', 'test/expected/packthis-ignore-dir-cli.asar')
+  })
+  it('should create archive from directory without ignored dirs specified by glob pattern', async () => {
+    await execAsar('p test/input/packthis-glob/ tmp/packthis-ignore-dir-glob-cli.asar --ignore-dir "{x1,x2}"')
+    return compFiles('tmp/packthis-ignore-dir-glob-cli.asar', 'test/expected/packthis-ignore-dir-glob-cli.asar')
+  })
+  it('should create archive from directory without ignored dirs specified by globstar pattern', async () => {
+    await execAsar('p test/input/packthis-glob/ tmp/packthis-ignore-dir-globstar-cli.asar --ignore-dir "**/{x1,x2}"')
+    return compFiles('tmp/packthis-ignore-dir-globstar-cli.asar', 'test/expected/packthis-ignore-dir-globstar-cli.asar')
+  })
+  it('should create archive from directory without ignored dirs specified by foo/{bar,baz} style pattern', async () => {
+    await execAsar('p test/input/packthis-glob/ tmp/packthis-ignore-dir-glob-foo-bar-baz-cli.asar --ignore-dir "y3/{x1,z1}"')
+    return compFiles('tmp/packthis-ignore-dir-glob-foo-bar-baz-cli.asar', 'test/expected/packthis-ignore-dir-glob-foo-bar-baz-cli.asar')
+  })
+  it('should create archive from directory without ignored dirs and files', async () => {
+    await execAsar('p test/input/packthis/ tmp/packthis-ignore-dir-file-cli.asar --ignore *.png --ignore-dir dir2')
+    return compFiles('tmp/packthis-ignore-dir-file-cli.asar', 'test/expected/packthis-ignore-dir-file-cli.asar')
   })
 })

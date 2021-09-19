@@ -9,6 +9,8 @@ export type CreateOptions = {
   transform?: (filePath: string) => NodeJS.ReadWriteStream | void;
   unpack?: string;
   unpackDir?: string;
+  ignore?: string;
+  ignoreDir?: string;
 };
 
 export type ListOptions = {
