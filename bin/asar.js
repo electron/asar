@@ -61,12 +61,12 @@ program.command('extract-file <archive> <filename>')
   .alias('ef')
   .description('extract one file from archive')
   .action(function (archive, filename) {
-    const fileData = asar.extractFile(archive, filename)
-    if (typeof fileData === 'undefined') {
-      console.error(`The file "${filename}" was not found in the archive.`)
-      return
+    try {
+      const fileData = asar.extractFile(archive, filename)
+      require('fs').writeFileSync(require('path').basename(filename), fileData)
+    } catch (err) {
+      console.log(err.message)
     }
-    require('fs').writeFileSync(require('path').basename(filename), fileData)
   })
 
 program.command('extract <archive> <dest>')
