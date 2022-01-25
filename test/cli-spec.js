@@ -75,6 +75,9 @@ describe('command line interface', function () {
       assert.strictEqual(actual, expected)
     })
   */
+  it('should throw an error when trying to extract a non-existent file', async () => {
+    return assertAsarOutputMatches('ef test/input/extractthis.asar dir1/non-existent', 'test/expected/extractthis-non-existent-file.txt')
+  })
   it('should extract an archive', async () => {
     await execAsar('e test/input/extractthis.asar tmp/extractthis-cli/')
     return compDirs('tmp/extractthis-cli/', 'test/expected/extractthis')
