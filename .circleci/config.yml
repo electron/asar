@@ -10,7 +10,7 @@ steps-test: &steps-test
         name: Install Linux Dependencies
         command: |
           if [ "`uname`" == "Linux" ]; then
-            sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6
+            sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6 xvfb
           fi
     - checkout
     - *step-restore-cache
