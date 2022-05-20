@@ -28,7 +28,7 @@ orbs:
 jobs:
   test-linux-14:
     docker:
-      - image: cimg/node:14.9.3
+      - image: cimg/node:14.19.3
     <<: *steps-test
   test-linux-16:
     docker:
@@ -46,7 +46,7 @@ jobs:
 
   release:
     docker:
-      - image: cimg/node:14.9.3
+      - image: cimg/node:14.19.3
     steps:
       - checkout
       - *step-restore-cache
