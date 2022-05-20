@@ -28,11 +28,11 @@ orbs:
 jobs:
   test-linux-10:
     docker:
-      - image: cimg/node:10
+      - image: cimg/node:10.24.1
     <<: *steps-test
   test-linux-12:
     docker:
-      - image: cimg/node:12
+      - image: cimg/node:12.22.12
     <<: *steps-test
   test-mac:
     macos:
