@@ -10,7 +10,7 @@ steps-test: &steps-test
         name: Install Linux Dependencies
         command: |
           if [ "`uname`" == "Linux" ]; then
-            sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6
+            sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6 xvfb
           fi
     - checkout
     - *step-restore-cache
@@ -26,13 +26,13 @@ version: 2.1
 orbs:
   win: circleci/windows@2.4.0
 jobs:
-  test-linux-10:
+  test-linux-14:
     docker:
-      - image: circleci/node:10
+      - image: cimg/node:14.19.3
     <<: *steps-test
-  test-linux-12:
+  test-linux-16:
     docker:
-      - image: circleci/node:12
+      - image: cimg/node:16.15.0
     <<: *steps-test
   test-mac:
     macos:
@@ -46,7 +46,7 @@ jobs:
 
   release:
     docker:
-      - image: circleci/node:14
+      - image: cimg/node:14.19.3
     steps:
       - checkout
       - *step-restore-cache
@@ -57,14 +57,14 @@ workflows:
   test_and_release:
     # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
-      - test-linux-10
-      - test-linux-12
+      - test-linux-14
+      - test-linux-16
       - test-mac
       - test-windows
       - release:
           requires:
-            - test-linux-10
-            - test-linux-12
+            - test-linux-14
+            - test-linux-16
             - test-mac
             - test-windows
           filters:
