@@ -124,6 +124,12 @@ describe('command line interface', function () {
     await execAsar('e test/input/extractthis-unpack-dir.asar tmp/extractthis-unpack-dir/')
     return compDirs('tmp/extractthis-unpack-dir/', 'test/expected/extractthis')
   })
+  it('should extract an archive with links', async () => {
+    const tmpUnpacked = 'tmp/extractthis-mac-links'
+    await execAsar(`e test/input/extractthis-mac-links.asar ${tmpUnpacked}/`)
+    assert.ok(fs.existsSync(path.join(tmpUnpacked, 'dir1/dir3/file4.txt')))
+    assert.ok(fs.existsSync(path.join(tmpUnpacked, 'dir2/dir4/file4_link.txt')))
+  })
   it('should create archive from directory with unpacked dirs and files', async () => {
     await execAsar('p test/input/packthis/ tmp/packthis-unpack-dir-file-cli.asar --unpack *.png --unpack-dir dir2 --exclude-hidden')
     assert.ok(fs.existsSync('tmp/packthis-unpack-dir-file-cli.asar.unpacked/dir2/file2.png'))
