@@ -36,7 +36,7 @@ jobs:
     <<: *steps-test
   test-mac:
     macos:
-      xcode: "12.5.0"
+      xcode: "13.3.0"
     <<: *steps-test
   test-windows:
     executor:
