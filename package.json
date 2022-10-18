@@ -1,5 +1,5 @@
 {
-  "name": "asar",
+  "name": "@electron/asar",
   "description": "Creating Electron app packages",
   "version": "0.0.0-development",
   "main": "./lib/asar.js",

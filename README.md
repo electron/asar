@@ -1,7 +1,7 @@
-# asar - Electron Archive
+# @electron/asar - Electron Archive
 
 [![CircleCI build status](https://circleci.com/gh/electron/asar/tree/main.svg?style=shield)](https://circleci.com/gh/electron/asar/tree/main)
-[![npm version](http://img.shields.io/npm/v/asar.svg)](https://npmjs.org/package/asar)
+[![npm version](http://img.shields.io/npm/v/@electron/asar.svg)](https://npmjs.org/package/@electron/asar)
 
 Asar is a simple extensive archive format, it works like `tar` that concatenates
 all files together without compression, while having random access support.
