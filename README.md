@@ -19,7 +19,7 @@ all files together without compression, while having random access support.
 This module requires Node 10 or later.
 
 ```bash
-$ npm install --engine-strict asar
+$ npm install --engine-strict @electron/asar
 ```
 
 ### Usage
@@ -86,7 +86,7 @@ $ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
 ### Example
 
 ```javascript
-const asar = require('asar');
+const asar = require('@electron/asar');
 
 const src = 'some/path/';
 const dest = 'name.asar';
@@ -103,7 +103,7 @@ nothing, or a `stream.Transform`. The latter will be used on files that will be
 in the `.asar` file to transform them (e.g. compress).
 
 ```javascript
-const asar = require('asar');
+const asar = require('@electron/asar');
 
 const src = 'some/path/';
 const dest = 'name.asar';
