@@ -73,8 +73,8 @@ program.command('extract <archive> <dest>')
   })
 
 program.command('*')
-  .action(function (cmd) {
-    console.log('asar: \'%s\' is not an asar command. See \'asar --help\'.', cmd)
+  .action(function (_cmd, args) {
+    console.log('asar: \'%s\' is not an asar command. See \'asar --help\'.', args[0])
   })
 
 program.parse(process.argv)
