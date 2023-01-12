@@ -210,6 +210,6 @@ convert `Number` to UINT64.
 * An array of hex encoded hashes for the `blocks` of the file.  i.e. for a blockSize of 4KB this array contains the hash of every block if you split the file into N 4KB blocks.
 * A integer value `blockSize` representing the size in bytes of each block in the `blocks` hashes above
 
-[pickle]: https://chromium.googlesource.com/chromium/src/+/master/base/pickle.h
-[node-pickle]: https://www.npmjs.org/package/chromium-pickle
+[pickle]: https://chromium.googlesource.com/chromium/src/+/main/base/pickle.h
+[node-pickle]: https://www.npmjs.org/package/chromium-pickle-js
 [grunt-asar]: https://github.com/bwin/grunt-asar
