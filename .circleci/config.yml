@@ -24,6 +24,7 @@ steps-test: &steps-test
 
 version: 2.1
 orbs:
+  cfa: continuousauth/npm@1.0.2
   win: circleci/windows@2.4.0
 jobs:
   test-linux-14:
@@ -44,17 +45,7 @@ jobs:
       shell: bash.exe
     <<: *steps-test
 
-  release:
-    docker:
-      - image: cimg/node:14.19.3
-    steps:
-      - checkout
-      - *step-restore-cache
-      - run: yarn install
-      - run: npx @continuous-auth/circleci-oidc-github-auth@1.0.5
-      - run: npx semantic-release@17.4.5
 workflows:
-  version: 2
   test_and_release:
     # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
@@ -62,7 +53,7 @@ workflows:
       - test-linux-16
       - test-mac
       - test-windows
-      - release:
+      - cfa/release:
           requires:
             - test-linux-14
             - test-linux-16
