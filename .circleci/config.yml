@@ -6,6 +6,13 @@ step-restore-cache: &step-restore-cache
 
 steps-test: &steps-test
   steps:
+    - unless:
+        condition:
+          equal: [ skip, << parameters.node-version >> ]
+        steps:
+          - node/install:
+              install-yarn: true
+              node-version: << parameters.node-version >>
     - run:
         name: Install Linux Dependencies
         command: |
@@ -25,21 +32,33 @@ steps-test: &steps-test
 version: 2.1
 orbs:
   cfa: continuousauth/npm@1.0.2
+  node: circleci/node@5.1.0
   win: circleci/windows@2.4.0
 jobs:
-  test-linux-14:
+  test-linux:
+    parameters:
+      node-version:
+        default: lts/*
+        description: Node.js version to install
+        type: string
     docker:
-      - image: cimg/node:14.19.3
-    <<: *steps-test
-  test-linux-16:
-    docker:
-      - image: cimg/node:16.15.0
+      - image: cimg/base:stable
     <<: *steps-test
   test-mac:
+    parameters:
+      node-version:
+        default: lts/*
+        description: Node.js version to install
+        type: string
     macos:
       xcode: "13.3.0"
     <<: *steps-test
   test-windows:
+    parameters:
+      node-version:
+        default: skip
+        description: Node.js version to install
+        type: string
     executor:
       name: win/default
       shell: bash.exe
@@ -49,15 +68,29 @@ workflows:
   test_and_release:
     # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
-      - test-linux-14
-      - test-linux-16
-      - test-mac
+      - test-linux:
+          matrix:
+            parameters:
+              node-version:
+                - lts/*
+                - lts/-1
+                - lts/-2
+      - test-mac:
+          matrix:
+            parameters:
+              node-version:
+                - lts/*
+                - lts/-1
+                - lts/-2
       - test-windows
       - cfa/release:
           requires:
-            - test-linux-14
-            - test-linux-16
-            - test-mac
+            - test-linux-lts/*
+            - test-linux-lts/-1
+            - test-linux-lts/-2
+            - test-mac-lts/*
+            - test-mac-lts/-1
+            - test-mac-lts/-2
             - test-windows
           filters:
             branches:
