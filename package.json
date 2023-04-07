@@ -48,10 +48,8 @@
     "glob": "^7.1.6",
     "minimatch": "^3.0.4"
   },
-  "optionalDependencies": {
-    "@types/glob": "^7.1.1"
-  },
   "devDependencies": {
+    "@types/glob": "^7.1.1",
     "@continuous-auth/semantic-release-npm": "^3.0.0",
     "electron": "^22.0.0",
     "electron-mocha": "^11.0.2",
