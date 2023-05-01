@@ -122,8 +122,7 @@ There is also an unofficial grunt plugin to generate asar archives at [bwin/grun
 
 ## Format
 
-Asar uses [Pickle][pickle] to safely serialize binary value to file, there is
-also a [node.js binding][node-pickle] of `Pickle` class.
+Asar uses [Pickle][pickle] to safely serialize binary value to file.
 
 The format of asar is very flat:
 
@@ -211,5 +210,4 @@ convert `Number` to UINT64.
 * A integer value `blockSize` representing the size in bytes of each block in the `blocks` hashes above
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/main/base/pickle.h
-[node-pickle]: https://www.npmjs.org/package/chromium-pickle-js
 [grunt-asar]: https://github.com/bwin/grunt-asar
