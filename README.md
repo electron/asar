@@ -1,7 +1,7 @@
-# asar - Electron Archive
+# @electron/asar - Electron Archive
 
 [![CircleCI build status](https://circleci.com/gh/electron/asar/tree/main.svg?style=shield)](https://circleci.com/gh/electron/asar/tree/main)
-[![npm version](http://img.shields.io/npm/v/asar.svg)](https://npmjs.org/package/asar)
+[![npm version](http://img.shields.io/npm/v/@electron/asar.svg)](https://npmjs.org/package/@electron/asar)
 
 Asar is a simple extensive archive format, it works like `tar` that concatenates
 all files together without compression, while having random access support.
@@ -19,7 +19,7 @@ all files together without compression, while having random access support.
 This module requires Node 10 or later.
 
 ```bash
-$ npm install --engine-strict asar
+$ npm install --engine-strict @electron/asar
 ```
 
 ### Usage
@@ -86,7 +86,7 @@ $ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
 ### Example
 
 ```javascript
-const asar = require('asar');
+const asar = require('@electron/asar');
 
 const src = 'some/path/';
 const dest = 'name.asar';
@@ -103,7 +103,7 @@ nothing, or a `stream.Transform`. The latter will be used on files that will be
 in the `.asar` file to transform them (e.g. compress).
 
 ```javascript
-const asar = require('asar');
+const asar = require('@electron/asar');
 
 const src = 'some/path/';
 const dest = 'name.asar';
@@ -122,8 +122,7 @@ There is also an unofficial grunt plugin to generate asar archives at [bwin/grun
 
 ## Format
 
-Asar uses [Pickle][pickle] to safely serialize binary value to file, there is
-also a [node.js binding][node-pickle] of `Pickle` class.
+Asar uses [Pickle][pickle] to safely serialize binary value to file.
 
 The format of asar is very flat:
 
@@ -210,6 +209,5 @@ convert `Number` to UINT64.
 * An array of hex encoded hashes for the `blocks` of the file.  i.e. for a blockSize of 4KB this array contains the hash of every block if you split the file into N 4KB blocks.
 * A integer value `blockSize` representing the size in bytes of each block in the `blocks` hashes above
 
-[pickle]: https://chromium.googlesource.com/chromium/src/+/master/base/pickle.h
-[node-pickle]: https://www.npmjs.org/package/chromium-pickle
+[pickle]: https://chromium.googlesource.com/chromium/src/+/main/base/pickle.h
 [grunt-asar]: https://github.com/bwin/grunt-asar
