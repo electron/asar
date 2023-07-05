@@ -37,7 +37,8 @@ jobs:
     <<: *steps-test
   test-mac:
     macos:
-      xcode: "13.3.0"
+      xcode: "14.3.0"
+    resource_class: macos.x86.medium.gen2
     <<: *steps-test
   test-windows:
     executor:
