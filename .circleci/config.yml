@@ -1,65 +1,41 @@
-step-restore-cache: &step-restore-cache
-  restore_cache:
-    keys:
-      - v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
-      - v1-dependencies-{{ arch }}
-
-steps-test: &steps-test
-  steps:
-    - run:
-        name: Install Linux Dependencies
-        command: |
-          if [ "`uname`" == "Linux" ]; then
-            sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6 xvfb libgbm-dev
-          fi
-    - checkout
-    - *step-restore-cache
-    - run: yarn install
-    - save_cache:
-        paths:
-          - node_modules
-        key: v1-dependencies-{{ arch }}-{{ checksum "yarn.lock" }}
-    - run: yarn test
-
-
 version: 2.1
+
 orbs:
   cfa: continuousauth/npm@1.0.2
-  win: circleci/windows@2.4.0
-jobs:
-  test-linux-14:
-    docker:
-      - image: cimg/node:14.19.3
-    <<: *steps-test
-  test-linux-16:
-    docker:
-      - image: cimg/node:16.15.0
-    <<: *steps-test
-  test-mac:
-    macos:
-      xcode: "14.3.0"
-    resource_class: macos.x86.medium.gen2
-    <<: *steps-test
-  test-windows:
-    executor:
-      name: win/default
-      shell: bash.exe
-    <<: *steps-test
+  node: electronjs/node@1.4.1
 
 workflows:
   test_and_release:
     # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
-      - test-linux-14
-      - test-linux-16
-      - test-mac
-      - test-windows
+      - node/test:
+          name: test-<< matrix.executor >>-<< matrix.node-version >>
+          pre-steps:
+            - when:
+                condition:
+                  equal: [ node/linux, << matrix.executor >> ]
+                steps:
+                  - run:
+                      name: Install Linux Dependencies
+                      command: |
+                        sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6 xvfb libgbm-dev
+          matrix:
+            alias: test
+            parameters:
+              executor:
+                - node/linux
+                - node/macos
+                - node/windows
+              node-version:
+                # Don't bump above 20.2.0 until CircleCI updates
+                # their Windows image to pick up newer nvm-windows
+                - 20.2.0
+                - 18.17.0
+                - 16.20.1
+                - 14.21.3
       - cfa/release:
           requires:
-            - test-linux-14
-            - test-linux-16
-            - test-mac
-            - test-windows
+            - test
           filters:
             branches:
               only:
