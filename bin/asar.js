@@ -35,11 +35,9 @@ program.command('pack <dir> <output>')
       builddir: options.sb,
       dot: !options.excludeHidden
     }
-    asar.createPackageWithOptions(dir, output, options, function (error) {
-      if (error) {
-        console.error(error.stack)
-        process.exit(1)
-      }
+    asar.createPackageWithOptions(dir, output, options).catch(error => {
+      console.error(error)
+      process.exit(1)
     })
   })
 
