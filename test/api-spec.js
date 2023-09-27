@@ -94,4 +94,12 @@ describe('api', function () {
     const expected = await fs.readFile('test/input/packthis-unicode-path/dir1/女の子.txt', 'utf8')
     return compFileLists(actual, expected)
   })
+  it('should create files/directories whose names are properties of Object.prototype', async () => {
+    await asar.createPackage('test/input/packthis-object-prototype/', 'tmp/packthis-object-prototype.asar')
+    return compFiles('tmp/packthis-object-prototype.asar', 'test/expected/packthis-object-prototype.asar')
+  })
+  it('should extract files/directories whose names are properties of Object.prototype', () => {
+    asar.extractAll('test/expected/packthis-object-prototype.asar', 'tmp/packthis-object-prototype/')
+    return compDirs('test/input/packthis-object-prototype/', 'tmp/packthis-object-prototype')
+  })
 })
