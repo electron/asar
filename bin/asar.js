@@ -59,8 +59,12 @@ program.command('extract-file <archive> <filename>')
   .alias('ef')
   .description('extract one file from archive')
   .action(function (archive, filename) {
-    require('fs').writeFileSync(require('path').basename(filename),
-      asar.extractFile(archive, filename))
+    try {
+      const fileData = asar.extractFile(archive, filename)
+      require('fs').writeFileSync(require('path').basename(filename), fileData)
+    } catch (err) {
+      console.log(err.message)
+    }
   })
 
 program.command('extract <archive> <dest>')
