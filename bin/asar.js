@@ -24,11 +24,15 @@ program.command('pack <dir> <output>')
   .option('--ordering <file path>', 'path to a text file for ordering contents')
   .option('--unpack <expression>', 'do not pack files matching glob <expression>')
   .option('--unpack-dir <expression>', 'do not pack dirs matching glob <expression> or starting with literal <expression>')
+  .option('--ignore <expression>', 'do not include files matching glob <expression>')
+  .option('--ignore-dir <expression>', 'do not include dirs matching glob <expression>')
   .option('--exclude-hidden', 'exclude hidden files')
   .action(function (dir, output, options) {
     options = {
       unpack: options.unpack,
       unpackDir: options.unpackDir,
+      ignore: options.ignore,
+      ignoreDir: options.ignoreDir,
       ordering: options.ordering,
       version: options.sv,
       arch: options.sa,
