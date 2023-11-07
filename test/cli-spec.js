@@ -83,6 +83,9 @@ describe('command line interface', function () {
     await execAsar('e test/input/extractthis-unpack.asar tmp/extractthis-unpack-cli/')
     return compDirs('tmp/extractthis-unpack-cli/', 'test/expected/extractthis')
   })
+  it('should throw an error when trying to extract a file that doesn\'t exist in the archive', async () => {
+    await assert.rejects(execAsar('ef test/input/extractthis.asar this-file-doesnt-exist.404'), /"(.*?)" was not found in this archive/)
+  })
   it('should create archive from directory with unpacked dirs', async () => {
     await execAsar('p test/input/packthis/ tmp/packthis-unpack-dir-cli.asar --unpack-dir dir2 --exclude-hidden')
     assert.ok(fs.existsSync('tmp/packthis-unpack-dir-cli.asar.unpacked/dir2/file2.png'))
