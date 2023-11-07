@@ -39,11 +39,9 @@ program.command('pack <dir> <output>')
       builddir: options.sb,
       dot: !options.excludeHidden
     }
-    asar.createPackageWithOptions(dir, output, options, function (error) {
-      if (error) {
-        console.error(error.stack)
-        process.exit(1)
-      }
+    asar.createPackageWithOptions(dir, output, options).catch(error => {
+      console.error(error)
+      process.exit(1)
     })
   })
 
@@ -77,8 +75,8 @@ program.command('extract <archive> <dest>')
   })
 
 program.command('*')
-  .action(function (cmd) {
-    console.log('asar: \'%s\' is not an asar command. See \'asar --help\'.', cmd)
+  .action(function (_cmd, args) {
+    console.log('asar: \'%s\' is not an asar command. See \'asar --help\'.', args[0])
   })
 
 program.parse(process.argv)

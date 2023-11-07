@@ -1,5 +1,5 @@
 {
-  "name": "asar",
+  "name": "@electron/asar",
   "description": "Creating Electron app packages",
   "version": "0.0.0-development",
   "main": "./lib/asar.js",
@@ -43,25 +43,19 @@
     "directory": "test"
   },
   "dependencies": {
-    "chromium-pickle-js": "^0.2.0",
     "commander": "^5.0.0",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4"
   },
-  "optionalDependencies": {
-    "@types/glob": "^7.1.1"
-  },
   "devDependencies": {
-    "@continuous-auth/semantic-release-npm": "^2.0.0",
-    "@semantic-release/changelog": "^5.0.0",
-    "electron": "^5.0.0",
-    "electron-mocha": "^8.2.1",
+    "@continuous-auth/semantic-release-npm": "^3.0.0",
+    "electron": "^22.0.0",
+    "electron-mocha": "^11.0.2",
     "lodash": "^4.17.15",
-    "mocha": "^7.1.1",
+    "mocha": "^10.1.0",
     "rimraf": "^3.0.2",
-    "semantic-release": "^17.0.4",
     "standard": "^14.3.3",
-    "tsd": "^0.11.0",
+    "tsd": "^0.25.0",
     "xvfb-maybe": "^0.2.1"
   }
 }
