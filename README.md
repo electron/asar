@@ -81,7 +81,7 @@ Exclude: a, b, d, f, h
 $ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
 ```
 
-## Using programatically
+## Using programmatically
 
 ### Example
 
