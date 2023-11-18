@@ -13,6 +13,13 @@ workflows:
           pre-steps:
             - when:
                 condition:
+                  and:
+                    - equal: [ node/macos, << matrix.executor >> ]
+                    - equal: [ '14.16', << matrix.node-version >> ]
+                steps:
+                  - node/install-rosetta
+            - when:
+                condition:
                   equal: [ node/linux, << matrix.executor >> ]
                 steps:
                   - run:
@@ -27,12 +34,11 @@ workflows:
                 - node/macos
                 - node/windows
               node-version:
-                # Don't bump above 20.2.0 until CircleCI updates
-                # their Windows image to pick up newer nvm-windows
-                - 20.2.0
-                - 18.17.0
-                - 16.20.1
-                - 14.16.1
+                - '20.9'
+                - '18.17'
+                - '16.20'
+                # Stay below 14.17.0 or nvm tries to download arm64 artifacts which don't exist
+                - '14.16'
       - cfa/release:
           requires:
             - test
