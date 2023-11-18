@@ -48,7 +48,6 @@
     "minimatch": "^3.0.4"
   },
   "devDependencies": {
-    "@continuous-auth/semantic-release-npm": "^3.0.0",
     "electron": "^22.0.0",
     "electron-mocha": "^11.0.2",
     "lodash": "^4.17.15",
