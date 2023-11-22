@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  cfa: continuousauth/npm@1.0.2
-  node: electronjs/node@1.4.1
+  cfa: continuousauth/npm@2.1.0
+  node: electronjs/node@2.1.0
 
 workflows:
   test_and_release:
@@ -11,6 +11,13 @@ workflows:
       - node/test:
           name: test-<< matrix.executor >>-<< matrix.node-version >>
           pre-steps:
+            - when:
+                condition:
+                  and:
+                    - equal: [ node/macos, << matrix.executor >> ]
+                    - equal: [ '14.16', << matrix.node-version >> ]
+                steps:
+                  - node/install-rosetta
             - when:
                 condition:
                   equal: [ node/linux, << matrix.executor >> ]
@@ -27,12 +34,11 @@ workflows:
                 - node/macos
                 - node/windows
               node-version:
-                # Don't bump above 20.2.0 until CircleCI updates
-                # their Windows image to pick up newer nvm-windows
-                - 20.2.0
-                - 18.17.0
-                - 16.20.1
-                - 14.21.3
+                - '20.9'
+                - '18.17'
+                - '16.20'
+                # Stay below 14.17.0 or nvm tries to download arm64 artifacts which don't exist
+                - '14.16'
       - cfa/release:
           requires:
             - test
