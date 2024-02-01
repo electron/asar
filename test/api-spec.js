@@ -81,6 +81,11 @@ describe('api', function () {
     asar.extractAll('test/input/extractthis-unpack-dir.asar', 'tmp/extractthis-unpack-dir-api/')
     return compDirs('tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis')
   })
+  it('should extract an archive with symlink', async () => {
+    await asar.createPackageWithOptions('test/input/packthis-with-symlink/', 'tmp/packthis-with-symlink.asar', { dot: false })
+    asar.extractAll('tmp/packthis-with-symlink.asar', 'tmp/packthis-with-symlink/')
+    return compFiles('tmp/packthis-with-symlink/real.txt', 'test/input/packthis-with-symlink/real.txt')
+  })
   it('should handle multibyte characters in paths', async () => {
     await asar.createPackageWithOptions('test/input/packthis-unicode-path/', 'tmp/packthis-unicode-path.asar', {
       globOptions: {
