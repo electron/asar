@@ -13,7 +13,7 @@
     "lib/index.d.ts"
   ],
   "engines": {
-    "node": ">=10.12.0"
+    "node": ">=18.18.0"
   },
   "license": "MIT",
   "homepage": "https://github.com/electron/asar",
@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "commander": "^5.0.0",
-    "glob": "^7.1.6",
+    "glob": "^9.3.5",
     "minimatch": "^3.0.4"
   },
   "devDependencies": {

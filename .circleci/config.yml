@@ -15,7 +15,7 @@ workflows:
                 condition:
                   and:
                     - equal: [ node/macos, << matrix.executor >> ]
-                    - equal: [ '14.16', << matrix.node-version >> ]
+                    - equal: [ '18.18', << matrix.node-version >> ]
                 steps:
                   - node/install-rosetta
             - when:
@@ -35,10 +35,7 @@ workflows:
                 - node/windows
               node-version:
                 - '20.9'
-                - '18.17'
-                - '16.20'
-                # Stay below 14.17.0 or nvm tries to download arm64 artifacts which don't exist
-                - '14.16'
+                - '18.18'
       - cfa/release:
           requires:
             - test
