@@ -11,15 +11,14 @@ describe('filesystem', function () {
   beforeEach(() => { rimraf.sync(path.join(__dirname, '..', 'tmp'), fs) })
 
   it('should does not throw error when src path include symbol link', async () => {
-    /* eslint-disable no-irregular-whitespace */
     /**
      * Directory structure:
      * tmp
      * ├── private
-     * │   └── var
-     * │       ├── app
-     * │       │   └── file.txt -> ../file.txt
-     * │       └── file.txt
+     * │   └── var
+     * │       ├── app
+     * │       │   └── file.txt -> ../file.txt
+     * │       └── file.txt
      * └── var -> private/var
      */
     const tmpPath = path.join(__dirname, '..', 'tmp')
