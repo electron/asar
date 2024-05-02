@@ -10,7 +10,7 @@ const Filesystem = require('../lib/filesystem')
 describe('filesystem', function () {
   beforeEach(() => { rimraf.sync(path.join(__dirname, '..', 'tmp'), fs) })
 
-  it('should does not throw error when src path include symbol link', async () => {
+  it('should does not throw an error when the src path includes a symbol link', async () => {
     /**
      * Directory structure:
      * tmp
