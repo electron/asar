@@ -10,6 +10,7 @@ workflows:
     jobs:
       - node/test:
           name: test-<< matrix.executor >>-<< matrix.node-version >>
+          override-ci-command: yarn install --frozen-lockfile --ignore-engines
           pre-steps:
             - when:
                 condition:
