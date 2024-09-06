@@ -12,7 +12,7 @@ type AsarFS = typeof import('fs') & {
   writeFile: (typeof import('fs'))['promises']['writeFile'];
 };
 
-const promisified: AsarFS = {} as any;
+const promisified = {} as AsarFS;
 
 for (const method of Object.keys(fs)) {
   if (promisifiedMethods.includes(method)) {

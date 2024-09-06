@@ -53,11 +53,11 @@ export async function createPackageWithOptions(src: string, dest: string, option
 /**
  * Create an ASAR archive from a list of filenames.
  *
- * @param {string} src: Base path. All files are relative to this.
- * @param {string} dest: Archive filename (& path).
- * @param {array} filenames: List of filenames relative to src.
- * @param {object} metadata: Object with filenames as keys and {type='directory|file|link', stat: fs.stat} as values. (Optional)
- * @param {object} options: Options passed to `createPackageWithOptions`.
+ * @param {string} src - Base path. All files are relative to this.
+ * @param {string} dest - Archive filename (& path).
+ * @param {array} filenames - List of filenames relative to src.
+ * @param {object} [metadata] - Object with filenames as keys and {type='directory|file|link', stat: fs.stat} as values. (Optional)
+ * @param {object} [options] - Options passed to `createPackageWithOptions`.
  */
 export async function createPackageFromFiles(
   src: string,
