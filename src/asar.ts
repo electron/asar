@@ -4,9 +4,8 @@ import * as minimatch from 'minimatch';
 import fs from './wrapped-fs';
 import { Filesystem, FilesystemEntry } from './filesystem';
 import * as disk from './disk';
-import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
+import { crawl as crawlFilesystem, determineFileType } from './crawlfs';
 import { IOptions } from 'glob';
-import { Stats } from 'fs';
 
 /**
  * Whether a directory should be excluded from packing due to the `--unpack-dir" option.
