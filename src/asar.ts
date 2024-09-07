@@ -10,9 +10,9 @@ import { IOptions } from 'glob';
 /**
  * Whether a directory should be excluded from packing due to the `--unpack-dir" option.
  *
- * @param {string} dirPath - directory path to check
- * @param {string} pattern - literal prefix [for backward compatibility] or glob pattern
- * @param {array} unpackDirs - Array of directory paths previously marked as unpacked
+ * @param dirPath - directory path to check
+ * @param pattern - literal prefix [for backward compatibility] or glob pattern
+ * @param unpackDirs - Array of directory paths previously marked as unpacked
  */
 function isUnpackedDir(dirPath: string, pattern: string, unpackDirs: string[]) {
   if (dirPath.startsWith(pattern) || minimatch(dirPath, pattern)) {
@@ -46,17 +46,17 @@ export async function createPackageWithOptions(src: string, dest: string, option
   const pattern = src + (options.pattern ? options.pattern : '/**/*');
 
   const [filenames, metadata] = await crawlFilesystem(pattern, globOptions);
-  return module.exports.createPackageFromFiles(src, dest, filenames, metadata, options);
+  return createPackageFromFiles(src, dest, filenames, metadata, options);
 }
 
 /**
  * Create an ASAR archive from a list of filenames.
  *
- * @param {string} src - Base path. All files are relative to this.
- * @param {string} dest - Archive filename (& path).
- * @param {array} filenames - List of filenames relative to src.
- * @param {object} [metadata] - Object with filenames as keys and {type='directory|file|link', stat: fs.stat} as values. (Optional)
- * @param {object} [options] - Options passed to `createPackageWithOptions`.
+ * @param src - Base path. All files are relative to this.
+ * @param dest - Archive filename (& path).
+ * @param filenames - List of filenames relative to src.
+ * @param [metadata] - Object with filenames as keys and {type='directory|file|link', stat: fs.stat} as values. (Optional)
+ * @param [options] - Options passed to `createPackageWithOptions`.
  */
 export async function createPackageFromFiles(
   src: string,
@@ -132,7 +132,7 @@ export async function createPackageFromFiles(
     }
     const file = metadata[filename];
 
-    let shouldUnpack;
+    let shouldUnpack: boolean;
     switch (file.type) {
       case 'directory':
         if (options.unpackDir) {

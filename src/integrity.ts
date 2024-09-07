@@ -31,7 +31,7 @@ export async function getFileIntegrity(path: string): Promise<FileIntegrity> {
     fs.createReadStream(path),
     new stream.PassThrough({
       decodeStrings: false,
-      transform(_chunk, encoding, callback) {
+      transform(_chunk: Buffer, encoding, callback) {
         fileHash.update(_chunk);
 
         function handleChunk(chunk: Buffer) {

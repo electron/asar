@@ -120,7 +120,7 @@ export class Filesystem {
       return Promise.resolve();
     }
 
-    let size;
+    let size: number;
 
     const transformed = options.transform && options.transform(p);
     if (transformed) {

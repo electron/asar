@@ -82,8 +82,8 @@ export async function writeFilesystem(
 
 export function readArchiveHeaderSync(archivePath: string) {
   const fd = fs.openSync(archivePath, 'r');
-  let size;
-  let headerBuf;
+  let size: number;
+  let headerBuf: Buffer;
   try {
     const sizeBuf = Buffer.alloc(8);
     if (fs.readSync(fd, sizeBuf, 0, 8, null) !== 8) {
