@@ -3,14 +3,13 @@
   "description": "Creating Electron app packages",
   "version": "0.0.0-development",
   "main": "./lib/asar.js",
-  "types": "./lib/index.d.ts",
+  "types": "./lib/asar.d.ts",
   "bin": {
     "asar": "./bin/asar.js"
   },
   "files": [
     "bin",
-    "lib",
-    "lib/index.d.ts"
+    "lib"
   ],
   "engines": {
     "node": ">=10.12.0"
@@ -25,36 +24,31 @@
     "url": "https://github.com/electron/asar/issues"
   },
   "scripts": {
+    "build": "tsc",
     "mocha": "xvfb-maybe electron-mocha --reporter spec && mocha --reporter spec",
-    "test": "npm run lint && npm run mocha",
-    "lint": "tsd && standard",
-    "standard": "standard",
-    "tsd": "tsd"
-  },
-  "standard": {
-    "env": {
-      "mocha": true
-    },
-    "globals": [
-      "BigInt"
-    ]
-  },
-  "tsd": {
-    "directory": "test"
+    "test": "yarn lint && yarn mocha",
+    "lint": "yarn prettier:check",
+    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" \"test/**/*.js\"",
+    "prettier:check": "yarn prettier --check",
+    "prettier:write": "yarn prettier --write",
+    "prepare": "tsc"
   },
   "dependencies": {
+    "@types/glob": "^7.1.0",
     "commander": "^5.0.0",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4"
   },
   "devDependencies": {
+    "@types/minimatch": "^3.0.5",
+    "@types/node": "^12.0.0",
     "electron": "^22.0.0",
     "electron-mocha": "^11.0.2",
     "lodash": "^4.17.15",
     "mocha": "^10.1.0",
+    "prettier": "^3.3.3",
     "rimraf": "^3.0.2",
-    "standard": "^14.3.3",
-    "tsd": "^0.25.0",
+    "typescript": "^5.5.4",
     "xvfb-maybe": "^0.2.1"
   }
 }
