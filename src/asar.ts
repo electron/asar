@@ -221,6 +221,9 @@ export function extractAll(archivePath: string, dest: string) {
     const filename = fullPath.substr(1);
     const destFilename = path.join(dest, filename);
     const file = filesystem.getFile(filename, followLinks);
+    if (path.relative(dest, destFilename).startsWith('..')) {
+      throw new Error(`${fullPath}: file "${destFilename}" writes out of the package`);
+    }
     if ('files' in file) {
       // it's a directory, create it and continue with the next entry
       fs.mkdirpSync(destFilename);
@@ -234,6 +237,11 @@ export function extractAll(archivePath: string, dest: string) {
         fs.unlinkSync(destFilename);
       } catch {}
       const linkTo = path.join(relativePath, path.basename(file.link));
+      if (path.relative(dest, linkSrcPath).startsWith('..')) {
+        throw new Error(
+          `${fullPath}: file "${file.link}" links out of the package to "${linkSrcPath}"`,
+        );
+      }
       fs.symlinkSync(linkTo, destFilename);
     } else {
       // it's a file, try to extract it
