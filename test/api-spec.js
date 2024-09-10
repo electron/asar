@@ -119,7 +119,7 @@ describe('api', function () {
       'test/input/packthis-with-symlink/real.txt',
     );
   });
-  it('should extract an archive with symlink', async () => {
+  it('should not extract an archive with a bad symlink', async () => {
     assert.throws(() => {
       asar.extractAll('test/input/bad-symlink.asar', 'tmp/bad-symlink/');
     });
