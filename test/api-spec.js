@@ -160,4 +160,12 @@ describe('api', function () {
     );
     return compDirs('test/input/packthis-object-prototype/', 'tmp/packthis-object-prototype');
   });
+  it('should export all functions also in the default export', () => {
+    const topLevelFunctions = Object.keys(asar).filter((key) => typeof asar[key] === 'function');
+    const defaultExportFunctions = Object.keys(asar.default).filter(
+      (key) => typeof asar.default[key] === 'function',
+    );
+
+    assert.deepStrictEqual(topLevelFunctions, defaultExportFunctions);
+  });
 });

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as minimatch from 'minimatch';
+import minimatch from 'minimatch';
 
 import fs from './wrapped-fs';
 import { Filesystem, FilesystemEntry } from './filesystem';
@@ -271,3 +271,16 @@ export function uncache(archivePath: string) {
 export function uncacheAll() {
   disk.uncacheAll();
 }
+
+export default {
+  createPackage,
+  createPackageWithOptions,
+  createPackageFromFiles,
+  statFile,
+  getRawHeader,
+  listPackage,
+  extractFile,
+  extractAll,
+  uncache,
+  uncacheAll,
+};

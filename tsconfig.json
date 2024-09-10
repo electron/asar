@@ -15,7 +15,8 @@
     "moduleResolution": "node",
     "declaration": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "esModuleInterop": true
   },
   "include": [
     "src"
