@@ -119,6 +119,11 @@ describe('api', function () {
       'test/input/packthis-with-symlink/real.txt',
     );
   });
+  it('should extract an archive with symlink', async () => {
+    assert.throws(() => {
+      asar.extractAll('test/input/bad-symlink.asar', 'tmp/bad-symlink/');
+    });
+  });
   it('should handle multibyte characters in paths', async () => {
     await asar.createPackageWithOptions(
       'test/input/packthis-unicode-path/',
