@@ -11,10 +11,13 @@ const UINT32_MAX = 2 ** 32 - 1;
 
 const pipeline = promisify(stream.pipeline);
 
-export type FilesystemDirectoryEntry = {
-  files: Record<string, FilesystemEntry>;
+export type EntryMetadata = {
   unpacked?: boolean;
 };
+
+export type FilesystemDirectoryEntry = {
+  files: Record<string, FilesystemEntry>;
+} & EntryMetadata;
 
 export type FilesystemFileEntry = {
   unpacked: boolean;
@@ -22,11 +25,11 @@ export type FilesystemFileEntry = {
   offset: string;
   size: number;
   integrity: FileIntegrity;
-};
+} & EntryMetadata;
 
 export type FilesystemLinkEntry = {
   link: string;
-};
+} & EntryMetadata;
 
 export type FilesystemEntry = FilesystemDirectoryEntry | FilesystemFileEntry | FilesystemLinkEntry;
 

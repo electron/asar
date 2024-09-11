@@ -2,7 +2,12 @@ import * as path from 'path';
 import minimatch from 'minimatch';
 
 import fs from './wrapped-fs';
-import { Filesystem, FilesystemEntry } from './filesystem';
+import {
+  Filesystem,
+  FilesystemDirectoryEntry,
+  FilesystemEntry,
+  FilesystemLinkEntry,
+} from './filesystem';
 import * as disk from './disk';
 import { crawl as crawlFilesystem, determineFileType } from './crawlfs';
 import { IOptions } from 'glob';
@@ -192,7 +197,11 @@ export function getRawHeader(archivePath: string) {
   return disk.readArchiveHeaderSync(archivePath);
 }
 
-export function listPackage(archivePath: string, options: { isPack: boolean }) {
+export interface ListOptions {
+  isPack: boolean;
+}
+
+export function listPackage(archivePath: string, options: ListOptions) {
   return disk.readFilesystemSync(archivePath).listFiles(options);
 }
 
@@ -272,6 +281,18 @@ export function uncacheAll() {
   disk.uncacheAll();
 }
 
+// Legacy type exports to maintain compatibility with pre-TypeScript rewrite
+// (https://github.com/electron/asar/blob/50b0c62e5b24c3d164687e6470b8658e09b09eea/lib/index.d.ts)
+// These don't match perfectly and are technically still a breaking change but they're close enough
+// to keep _most_ build pipelines out there from breaking.
+export { EntryMetadata } from './filesystem';
+export { InputMetadata, DirectoryRecord, FileRecord, ArchiveHeader } from './disk';
+export type InputMetadataType = 'directory' | 'file' | 'link';
+export type DirectoryMetadata = FilesystemDirectoryEntry;
+export type FileMetadata = FilesystemEntry;
+export type LinkMetadata = FilesystemLinkEntry;
+
+// Export everything in default, too
 export default {
   createPackage,
   createPackageWithOptions,
