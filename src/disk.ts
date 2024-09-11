@@ -1,9 +1,8 @@
 import * as path from 'path';
 import fs from './wrapped-fs';
 import { Pickle } from './pickle';
-import { Filesystem, FilesystemEntry, FilesystemFileEntry } from './filesystem';
+import { Filesystem, FilesystemFileEntry } from './filesystem';
 import { CrawledFileType } from './crawlfs';
-import { Stats } from 'fs';
 
 let filesystemCache: Record<string, Filesystem | undefined> = Object.create(null);
 
@@ -80,7 +79,27 @@ export async function writeFilesystem(
   return writeFileListToStream(dest, filesystem, out, fileList, metadata);
 }
 
-export function readArchiveHeaderSync(archivePath: string) {
+export interface FileRecord extends FilesystemFileEntry {
+  integrity: {
+    hash: string;
+    algorithm: 'SHA256';
+    blocks: string[];
+    blockSize: number;
+  };
+}
+
+export type DirectoryRecord = {
+  files: Record<string, DirectoryRecord | FileRecord>;
+};
+
+export type ArchiveHeader = {
+  // The JSON parsed header string
+  header: DirectoryRecord;
+  headerString: string;
+  headerSize: number;
+};
+
+export function readArchiveHeaderSync(archivePath: string): ArchiveHeader {
   const fd = fs.openSync(archivePath, 'r');
   let size: number;
   let headerBuf: Buffer;
