@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  cfa: continuousauth/npm@2.1.0
+  cfa: continuousauth/npm@2.1.1
   node: electronjs/node@2.3.0
 
 workflows:
