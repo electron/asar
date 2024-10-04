@@ -31,7 +31,7 @@ export async function crawl(dir: string, options: IOptions) {
   const metadata: Record<string, CrawledFileType> = {};
   const crawled = await glob(dir, options);
   const results = await Promise.all(
-    crawled.map(async (filename) => <const>[filename, await determineFileType(filename)]),
+    crawled.map(async (filename) => [filename, await determineFileType(filename)] as const),
   );
   const links: string[] = [];
   const filenames = results
@@ -51,5 +51,5 @@ export async function crawl(dir: string, options: IOptions) {
         return !filename.startsWith(link);
       });
     });
-  return <const>[filenames, metadata];
+  return [filenames, metadata] as const;
 }
