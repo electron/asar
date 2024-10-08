@@ -168,4 +168,8 @@ describe('api', function () {
 
     assert.deepStrictEqual(topLevelFunctions, defaultExportFunctions);
   });
+  it('should stat a symlinked file', async () => {
+    const stats = asar.statFile('test/input/stat-symlink.asar', 'real.txt', true);
+    return assert.strictEqual(stats.size, 19);
+  });
 });
