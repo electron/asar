@@ -182,6 +182,10 @@ describe('command line interface', function () {
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir1/file1.txt'));
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file2.png'));
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file3.txt'));
-    assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir-do-not-unpack/file2.png') === false);
+    assert.ok(
+      fs.existsSync(
+        'tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir-do-not-unpack/file2.png',
+      ) === false,
+    );
   });
 });
