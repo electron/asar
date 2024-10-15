@@ -28,7 +28,7 @@ function isUnpackedDir(dirPath: string, pattern: string, unpackDirs: string[]) {
   } else {
     return unpackDirs.some(
       (unpackDir) =>
-        dirPath.startsWith(unpackDir) && !path.relative(dirPath, unpackDir).includes('../'),
+        dirPath.startsWith(unpackDir) && !path.relative(unpackDir, dirPath).startsWith('../')
     );
   }
 }
