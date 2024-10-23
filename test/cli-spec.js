@@ -174,13 +174,18 @@ describe('command line interface', function () {
       'test/expected/packthis-unpack-dir.asar',
     );
   });
-  it('should create archive from directory with unpacked subdirs and files', async () => {
+  it('should create archive from directory with unpacked subdirs and files using minimatch', async () => {
     await execAsar(
-      'p test/input/packthis-subdir/ tmp/packthis-unpack-subdir-cli.asar --unpack *.txt --unpack-dir dir2/subdir --exclude-hidden',
+      'p test/input/packthis-subdir/ tmp/packthis-unpack-subdir-cli.asar --unpack *.txt --unpack-dir "{dir2/subdir,dir2/subdir}" --exclude-hidden',
     );
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/file0.txt'));
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir1/file1.txt'));
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file2.png'));
     assert.ok(fs.existsSync('tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir/file3.txt'));
+    assert.ok(
+      fs.existsSync(
+        'tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir-do-not-unpack/file2.png',
+      ) === false,
+    );
   });
 });
