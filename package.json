@@ -34,7 +34,6 @@
     "prepare": "tsc"
   },
   "dependencies": {
-    "@types/glob": "^7.1.0",
     "commander": "^5.0.0",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4"
