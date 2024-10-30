@@ -2,17 +2,6 @@
  * TODO(erikian): remove this file once we upgrade to the latest `glob` version.
  * https://github.com/electron/asar/pull/332#issuecomment-2435407933
  */
-
-declare module 'glob' {
-  export function glob(
-    pattern: string,
-    options: IGlobOptions,
-    cb: (err: Error | null, matches: string[]) => void,
-  ): unknown;
-
-  export interface IOptions extends IGlobOptions {}
-}
-
 interface IMinimatchOptions {
   /**
    * Dump a ton of stuff to stderr.
@@ -135,7 +124,7 @@ interface IMinimatchOptions {
   windowsPathsNoEscape?: boolean;
 }
 
-export interface IGlobOptions extends IMinimatchOptions {
+export interface IOptions extends IMinimatchOptions {
   cwd?: string | undefined;
   root?: string | undefined;
   dot?: boolean | undefined;
