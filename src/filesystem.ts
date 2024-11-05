@@ -190,9 +190,12 @@ export class Filesystem {
     return files;
   }
 
-  getNode(p: string) {
+  getNode(p: string, followLinks: boolean = true): FilesystemEntry {
     const node = this.searchNodeFromDirectory(path.dirname(p));
     const name = path.basename(p);
+    if ('link' in node && followLinks) {
+      return this.getNode(path.join(node.link, name));
+    }
     if (name) {
       return (node as FilesystemDirectoryEntry).files[name];
     } else {
@@ -201,7 +204,7 @@ export class Filesystem {
   }
 
   getFile(p: string, followLinks: boolean = true): FilesystemEntry {
-    const info = this.getNode(p);
+    const info = this.getNode(p, followLinks);
 
     if (!info) {
       throw new Error(`"${p}" was not found in this archive`);
