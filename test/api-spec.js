@@ -119,6 +119,21 @@ describe('api', function () {
       'test/input/packthis-with-symlink/real.txt',
     );
   });
+  it('should extract an archive with symlink having the same prefix', async () => {
+    await asar.createPackageWithOptions(
+      'test/input/packthis-with-symlink-same-prefix/',
+      'tmp/packthis-with-symlink-same-prefix.asar',
+      { dot: false },
+    );
+    asar.extractAll(
+      'tmp/packthis-with-symlink-same-prefix.asar',
+      'tmp/packthis-with-symlink-same-prefix/',
+    );
+    return compFiles(
+      'tmp/packthis-with-symlink-same-prefix/real.txt',
+      'test/input/packthis-with-symlink-same-prefix/real.txt',
+    );
+  });
   it('should not extract an archive with a bad symlink', async () => {
     assert.throws(() => {
       asar.extractAll('test/input/bad-symlink.asar', 'tmp/bad-symlink/');

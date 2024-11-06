@@ -3,6 +3,7 @@ import { glob as _glob } from 'glob';
 
 import fs from './wrapped-fs';
 import { Stats } from 'fs';
+import * as path from 'path';
 import { IOptions } from './types/glob';
 
 const glob = promisify(_glob);
@@ -48,8 +49,13 @@ export async function crawl(dir: string, options: IOptions) {
       // those appearing in archives we need to manually exclude theme here
       const exactLinkIndex = links.findIndex((link) => filename === link);
       return links.every((link, index) => {
-        if (index === exactLinkIndex) return true;
-        return !filename.startsWith(link);
+        if (index === exactLinkIndex) {
+          return true;
+        }
+        const isFileWithinSymlinkDir = filename.startsWith(link);
+        // symlink may point outside the directory: https://github.com/electron/asar/issues/303
+        const relativePath = path.relative(link, path.dirname(filename));
+        return !isFileWithinSymlinkDir || relativePath.startsWith('..');
       });
     });
   return [filenames, metadata] as const;
