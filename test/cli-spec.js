@@ -188,4 +188,42 @@ describe('command line interface', function () {
       ) === false,
     );
   });
+  it('should unpack static framework with all underlying symlinks unpacked', async () => {
+    await execAsar(
+      'p test/input/packthis-with-symlink/ tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir "{dir2/subdir,Hello.framework}" --exclude-hidden',
+    );
+    // actual files
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/A/real.txt'));
+    assert.ok(
+      fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Hello'),
+    );
+
+    // unpacked symlinks
+    assert.equal(
+      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/real.txt'),
+      'Current/real.txt',
+    );
+
+    assert.equal(
+      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Hello'),
+      'Versions/Current/Hello',
+    );
+    assert.ok(
+      fs
+        .realpathSync(
+          'tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/Current/Hello',
+        )
+        .endsWith('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Hello'),
+    );
+
+    assert.equal(
+      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Headers'),
+      'Versions/Current/Headers',
+    );
+    assert.ok(
+      fs
+        .realpathSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Headers')
+        .endsWith('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Headers'),
+    );
+  });
 });
