@@ -11,6 +11,7 @@ const rimraf = require('rimraf');
 const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
 const compFiles = require('./util/compareFiles');
+const createSymlinkApp = require('./util/createSymlinkApp');
 
 const exec = promisify(childProcess.exec);
 
@@ -189,41 +190,21 @@ describe('command line interface', function () {
     );
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
+    const { tmpPath } = createSymlinkApp('app');
     await execAsar(
-      'p test/input/packthis-with-symlink/ tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir "{dir2/subdir,Hello.framework}" --exclude-hidden',
-    );
-    // actual files
-    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/A/real.txt'));
-    assert.ok(
-      fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Hello'),
+      `p ${tmpPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
 
-    // unpacked symlinks
-    assert.equal(
-      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/real.txt'),
-      'Current/real.txt',
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/file.txt'));
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/app/file.txt'));
+    assert.strictEqual(
+      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/private/var/app/file.txt'),
+      path.join('..', 'file.txt'),
     );
-
-    assert.equal(
-      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Hello'),
-      'Versions/Current/Hello',
+    assert.strictEqual(
+      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/var'),
+      path.join('private', 'var'),
     );
-    assert.ok(
-      fs
-        .realpathSync(
-          'tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/Current/Hello',
-        )
-        .endsWith('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Hello'),
-    );
-
-    assert.equal(
-      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Headers'),
-      'Versions/Current/Headers',
-    );
-    assert.ok(
-      fs
-        .realpathSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Headers')
-        .endsWith('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Headers'),
-    );
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/var/file.txt'));
   });
 });

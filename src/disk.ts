@@ -61,7 +61,17 @@ const writeFileListToStream = async function (
     // the symlink needs to be recreated outside in .unpacked
     const filename = path.relative(filesystem.getRootPath(), file.filename);
     const link = await fs.readlink(file.filename);
-    await fs.symlink(link, path.join(`${dest}.unpacked`, filename));
+    // if symlink is within subdirectories, then we need to recreate dir structure
+    await fs.mkdirp(path.join(`${dest}.unpacked`, path.dirname(filename)));
+    // create symlink within unpacked dir
+    await fs.symlink(link, path.join(`${dest}.unpacked`, filename)).catch(async (error) => {
+      if (error.code === 'EPERM' && error.syscall === 'symlink') {
+        throw new Error(
+          'Could not create symlinks for unpacked assets. On Windows, consider activating Developer Mode to allow non-admin users to create symlinks by following the instructions at https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development.',
+        );
+      }
+      throw error;
+    });
   }
   return out.end();
 };

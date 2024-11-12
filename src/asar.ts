@@ -142,7 +142,7 @@ export async function createPackageFromFiles(
     const file = metadata[filename];
 
     const shouldUnpackPath = function (
-      relativeDirPath: string,
+      relativePath: string,
       unpack: string | undefined,
       unpackDir: string | undefined,
     ) {
@@ -151,7 +151,7 @@ export async function createPackageFromFiles(
         shouldUnpack = minimatch(filename, unpack, { matchBase: true });
       }
       if (!shouldUnpack && unpackDir) {
-        shouldUnpack = isUnpackedDir(relativeDirPath, unpackDir, unpackDirs);
+        shouldUnpack = isUnpackedDir(relativePath, unpackDir, unpackDirs);
       }
       return shouldUnpack;
     };
@@ -172,7 +172,7 @@ export async function createPackageFromFiles(
         return filesystem.insertFile(filename, shouldUnpack, file, options);
       case 'link':
         shouldUnpack = shouldUnpackPath(
-          path.relative(src, path.dirname(filename)),
+          path.relative(src, filename),
           options.unpack,
           options.unpackDir,
         );
