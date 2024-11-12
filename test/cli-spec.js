@@ -233,8 +233,12 @@ describe('command line interface', function () {
       );
       assert.ok(
         fs
-          .realpathSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir/test.txt')
-          .endsWith(path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test/test.txt')),
+          .realpathSync(
+            'tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir/test.txt',
+          )
+          .endsWith(
+            path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test/test.txt'),
+          ),
       );
     }
   });
