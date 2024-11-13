@@ -228,9 +228,9 @@ describe('command line interface', function () {
     } else {
       assert.equal(
         fs.realpathSync(
-          'tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir/test.txt',
+          'tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir',
         ),
-        path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test/test.txt'),
+        path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test'),
       );
     }
   });
