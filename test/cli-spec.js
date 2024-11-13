@@ -192,11 +192,11 @@ describe('command line interface', function () {
     await execAsar(
       'p test/input/packthis-with-symlink/ tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir "{dir2/subdir,Hello.framework,WindowsMklink}" --exclude-hidden',
     );
-    // actual files
     assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/A/real.txt'));
     assert.ok(
       fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Hello'),
     );
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir'));
     assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test/test.txt'));
 
     // symlinks in Hello.framework can only be "followed" on mac/linux, so we have separate Windows-created symlinks via `mklink` as another test (WindowsMklink folder)
@@ -226,40 +226,12 @@ describe('command line interface', function () {
           .endsWith('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Headers'),
       );
     } else {
-      assert.ok(
-        fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir'),
-      );
-      // assert.equal(
-      //   fs.realpathSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir'),
-      //   path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test'),
-      // );
-      // assert.ok(
-      //   fs
-      //     .realpathSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir')
-      //     .endsWith(path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test')),
-      // );
       assert.equal(
-        fs.realpathSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/test.txt'),
+        fs.realpathSync(
+          'tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir/test.txt',
+        ),
         path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test/test.txt'),
       );
-      assert.ok(
-        fs
-          .realpathSync(
-            'tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir/test.txt',
-          )
-          .endsWith(
-            path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test/test.txt'),
-          ),
-      );
-      // assert.ok(
-      //   fs
-      //     .realpathSync(
-      //       'tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir/test.txt',
-      //     )
-      //     .endsWith(
-      //       path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test/test.txt'),
-      //     ),
-      // );
     }
   });
 });
