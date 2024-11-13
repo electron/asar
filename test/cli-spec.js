@@ -227,9 +227,10 @@ describe('command line interface', function () {
           .endsWith('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Headers'),
       );
     } else {
-      assert.strictEqual(
-        fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir'),
-        'Test',
+      assert.ok(
+        fs
+          .realpathSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir')
+          .endsWith(path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test')),
       );
       assert.ok(
         fs
