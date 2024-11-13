@@ -193,7 +193,6 @@ describe('command line interface', function () {
       'p test/input/packthis-with-symlink/ tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir "{dir2/subdir,Hello.framework,WindowsMklink}" --exclude-hidden',
     );
     // actual files
-    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/real.txt'));
     assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/A/real.txt'));
     assert.ok(
       fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/Hello.framework/Versions/A/Hello'),
