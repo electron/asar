@@ -229,7 +229,7 @@ describe('command line interface', function () {
       assert.ok(
         fs
           .realpathSync('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/SymlinkedDir')
-          .endsWith(path.normalize('tmp/packthis-with-symlink.asar.unpacked/WindowsMklink/Test')),
+          .endsWith('tmp\\packthis-with-symlink.asar.unpacked\\WindowsMklink\\Test'),
       );
     }
   });
