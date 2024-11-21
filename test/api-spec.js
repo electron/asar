@@ -5,6 +5,7 @@ const fs = require('../lib/wrapped-fs').default;
 const os = require('os');
 const path = require('path');
 const rimraf = require('rimraf');
+const { execSync } = require('child_process');
 
 const asar = require('..');
 const compDirs = require('./util/compareDirectories');
@@ -15,6 +16,28 @@ const transform = require('./util/transformStream');
 async function assertPackageListEquals(actualList, expectedFilename) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
   return compFileLists(actualList.join('\n'), expected);
+}
+
+function canCreateSymLink() {
+  // On Windows, creating symlinks requires admin privileges.
+  // We'll only try to run symlink test if we have enough privileges.
+  // On other platforms, creating symlinks shouldn't need admin privileges
+  if (process.platform === 'win32') {
+    // whoami.exe needs to be the one from System32
+    // If unix tools are in the path, they can shadow the one we want,
+    // so use the full path while executing whoami
+    const whoamiPath = path.join(process.env.SystemRoot, 'System32', 'whoami.exe');
+
+    try {
+      const output = execSync(`${whoamiPath} /priv`, { timeout: 1000 });
+      console.log(output.toString());
+      return output.includes('SeCreateSymbolicLinkPrivilege');
+    } catch {
+      return false;
+    }
+  }
+  // On non-Windows platforms, this always returns `true`
+  return true;
 }
 
 describe('api', function () {
@@ -108,6 +131,8 @@ describe('api', function () {
     return compDirs('tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis');
   });
   it('should extract an archive with symlink', async () => {
+    assert.strictEqual(canCreateSymLink(), true);
+
     await asar.createPackageWithOptions(
       'test/input/packthis-with-symlink/',
       'tmp/packthis-with-symlink.asar',
@@ -120,6 +145,8 @@ describe('api', function () {
     );
   });
   it('should extract an archive with symlink having the same prefix', async () => {
+    assert.strictEqual(canCreateSymLink(), true);
+
     await asar.createPackageWithOptions(
       'test/input/packthis-with-symlink-same-prefix/',
       'tmp/packthis-with-symlink-same-prefix.asar',
