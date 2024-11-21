@@ -1,0 +1,51 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 22 * * 3'
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      matrix:
+        node-version:
+          - '20.10'
+          - '18.18'
+          - '16.20'
+          - '14.16'
+        os:
+          - macos-latest
+          - ubuntu-22.04
+          - windows-latest
+    runs-on: "${{ matrix.os }}"
+    steps:
+      - name: Install Rosetta
+        if: ${{ matrix.os == 'macos-latest' && matrix.node-version == '14.16' }}
+        run: /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+      - name: Install Linux Dependencies
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6 xvfb libgbm-dev
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: "${{ matrix.node-version }}"
+          cache: 'yarn'
+          architecture: ${{ matrix.os == 'macos-latest' && matrix.node-version == '14.16' && 'x64' || env.RUNNER_ARCH }}
+      - name: Install (Node.js v16+)
+        if : ${{ matrix.node-version != '14.16' }}
+        run: yarn install --frozen-lockfile
+      - name: Install (Node.js < v16)
+        if : ${{ matrix.node-version == '14.16' }}
+        run: yarn install --frozen-lockfile --ignore-engines
+      - name: Test
+        run: yarn test
