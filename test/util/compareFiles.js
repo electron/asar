@@ -30,5 +30,6 @@ module.exports = async function (actualFilePath, expectedFilePath) {
 
 function isSymbolicLinkSync(path) {
   const stats = fs.lstatSync(path);
+  console.log(JSON.stringify(stats));
   return stats.isSymbolicLink();
 }
