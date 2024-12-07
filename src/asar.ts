@@ -162,6 +162,7 @@ export async function createPackageFromFiles(
         files.push({ filename: filename, unpack: shouldUnpack });
         return filesystem.insertFile(filename, shouldUnpack, file, options);
       case 'link':
+        console.log(`Inserting link for ${filename}`);
         filesystem.insertLink(filename);
         break;
     }
