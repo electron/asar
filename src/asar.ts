@@ -162,6 +162,7 @@ export async function createPackageFromFiles(
         files.push({ filename: filename, unpack: shouldUnpack });
         return filesystem.insertFile(filename, shouldUnpack, file, options);
       case 'link':
+        console.log(`Inserting link for ${filename}`);
         filesystem.insertLink(filename);
         break;
     }
@@ -238,6 +239,7 @@ export function extractAll(archivePath: string, dest: string) {
     }
     if ('files' in file) {
       // it's a directory, create it and continue with the next entry
+      console.log(`Creating directory ${destFilename}`);
       fs.mkdirpSync(destFilename);
     } else if ('link' in file) {
       // it's a symlink, create a symlink
@@ -254,8 +256,11 @@ export function extractAll(archivePath: string, dest: string) {
           `${fullPath}: file "${file.link}" links out of the package to "${linkSrcPath}"`,
         );
       }
+      console.log(`Creating symlink ${destFilename} to ${linkTo}`);
       fs.symlinkSync(linkTo, destFilename);
+      console.log('Done creating symlink');
     } else {
+      console.log(`Extracting file to ${destFilename}`);
       // it's a file, try to extract it
       try {
         const content = disk.readFileSync(filesystem, filename, file);
