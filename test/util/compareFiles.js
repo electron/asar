@@ -17,6 +17,7 @@ module.exports = async function (actualFilePath, expectedFilePath) {
     isSymbolicLinkSync(actualFilePath),
     isSymbolicLinkSync(expectedFilePath),
   ];
+  console.log('Comparing isSymbolicLinkSync values', [actualIsSymlink, expectedIsSymlink]);
   assert.strictEqual(actualIsSymlink, expectedIsSymlink);
 
   if (actualIsSymlink && expectedIsSymlink) {
