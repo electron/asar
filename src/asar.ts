@@ -255,7 +255,9 @@ export function extractAll(archivePath: string, dest: string) {
           `${fullPath}: file "${file.link}" links out of the package to "${linkSrcPath}"`,
         );
       }
+      console.log(`Creating symlink ${destFilename} to ${linkTo}`);
       fs.symlinkSync(linkTo, destFilename);
+      console.log('Done creating symlink');
     } else {
       // it's a file, try to extract it
       try {
