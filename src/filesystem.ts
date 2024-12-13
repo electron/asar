@@ -156,7 +156,7 @@ export class Filesystem {
     this.offset += BigInt(size);
   }
 
-  insertLink(p: string) {
+  insertLink(p: string, shouldUnpack: boolean) {
     const symlink = fs.readlinkSync(p);
     // /var => /private/var
     const parentPath = fs.realpathSync(path.dirname(p));
@@ -165,6 +165,10 @@ export class Filesystem {
       throw new Error(`${p}: file "${link}" links out of the package`);
     }
     const node = this.searchNodeFromPath(p) as FilesystemLinkEntry;
+    const dirNode = this.searchNodeFromPath(path.dirname(p)) as FilesystemDirectoryEntry;
+    if (shouldUnpack || dirNode.unpacked) {
+      node.unpacked = true;
+    }
     node.link = link;
     return link;
   }

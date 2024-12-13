@@ -1,6 +1,14 @@
 const fs = 'electron' in process.versions ? require('original-fs') : require('fs');
 
-const promisifiedMethods = ['lstat', 'mkdtemp', 'readFile', 'stat', 'writeFile'];
+const promisifiedMethods = [
+  'lstat',
+  'mkdtemp',
+  'readFile',
+  'stat',
+  'writeFile',
+  'symlink',
+  'readlink',
+];
 
 type AsarFS = typeof import('fs') & {
   mkdirp(dir: string): Promise<void>;
@@ -10,6 +18,8 @@ type AsarFS = typeof import('fs') & {
   readFile: (typeof import('fs'))['promises']['readFile'];
   stat: (typeof import('fs'))['promises']['stat'];
   writeFile: (typeof import('fs'))['promises']['writeFile'];
+  symlink: (typeof import('fs'))['promises']['symlink'];
+  readlink: (typeof import('fs'))['promises']['readlink'];
 };
 
 const promisified = {} as AsarFS;
