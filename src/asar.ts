@@ -80,7 +80,8 @@ export async function createPackageFromFiles(
   });
 
   const filesystem = new Filesystem(src);
-  const files: { filename: string; unpack: boolean }[] = [];
+  const files: disk.BasicFilesArray = [];
+  const links: disk.BasicFilesArray = [];
   const unpackDirs: string[] = [];
 
   let filenamesSorted: string[] = [];
@@ -140,29 +141,43 @@ export async function createPackageFromFiles(
     }
     const file = metadata[filename];
 
+    const shouldUnpackPath = function (
+      relativePath: string,
+      unpack: string | undefined,
+      unpackDir: string | undefined,
+    ) {
+      let shouldUnpack = false;
+      if (unpack) {
+        shouldUnpack = minimatch(filename, unpack, { matchBase: true });
+      }
+      if (!shouldUnpack && unpackDir) {
+        shouldUnpack = isUnpackedDir(relativePath, unpackDir, unpackDirs);
+      }
+      return shouldUnpack;
+    };
+
     let shouldUnpack: boolean;
     switch (file.type) {
       case 'directory':
-        if (options.unpackDir) {
-          shouldUnpack = isUnpackedDir(path.relative(src, filename), options.unpackDir, unpackDirs);
-        } else {
-          shouldUnpack = false;
-        }
+        shouldUnpack = shouldUnpackPath(path.relative(src, filename), undefined, options.unpackDir);
         filesystem.insertDirectory(filename, shouldUnpack);
         break;
       case 'file':
-        shouldUnpack = false;
-        if (options.unpack) {
-          shouldUnpack = minimatch(filename, options.unpack, { matchBase: true });
-        }
-        if (!shouldUnpack && options.unpackDir) {
-          const dirName = path.relative(src, path.dirname(filename));
-          shouldUnpack = isUnpackedDir(dirName, options.unpackDir, unpackDirs);
-        }
-        files.push({ filename: filename, unpack: shouldUnpack });
+        shouldUnpack = shouldUnpackPath(
+          path.relative(src, path.dirname(filename)),
+          options.unpack,
+          options.unpackDir,
+        );
+        files.push({ filename, unpack: shouldUnpack });
         return filesystem.insertFile(filename, shouldUnpack, file, options);
       case 'link':
-        filesystem.insertLink(filename);
+        shouldUnpack = shouldUnpackPath(
+          path.relative(src, filename),
+          options.unpack,
+          options.unpackDir,
+        );
+        links.push({ filename, unpack: shouldUnpack });
+        filesystem.insertLink(filename, shouldUnpack);
         break;
     }
     return Promise.resolve();
@@ -170,7 +185,7 @@ export async function createPackageFromFiles(
 
   const insertsDone = async function () {
     await fs.mkdirp(path.dirname(dest));
-    return disk.writeFilesystem(dest, filesystem, files, metadata);
+    return disk.writeFilesystem(dest, filesystem, { files, links }, metadata);
   };
 
   const names = filenamesSorted.slice();

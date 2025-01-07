@@ -11,6 +11,7 @@ const rimraf = require('rimraf');
 const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
 const compFiles = require('./util/compareFiles');
+const createSymlinkApp = require('./util/createSymlinkApp');
 
 const exec = promisify(childProcess.exec);
 
@@ -187,5 +188,23 @@ describe('command line interface', function () {
         'tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir-do-not-unpack/file2.png',
       ) === false,
     );
+  });
+  it('should unpack static framework with all underlying symlinks unpacked', async () => {
+    const { tmpPath } = createSymlinkApp('app');
+    await execAsar(
+      `p ${tmpPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
+    );
+
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/file.txt'));
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/app/file.txt'));
+    assert.strictEqual(
+      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/private/var/app/file.txt'),
+      path.join('..', 'file.txt'),
+    );
+    assert.strictEqual(
+      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/var'),
+      path.join('private', 'var'),
+    );
+    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/var/file.txt'));
   });
 });

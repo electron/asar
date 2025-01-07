@@ -37,14 +37,17 @@ export type InputMetadata = {
 
 export type BasicFilesArray = { filename: string; unpack: boolean }[];
 
+export type FilesystemFilesAndLinks = { files: BasicFilesArray; links: BasicFilesArray };
+
 const writeFileListToStream = async function (
   dest: string,
   filesystem: Filesystem,
   out: NodeJS.WritableStream,
-  fileList: BasicFilesArray,
+  lists: FilesystemFilesAndLinks,
   metadata: InputMetadata,
 ) {
-  for (const file of fileList) {
+  const { files, links } = lists;
+  for (const file of files) {
     if (file.unpack) {
       // the file should not be packed into archive
       const filename = path.relative(filesystem.getRootPath(), file.filename);
@@ -53,13 +56,30 @@ const writeFileListToStream = async function (
       await streamTransformedFile(file.filename, out, metadata[file.filename].transformed);
     }
   }
+  const unpackedSymlinks = links.filter((f) => f.unpack);
+  for (const file of unpackedSymlinks) {
+    // the symlink needs to be recreated outside in .unpacked
+    const filename = path.relative(filesystem.getRootPath(), file.filename);
+    const link = await fs.readlink(file.filename);
+    // if symlink is within subdirectories, then we need to recreate dir structure
+    await fs.mkdirp(path.join(`${dest}.unpacked`, path.dirname(filename)));
+    // create symlink within unpacked dir
+    await fs.symlink(link, path.join(`${dest}.unpacked`, filename)).catch(async (error) => {
+      if (error.code === 'EPERM' && error.syscall === 'symlink') {
+        throw new Error(
+          'Could not create symlinks for unpacked assets. On Windows, consider activating Developer Mode to allow non-admin users to create symlinks by following the instructions at https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development.',
+        );
+      }
+      throw error;
+    });
+  }
   return out.end();
 };
 
 export async function writeFilesystem(
   dest: string,
   filesystem: Filesystem,
-  fileList: BasicFilesArray,
+  lists: FilesystemFilesAndLinks,
   metadata: InputMetadata,
 ) {
   const headerPickle = Pickle.createEmpty();
@@ -76,7 +96,7 @@ export async function writeFilesystem(
     out.write(sizeBuf);
     return out.write(headerBuf, () => resolve());
   });
-  return writeFileListToStream(dest, filesystem, out, fileList, metadata);
+  return writeFileListToStream(dest, filesystem, out, lists, metadata);
 }
 
 export interface FileRecord extends FilesystemFileEntry {
