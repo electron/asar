@@ -16,7 +16,7 @@ all files together without compression, while having random access support.
 
 ### Install
 
-This module requires Node 10 or later.
+This module requires Node 22.12.0 or later.
 
 ```bash
 $ npm install --engine-strict @electron/asar
