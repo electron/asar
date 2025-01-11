@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2017",
+    "target": "ES2023",
     "lib": [
-      "es2017"
+      "ES2023"
     ],
     "sourceMap": true,
     "strict": true,

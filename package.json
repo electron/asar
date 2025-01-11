@@ -12,7 +12,7 @@
     "lib"
   ],
   "engines": {
-    "node": ">=10.12.0"
+    "node": ">=22.12.0"
   },
   "license": "MIT",
   "homepage": "https://github.com/electron/asar",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@types/minimatch": "^3.0.5",
-    "@types/node": "^12.0.0",
+    "@types/node": "~22.10.7",
     "chai": "^4.5.0",
     "electron": "^22.0.0",
     "electron-mocha": "^13.0.1",
