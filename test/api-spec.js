@@ -9,7 +9,7 @@ const rimraf = require('rimraf');
 const asar = require('..');
 const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
-const compFiles = require('./util/compareFiles');
+const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
 const transform = require('./util/transformStream');
 
 async function assertPackageListEquals(actualList, expectedFilename) {
@@ -107,38 +107,47 @@ describe('api', function () {
     asar.extractAll('test/input/extractthis-unpack-dir.asar', 'tmp/extractthis-unpack-dir-api/');
     return compDirs('tmp/extractthis-unpack-dir-api/', 'test/expected/extractthis');
   });
-  it('should extract an archive with symlink', async () => {
-    await asar.createPackageWithOptions(
-      'test/input/packthis-with-symlink/',
-      'tmp/packthis-with-symlink.asar',
-      { dot: false },
-    );
-    asar.extractAll('tmp/packthis-with-symlink.asar', 'tmp/packthis-with-symlink/');
-    return compFiles(
-      'tmp/packthis-with-symlink/real.txt',
-      'test/input/packthis-with-symlink/real.txt',
-    );
-  });
-  it('should extract an archive with symlink having the same prefix', async () => {
-    await asar.createPackageWithOptions(
-      'test/input/packthis-with-symlink-same-prefix/',
-      'tmp/packthis-with-symlink-same-prefix.asar',
-      { dot: false },
-    );
-    asar.extractAll(
-      'tmp/packthis-with-symlink-same-prefix.asar',
-      'tmp/packthis-with-symlink-same-prefix/',
-    );
-    return compFiles(
-      'tmp/packthis-with-symlink-same-prefix/real.txt',
-      'test/input/packthis-with-symlink-same-prefix/real.txt',
-    );
-  });
-  it('should not extract an archive with a bad symlink', async () => {
-    assert.throws(() => {
-      asar.extractAll('test/input/bad-symlink.asar', 'tmp/bad-symlink/');
+
+  // We don't extract symlinks on Windows, so skip these tests
+  if (os.platform() !== 'win32') {
+    it('should extract an archive with symlink', async () => {
+      assert.strictEqual(isSymbolicLinkSync('test/input/packthis-with-symlink/real.txt'), true);
+      await asar.createPackageWithOptions(
+        'test/input/packthis-with-symlink/',
+        'tmp/packthis-with-symlink.asar',
+        { dot: false },
+      );
+      asar.extractAll('tmp/packthis-with-symlink.asar', 'tmp/packthis-with-symlink/');
+      return compFiles(
+        'tmp/packthis-with-symlink/real.txt',
+        'test/input/packthis-with-symlink/real.txt',
+      );
     });
-  });
+    it('should extract an archive with symlink having the same prefix', async () => {
+      assert.strictEqual(
+        isSymbolicLinkSync('test/input/packthis-with-symlink-same-prefix/real.txt'),
+        true,
+      );
+      await asar.createPackageWithOptions(
+        'test/input/packthis-with-symlink-same-prefix/',
+        'tmp/packthis-with-symlink-same-prefix.asar',
+        { dot: false },
+      );
+      asar.extractAll(
+        'tmp/packthis-with-symlink-same-prefix.asar',
+        'tmp/packthis-with-symlink-same-prefix/',
+      );
+      return compFiles(
+        'tmp/packthis-with-symlink-same-prefix/real.txt',
+        'test/input/packthis-with-symlink-same-prefix/real.txt',
+      );
+    });
+    it('should not extract an archive with a bad symlink', async () => {
+      assert.throws(() => {
+        asar.extractAll('test/input/bad-symlink.asar', 'tmp/bad-symlink/');
+      });
+    });
+  }
   it('should handle multibyte characters in paths', async () => {
     await asar.createPackageWithOptions(
       'test/input/packthis-unicode-path/',

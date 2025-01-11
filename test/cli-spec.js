@@ -10,7 +10,7 @@ const rimraf = require('rimraf');
 
 const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
-const compFiles = require('./util/compareFiles');
+const { compFiles } = require('./util/compareFiles');
 const createSymlinkApp = require('./util/createSymlinkApp');
 
 const exec = promisify(childProcess.exec);
