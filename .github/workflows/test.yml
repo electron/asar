@@ -20,16 +20,12 @@ jobs:
           - '20.10'
           - '18.18'
           - '16.20'
-          - '14.16'
         os:
           - macos-latest
           - ubuntu-22.04
           - windows-latest
     runs-on: "${{ matrix.os }}"
     steps:
-      - name: Install Rosetta
-        if: ${{ matrix.os == 'macos-latest' && matrix.node-version == '14.16' }}
-        run: /usr/sbin/softwareupdate --install-rosetta --agree-to-license
       - name: Install Linux Dependencies
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6 xvfb libgbm-dev
@@ -40,12 +36,7 @@ jobs:
         with:
           node-version: "${{ matrix.node-version }}"
           cache: 'yarn'
-          architecture: ${{ matrix.os == 'macos-latest' && matrix.node-version == '14.16' && 'x64' || env.RUNNER_ARCH }}
-      - name: Install (Node.js v16+)
-        if : ${{ matrix.node-version != '14.16' }}
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Install (Node.js < v16)
-        if : ${{ matrix.node-version == '14.16' }}
-        run: yarn install --frozen-lockfile --ignore-engines
       - name: Test
         run: yarn test
