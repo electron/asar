@@ -30,7 +30,15 @@ module.exports = (testName) => {
   const ordering = walk(tmpPath)
     .map(filepath => filepath.substring(tmpPath.length)) // convert to paths relative to root
 
-  return { appPath, tmpPath, varPath, ordering };
+  return {
+    appPath,
+    tmpPath,
+    varPath,
+    // helper function for generating the `ordering.txt` file data
+    buildOrderingData: (getProps) => ordering.reduce((prev, curr) => {
+      return `${prev}${curr}:${JSON.stringify(getProps(curr))}\n`;
+    }, "")
+  };
 };
 
 // returns a list of all directories, files, and symlinks. Automates testing `ordering` logic easy.
