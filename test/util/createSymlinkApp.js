@@ -26,5 +26,25 @@ module.exports = (testName) => {
   const appPath = path.join(varPath, 'app');
   fs.mkdirpSync(appPath);
   fs.symlinkSync('../file.txt', path.join(appPath, 'file.txt'));
-  return { appPath, tmpPath, varPath };
+
+  const ordering = walk(tmpPath)
+    .map(filepath => filepath.substring(tmpPath.length)) // convert to paths relative to root
+
+  return { appPath, tmpPath, varPath, ordering };
+};
+
+// returns a list of all directories, files, and symlinks. Automates testing `ordering` logic easy.
+const walk = (root) => {
+  const getPaths = (filepath, filter) =>
+    fs
+      .readdirSync(filepath, { withFileTypes: true })
+      .filter((dirent) => filter(dirent))
+      .map(({ name }) => path.join(filepath, name));
+
+  const dirs = getPaths(root, (dirent) => dirent.isDirectory());
+  const files = dirs.map((dir) => walk(dir)).flat();
+  return files.concat(
+    dirs,
+    getPaths(root, (dirent) => dirent.isFile() || dirent.isSymbolicLink()),
+  );
 };

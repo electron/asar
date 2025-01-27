@@ -12,6 +12,7 @@ const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
 const { compFiles } = require('./util/compareFiles');
 const createSymlinkApp = require('./util/createSymlinkApp');
+const { writeFile } = require('fs/promises');
 
 const exec = promisify(childProcess.exec);
 
@@ -190,9 +191,18 @@ describe('command line interface', function () {
     );
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
-    const { tmpPath } = createSymlinkApp('app');
+    const { tmpPath, ordering } = createSymlinkApp('ordered-app');
+    const orderingPath = path.join(tmpPath, "../ordered-app-ordering.txt");
+
+    // this is functionally the same as `-unpack *.txt --unpack-dir var`
+    const data = ordering.reduce((prev, curr) => {
+      const props = { unpack: curr.endsWith(".txt") || curr.includes("var") };
+      return `${prev}${curr}:${JSON.stringify(props)}\n`;
+    }, "");
+    await writeFile(orderingPath, data)
+    
     await execAsar(
-      `p ${tmpPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
+      `p ${tmpPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
     );
 
     assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/file.txt'));
