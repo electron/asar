@@ -12,7 +12,6 @@ const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
 const { compFiles } = require('./util/compareFiles');
 const createSymlinkApp = require('./util/createSymlinkApp');
-const { writeFile } = require('fs/promises');
 
 const exec = promisify(childProcess.exec);
 
@@ -196,7 +195,7 @@ describe('command line interface', function () {
     
     // this is functionally the same as `-unpack *.txt --unpack-dir var`
     const data = buildOrderingData(filepath => ({ unpack: filepath.endsWith(".txt") || filepath.includes("var") }))
-    await writeFile(orderingPath, data)
+    await fs.writeFile(orderingPath, data)
     
     await execAsar(
       `p ${tmpPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
