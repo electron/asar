@@ -52,12 +52,12 @@ async function getFileOrdering(
     .toString()
     .split('\n')
     .map<FileProperties>((line) => {
-      line = line.trim()
+      line = line.trim();
       const config: FileProperties = { filepath: line, properties: {} };
-      const colonIndex = line.indexOf(":")
+      const colonIndex = line.indexOf(':');
       if (colonIndex > -1) {
         config.filepath = line.substring(0, colonIndex); // file path
-        const props = line.substring(colonIndex + 1) // props on other side of the `:`
+        const props = line.substring(colonIndex + 1); // props on other side of the `:`
         config.properties = props.length > 2 ? JSON.parse(props) : {}; // file properties
       }
       if (config.filepath.startsWith('/')) {
@@ -152,7 +152,7 @@ export async function createPackageFromFiles(
   const filenamesSorted: FileProperties[] = await getFileOrdering(options, src, filenames);
 
   const handleFile = async function (config: FileProperties) {
-    const filename = config.filepath
+    const filename = config.filepath;
     if (!metadata[filename]) {
       const fileType = await determineFileType(filename);
       if (!fileType) {
@@ -168,7 +168,7 @@ export async function createPackageFromFiles(
       unpackDir: string | undefined,
     ) {
       if (config.properties.unpack != null) {
-        return config.properties.unpack
+        return config.properties.unpack;
       }
       let shouldUnpack = false;
       if (unpack) {

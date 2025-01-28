@@ -27,17 +27,17 @@ module.exports = (testName) => {
   fs.mkdirpSync(appPath);
   fs.symlinkSync('../file.txt', path.join(appPath, 'file.txt'));
 
-  const ordering = walk(tmpPath)
-    .map(filepath => filepath.substring(tmpPath.length)) // convert to paths relative to root
+  const ordering = walk(tmpPath).map((filepath) => filepath.substring(tmpPath.length)); // convert to paths relative to root
 
   return {
     appPath,
     tmpPath,
     varPath,
     // helper function for generating the `ordering.txt` file data
-    buildOrderingData: (getProps) => ordering.reduce((prev, curr) => {
-      return `${prev}${curr}:${JSON.stringify(getProps(curr))}\n`;
-    }, "")
+    buildOrderingData: (getProps) =>
+      ordering.reduce((prev, curr) => {
+        return `${prev}${curr}:${JSON.stringify(getProps(curr))}\n`;
+      }, ''),
   };
 };
 
