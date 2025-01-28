@@ -1,9 +1,11 @@
 'use strict';
 
 const assert = require('assert');
-const fs = require('../../lib/wrapped-fs').default;
+const fs = require('../../src/wrapped-fs').default;
 
 async function compFiles(actualFilePath, expectedFilePath) {
+  if (actualFilePath.endsWith('.asar')) {
+  }
   if (process.env.ELECTRON_ASAR_SPEC_UPDATE) {
     await fs.writeFile(expectedFilePath, await fs.readFile(actualFilePath));
   }

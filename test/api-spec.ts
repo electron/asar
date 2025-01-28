@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const fs = require('../lib/wrapped-fs').default;
+const fs = require('../src/wrapped-fs').default;
 const os = require('os');
 const path = require('path');
 const rimraf = require('rimraf');

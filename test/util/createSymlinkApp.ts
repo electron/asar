@@ -1,5 +1,5 @@
 const path = require('path');
-const fs = require('../../lib/wrapped-fs').default;
+const fs = require('../../src/wrapped-fs').default;
 const rimraf = require('rimraf');
 /**
  * Directory structure:

@@ -34,7 +34,8 @@
     "prettier": "prettier \"src/**/*.ts\" \"test/**/*.js\"",
     "prettier:check": "yarn prettier --check",
     "prettier:write": "yarn prettier --write",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "test:vitest": "vitest"
   },
   "dependencies": {
     "commander": "^5.0.0",
@@ -51,6 +52,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^3.0.2",
     "typescript": "^5.5.4",
+    "vitest": "^3.0.4",
     "xvfb-maybe": "^0.2.1"
   }
 }

@@ -1,12 +1,12 @@
 'use strict';
 
 const assert = require('assert');
-const fs = require('../lib/wrapped-fs').default;
+const fs = require('../src/wrapped-fs').default;
 const path = require('path');
 const rimraf = require('rimraf');
 const createSymlinkedApp = require('./util/createSymlinkApp');
 
-const Filesystem = require('../lib/filesystem').Filesystem;
+const Filesystem = require('../src/filesystem').Filesystem;
 
 describe('filesystem', function () {
   beforeEach(() => {

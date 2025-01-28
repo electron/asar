@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const fs = require('../../lib/wrapped-fs').default;
+const fs = require('../../src/wrapped-fs').default;
 const path = require('path');
-const crawlFilesystem = require('../../lib/crawlfs').crawl;
+const crawlFilesystem = require('../../src/crawlfs').crawl;
 
 module.exports = async function (dirA, dirB) {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([

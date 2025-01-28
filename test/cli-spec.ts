@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const childProcess = require('child_process');
-const fs = require('../lib/wrapped-fs').default;
+const fs = require('../src/wrapped-fs').default;
 const os = require('os');
 const path = require('path');
 const { promisify } = require('util');
