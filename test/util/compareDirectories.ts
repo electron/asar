@@ -3,13 +3,13 @@ import path from 'path';
 import { crawl as crawlFilesystem } from '../../src/crawlfs';
 import fs from '../../src/wrapped-fs';
 
-export default async function (dirA, dirB) {
+export default async function (dirA: string, dirB: string) {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([
     crawlFilesystem(dirA, {}),
     crawlFilesystem(dirB, {}),
   ]);
-  const relativeA = _.map(pathsA, (pathAItem) => path.relative(dirA, pathAItem));
-  const relativeB = _.map(pathsB, (pathBItem) => path.relative(dirB, pathBItem));
+  const relativeA = _.map(pathsA, (pathAItem: string) => path.relative(dirA, pathAItem));
+  const relativeB = _.map(pathsB, (pathBItem: string) => path.relative(dirB, pathBItem));
   const onlyInA = _.difference(relativeA, relativeB);
   const onlyInB = _.difference(relativeB, relativeA);
   const inBoth = _.intersection(pathsA, pathsB);

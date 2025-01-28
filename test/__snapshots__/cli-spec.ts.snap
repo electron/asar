@@ -1,0 +1,623 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`command line interface > should create archive from directory 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "size": "<size>",
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+        },
+        "file3.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+        "file3.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs 2`] = `
+[
+  "dir2/file2.png",
+  {
+    "content": "123",
+    "name": "dir2/file3.txt",
+  },
+  "dir2",
+]
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs and files 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+        "file3.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs and files 2`] = `
+[
+  "dir2/file2.png",
+  {
+    "content": "123",
+    "name": "dir2/file3.txt",
+  },
+  "dir2",
+]
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern 1`] = `
+{
+  "files": {
+    "x1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "x2": {
+      "files": {
+        "file2.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "y3": {
+      "files": {
+        "file3.txt": {
+          "size": "<size>",
+        },
+        "x1": {
+          "files": {
+            "file4.txt": {
+              "size": "<size>",
+              "unpacked": true,
+            },
+          },
+          "unpacked": true,
+        },
+        "z1": {
+          "files": {
+            "x2": {
+              "files": {
+                "file5.txt": {
+                  "size": "<size>",
+                  "unpacked": true,
+                },
+              },
+              "unpacked": true,
+            },
+          },
+        },
+      },
+    },
+    "z4": {
+      "files": {
+        "w1": {
+          "files": {
+            "file6.txt": {
+              "size": "<size>",
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern 2`] = `
+[
+  {
+    "content": "fileone
+",
+    "name": "x1/file1.txt",
+  },
+  {
+    "content": "filetwo
+",
+    "name": "x2/file2.txt",
+  },
+  {
+    "content": "filefour
+",
+    "name": "y3/x1/file4.txt",
+  },
+  {
+    "content": "filefive
+",
+    "name": "y3/z1/x2/file5.txt",
+  },
+  "y3/z1/x2",
+  "y3/x1",
+  "y3/z1",
+  "x1",
+  "x2",
+  "y3",
+]
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs specified by glob pattern 1`] = `
+{
+  "files": {
+    "x1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "x2": {
+      "files": {
+        "file2.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "y3": {
+      "files": {
+        "file3.txt": {
+          "size": "<size>",
+        },
+        "x1": {
+          "files": {
+            "file4.txt": {
+              "size": "<size>",
+            },
+          },
+        },
+        "z1": {
+          "files": {
+            "x2": {
+              "files": {
+                "file5.txt": {
+                  "size": "<size>",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "z4": {
+      "files": {
+        "w1": {
+          "files": {
+            "file6.txt": {
+              "size": "<size>",
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs specified by glob pattern 2`] = `
+[
+  {
+    "content": "fileone
+",
+    "name": "x1/file1.txt",
+  },
+  {
+    "content": "filetwo
+",
+    "name": "x2/file2.txt",
+  },
+  "x1",
+  "x2",
+]
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs specified by globstar pattern 1`] = `
+{
+  "files": {
+    "x1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "x2": {
+      "files": {
+        "file2.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "y3": {
+      "files": {
+        "file3.txt": {
+          "size": "<size>",
+        },
+        "x1": {
+          "files": {
+            "file4.txt": {
+              "size": "<size>",
+              "unpacked": true,
+            },
+          },
+          "unpacked": true,
+        },
+        "z1": {
+          "files": {
+            "x2": {
+              "files": {
+                "file5.txt": {
+                  "size": "<size>",
+                  "unpacked": true,
+                },
+              },
+              "unpacked": true,
+            },
+          },
+        },
+      },
+    },
+    "z4": {
+      "files": {
+        "w1": {
+          "files": {
+            "file6.txt": {
+              "size": "<size>",
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked dirs specified by globstar pattern 2`] = `
+[
+  {
+    "content": "fileone
+",
+    "name": "x1/file1.txt",
+  },
+  {
+    "content": "filetwo
+",
+    "name": "x2/file2.txt",
+  },
+  {
+    "content": "filefour
+",
+    "name": "y3/x1/file4.txt",
+  },
+  {
+    "content": "filefive
+",
+    "name": "y3/z1/x2/file5.txt",
+  },
+  "y3/z1/x2",
+  "y3/x1",
+  "y3/z1",
+  "x1",
+  "x2",
+  "y3",
+]
+`;
+
+exports[`command line interface > should create archive from directory with unpacked files 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+        "file3.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked files 2`] = `
+[
+  "dir2/file2.png",
+  "dir2",
+]
+`;
+
+exports[`command line interface > should create archive from directory with unpacked subdirs and files using minimatch 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "subdir": {
+          "files": {
+            "file2.png": {
+              "size": "<size>",
+              "unpacked": true,
+            },
+            "file3.txt": {
+              "size": "<size>",
+              "unpacked": true,
+            },
+          },
+          "unpacked": true,
+        },
+        "subdir-do-not-unpack": {
+          "files": {
+            "file2.png": {
+              "size": "<size>",
+            },
+          },
+        },
+      },
+    },
+    "file0.txt": {
+      "size": "<size>",
+      "unpacked": true,
+    },
+  },
+}
+`;
+
+exports[`command line interface > should create archive from directory with unpacked subdirs and files using minimatch 2`] = `
+[
+  {
+    "content": "file one.",
+    "name": "dir1/file1.txt",
+  },
+  "dir2/subdir/file2.png",
+  {
+    "content": "123",
+    "name": "dir2/subdir/file3.txt",
+  },
+  "dir2/subdir",
+  "dir1",
+  "dir2",
+  {
+    "content": "file0 content",
+    "name": "file0.txt",
+  },
+]
+`;
+
+exports[`command line interface > should create archive from directory without hidden files 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+        },
+        "file3.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`command line interface > should list files/dirs in archive 1`] = `
+"/dir1
+/dir1/file1.txt
+/dir2
+/dir2/file2.png
+/dir2/file3.txt
+/emptyfile.txt
+/file0.txt
+"
+`;
+
+exports[`command line interface > should list files/dirs in archive with unpacked dirs & is-pack option 1`] = `
+"pack   : /dir1
+pack   : /dir1/file1.txt
+unpack : /dir2
+unpack : /dir2/file2.png
+unpack : /dir2/file3.txt
+pack   : /emptyfile.txt
+pack   : /file0.txt
+"
+`;
+
+exports[`command line interface > should list files/dirs in archive with unpacked dirs 1`] = `
+"/dir1
+/dir1/file1.txt
+/dir2
+/dir2/file2.png
+/dir2/file3.txt
+/emptyfile.txt
+/file0.txt
+"
+`;
+
+exports[`command line interface > should list files/dirs in archive with unpacked files 1`] = `
+"/dir1
+/dir1/file1.txt
+/dir2
+/dir2/file2.png
+/dir2/file3.txt
+/emptyfile.txt
+/file0.txt
+"
+`;
+
+exports[`command line interface > should list files/dirs with multibyte characters in path 1`] = `
+"/dir1
+/dir1/file1.txt
+/dir1/女の子.txt
+"
+`;
+
+exports[`command line interface > should unpack static framework with all underlying symlinks unpacked 1`] = `
+{
+  "files": {
+    "private": {
+      "files": {
+        "var": {
+          "files": {
+            "app": {
+              "files": {
+                "file.txt": {
+                  "link": "private/var/file.txt",
+                  "unpacked": true,
+                },
+              },
+            },
+            "file.txt": {
+              "size": "<size>",
+              "unpacked": true,
+            },
+          },
+        },
+      },
+    },
+    "var": {
+      "link": "private/var",
+      "unpacked": true,
+    },
+  },
+}
+`;
+
+exports[`command line interface > should unpack static framework with all underlying symlinks unpacked 2`] = `
+[
+  {
+    "content": "hello world",
+    "name": "private/var/app/file.txt",
+  },
+  "private/var/app",
+  {
+    "content": "hello world",
+    "name": "private/var/file.txt",
+  },
+  "private/var",
+  "private",
+  "var",
+]
+`;

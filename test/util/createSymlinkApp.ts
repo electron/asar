@@ -1,6 +1,6 @@
-const path = require('path');
-const fs = require('../../src/wrapped-fs').default;
-const rimraf = require('rimraf');
+import path from 'path';
+import rimraf from 'rimraf';
+import fs from '../../src/wrapped-fs';
 /**
  * Directory structure:
  * tmp
@@ -11,7 +11,7 @@ const rimraf = require('rimraf');
  * │       └── file.txt
  * └── var -> private/var
  */
-export default (testName) => {
+export default (testName: string) => {
   const tmpPath = path.join(__dirname, '../..', 'tmp', testName || 'app');
   const privateVarPath = path.join(tmpPath, 'private', 'var');
   const varPath = path.join(tmpPath, 'var');

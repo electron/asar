@@ -1,0 +1,267 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`api > should create archive from directory (with nothing packed) 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "size": "<size>",
+      "unpacked": true,
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+        "file3.txt": {
+          "size": "<size>",
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+      "unpacked": true,
+    },
+    "file0.txt": {
+      "size": "<size>",
+      "unpacked": true,
+    },
+  },
+}
+`;
+
+exports[`api > should create archive from directory (with nothing packed) 2`] = `
+[
+  {
+    "content": "file one.",
+    "name": "dir1/file1.txt",
+  },
+  "dir2/file2.png",
+  {
+    "content": "123",
+    "name": "dir2/file3.txt",
+  },
+  "dir1",
+  "dir2",
+  {
+    "content": "This file is hidden",
+    "name": ".hiddenfile.txt",
+  },
+  {
+    "content": "",
+    "name": "emptyfile.txt",
+  },
+  {
+    "content": "file0 content",
+    "name": "file0.txt",
+  },
+]
+`;
+
+exports[`api > should create archive from directory (with transformed files) 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "size": "<size>",
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+        },
+        "file3.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`api > should create archive from directory (without hidden files) 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+        },
+        "file3.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`api > should create archive from directory 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "size": "<size>",
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "size": "<size>",
+        },
+        "file3.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "size": "<size>",
+    },
+    "file0.txt": {
+      "size": "<size>",
+    },
+  },
+}
+`;
+
+exports[`api > should create files/directories whose names are properties of Object.prototype 1`] = `
+{
+  "files": {
+    "__proto__": {
+      "size": "<size>",
+    },
+    "constructor": {
+      "files": {
+        "__proto__": {
+          "size": "<size>",
+        },
+        "constructor": {
+          "size": "<size>",
+        },
+        "file1": {
+          "size": "<size>",
+        },
+      },
+    },
+    "file1": {
+      "size": "<size>",
+    },
+    "file2": {
+      "size": "<size>",
+    },
+    "folder1": {
+      "files": {
+        "constructor": {
+          "files": {
+            "constructor": {
+              "files": {
+                "__proto__": {
+                  "files": {
+                    "__proto__": {
+                      "size": "<size>",
+                    },
+                    "file1": {
+                      "size": "<size>",
+                    },
+                  },
+                },
+                "constructor": {
+                  "size": "<size>",
+                },
+                "file1": {
+                  "size": "<size>",
+                },
+              },
+            },
+          },
+        },
+        "file1": {
+          "size": "<size>",
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`api > should handle multibyte characters in paths 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "size": "<size>",
+        },
+        "女の子.txt": {
+          "size": "<size>",
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`api > should list files/dirs in archive 1`] = `
+[
+  "/dir1",
+  "/dir1/file1.txt",
+  "/dir2",
+  "/dir2/file2.png",
+  "/dir2/file3.txt",
+  "/emptyfile.txt",
+  "/file0.txt",
+]
+`;
+
+exports[`api > should list files/dirs in archive with option 1`] = `
+[
+  "pack   : /dir1",
+  "pack   : /dir1/file1.txt",
+  "unpack : /dir2",
+  "unpack : /dir2/file2.png",
+  "unpack : /dir2/file3.txt",
+  "pack   : /emptyfile.txt",
+  "pack   : /file0.txt",
+]
+`;

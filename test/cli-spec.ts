@@ -1,45 +1,43 @@
-import { expect, it } from 'vitest';
-
 import assert from 'assert';
 import childProcess from 'child_process';
-const fs = require('../src/wrapped-fs').default;
 import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
-import rimraf from 'rimraf';
+import fs from '../src/wrapped-fs';
 
+import { expect } from 'vitest';
 import compDirs from './util/compareDirectories';
 import compFileLists from './util/compareFileLists';
 import { compFiles } from './util/compareFiles';
 import createSymlinkApp from './util/createSymlinkApp';
+import { verifySmartUnpack } from './util/verifySmartUnpack';
 
 const exec = promisify(childProcess.exec);
 
-async function execAsar(args) {
+async function execAsar(args: string) {
   return exec(`node bin/asar ${args}`);
 }
 
-async function assertAsarOutputMatches(args, expectedFilename) {
+async function assertAsarOutputMatches(args: string, expectedFilename: string) {
   const [{ stdout }, expectedContents] = await Promise.all([
     execAsar(args),
     fs.readFile(expectedFilename, 'utf8'),
   ]);
+  expect(stdout).toMatchSnapshot();
   return compFileLists(stdout, `${expectedContents}\n`);
 }
 
 describe('command line interface', function () {
-  beforeEach(() => {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs);
-  });
-
   it('should create archive from directory', async () => {
     await execAsar('p test/input/packthis/ tmp/packthis-cli.asar');
     await compFiles('tmp/packthis-cli.asar', 'test/expected/packthis.asar');
+    await verifySmartUnpack('tmp/packthis-cli.asar');
   });
   if (os.platform() === 'win32') {
     it('should create archive from directory with windows-style path separators', async () => {
-      await execAsar('p test\\input\\packthis\\ tmp\\packthis-cli.asar');
-      await compFiles('tmp/packthis-cli.asar', 'test/expected/packthis.asar');
+      await execAsar('p test\\input\\packthis\\ tmp\\packthis-cli-win.asar');
+      await compFiles('tmp/packthis-cli-win.asar', 'test/expected/packthis.asar');
+      await verifySmartUnpack('tmp/packthis-cli-win.asar');
     });
   }
   it('should create archive from directory without hidden files', async () => {
@@ -48,6 +46,7 @@ describe('command line interface', function () {
       'tmp/packthis-without-hidden-cli.asar',
       'test/expected/packthis-without-hidden.asar',
     );
+    await verifySmartUnpack('tmp/packthis-without-hidden-cli.asar');
   });
   it('should create archive from directory with unpacked files', async () => {
     await execAsar(
@@ -55,6 +54,7 @@ describe('command line interface', function () {
     );
     assert.ok(fs.existsSync('tmp/packthis-unpack-cli.asar.unpacked/dir2/file2.png'));
     await compFiles('tmp/packthis-unpack-cli.asar', 'test/expected/packthis-unpack.asar');
+    await verifySmartUnpack('tmp/packthis-unpack-cli.asar');
   });
   it('should list files/dirs in archive', async () => {
     return assertAsarOutputMatches(
@@ -115,7 +115,8 @@ describe('command line interface', function () {
     );
     assert.ok(fs.existsSync('tmp/packthis-unpack-dir-cli.asar.unpacked/dir2/file2.png'));
     assert.ok(fs.existsSync('tmp/packthis-unpack-dir-cli.asar.unpacked/dir2/file3.txt'));
-    return compFiles('tmp/packthis-unpack-dir-cli.asar', 'test/expected/packthis-unpack-dir.asar');
+    await compFiles('tmp/packthis-unpack-dir-cli.asar', 'test/expected/packthis-unpack-dir.asar');
+    await verifySmartUnpack('tmp/packthis-unpack-dir-cli.asar');
   });
   it('should create archive from directory with unpacked dirs specified by glob pattern', async () => {
     const tmpFile = 'tmp/packthis-unpack-dir-glob-cli.asar';
@@ -125,7 +126,8 @@ describe('command line interface', function () {
     );
     assert.ok(fs.existsSync(tmpUnpacked + '/x1/file1.txt'));
     assert.ok(fs.existsSync(tmpUnpacked + '/x2/file2.txt'));
-    return compFiles(tmpFile, 'test/expected/packthis-unpack-dir-glob.asar');
+    await compFiles(tmpFile, 'test/expected/packthis-unpack-dir-glob.asar');
+    await verifySmartUnpack(tmpFile);
   });
   it('should create archive from directory with unpacked dirs specified by globstar pattern', async () => {
     const tmpFile = 'tmp/packthis-unpack-dir-globstar-cli.asar';
@@ -137,7 +139,8 @@ describe('command line interface', function () {
     assert.ok(fs.existsSync(tmpUnpacked + '/x2/file2.txt'));
     assert.ok(fs.existsSync(tmpUnpacked + '/y3/x1/file4.txt'));
     assert.ok(fs.existsSync(tmpUnpacked + '/y3/z1/x2/file5.txt'));
-    return compFiles(tmpFile, 'test/expected/packthis-unpack-dir-globstar.asar');
+    await compFiles(tmpFile, 'test/expected/packthis-unpack-dir-globstar.asar');
+    await verifySmartUnpack(tmpFile);
   });
   it('should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern', async () => {
     const tmpFile = 'tmp/packthis-unpack-dir-globstar-cli.asar';
@@ -147,6 +150,7 @@ describe('command line interface', function () {
     );
     assert.ok(fs.existsSync(path.join(tmpUnpacked, 'y3/x1/file4.txt')));
     assert.ok(fs.existsSync(path.join(tmpUnpacked, 'y3/z1/x2/file5.txt')));
+    await verifySmartUnpack(tmpFile);
   });
   it('should list files/dirs in archive with unpacked dirs', async () => {
     return assertAsarOutputMatches(
@@ -170,10 +174,11 @@ describe('command line interface', function () {
     );
     assert.ok(fs.existsSync('tmp/packthis-unpack-dir-file-cli.asar.unpacked/dir2/file2.png'));
     assert.ok(fs.existsSync('tmp/packthis-unpack-dir-file-cli.asar.unpacked/dir2/file3.txt'));
-    return compFiles(
+    await compFiles(
       'tmp/packthis-unpack-dir-file-cli.asar',
       'test/expected/packthis-unpack-dir.asar',
     );
+    await verifySmartUnpack('tmp/packthis-unpack-dir-file-cli.asar');
   });
   it('should create archive from directory with unpacked subdirs and files using minimatch', async () => {
     await execAsar(
@@ -188,6 +193,7 @@ describe('command line interface', function () {
         'tmp/packthis-unpack-subdir-cli.asar.unpacked/dir2/subdir-do-not-unpack/file2.png',
       ) === false,
     );
+    await verifySmartUnpack('tmp/packthis-unpack-subdir-cli.asar');
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
     const { tmpPath } = createSymlinkApp('app');
@@ -206,5 +212,6 @@ describe('command line interface', function () {
       path.join('private', 'var'),
     );
     assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/var/file.txt'));
+    await verifySmartUnpack('tmp/packthis-with-symlink.asar');
   });
 });

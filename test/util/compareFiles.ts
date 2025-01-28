@@ -1,9 +1,7 @@
-const assert = require('assert');
-const fs = require('../../src/wrapped-fs').default;
+import assert from 'assert';
+import fs from '../../src/wrapped-fs';
 
-async function compFiles(actualFilePath, expectedFilePath) {
-  if (actualFilePath.endsWith('.asar')) {
-  }
+async function compFiles(actualFilePath: string, expectedFilePath: string) {
   if (process.env.ELECTRON_ASAR_SPEC_UPDATE) {
     await fs.writeFile(expectedFilePath, await fs.readFile(actualFilePath));
   }
@@ -28,9 +26,9 @@ async function compFiles(actualFilePath, expectedFilePath) {
   }
 }
 
-function isSymbolicLinkSync(path) {
+function isSymbolicLinkSync(path: string) {
   const stats = fs.lstatSync(path);
   return stats.isSymbolicLink();
 }
 
-export default { compFiles, isSymbolicLinkSync };
+export { compFiles, isSymbolicLinkSync };

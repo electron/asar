@@ -1,4 +1,5 @@
 import assert from 'assert';
+
 import { Pickle } from '../src/pickle';
 
 describe('Pickle', function () {

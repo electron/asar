@@ -1,7 +1,7 @@
 const assert = require('assert');
 const os = require('os');
 
-export default function compareFileLists(actual, expected) {
+export default function compareFileLists(actual: string, expected: string) {
   // on windows replace slashes with backslashes and crlf with lf
   if (os.platform() === 'win32') {
     expected = expected.replace(/\//g, '\\').replace(/\r\n/g, '\n');
