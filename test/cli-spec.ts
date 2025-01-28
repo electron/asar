@@ -1,17 +1,17 @@
-'use strict';
+import { expect, it } from 'vitest';
 
-const assert = require('assert');
-const childProcess = require('child_process');
+import assert from 'assert';
+import childProcess from 'child_process';
 const fs = require('../src/wrapped-fs').default;
-const os = require('os');
-const path = require('path');
-const { promisify } = require('util');
-const rimraf = require('rimraf');
+import os from 'os';
+import path from 'path';
+import { promisify } from 'util';
+import rimraf from 'rimraf';
 
-const compDirs = require('./util/compareDirectories');
-const compFileLists = require('./util/compareFileLists');
-const { compFiles } = require('./util/compareFiles');
-const createSymlinkApp = require('./util/createSymlinkApp');
+import compDirs from './util/compareDirectories';
+import compFileLists from './util/compareFileLists';
+import { compFiles } from './util/compareFiles';
+import createSymlinkApp from './util/createSymlinkApp';
 
 const exec = promisify(childProcess.exec);
 

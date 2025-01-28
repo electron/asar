@@ -1,5 +1,3 @@
-'use strict';
-
 const assert = require('assert');
 const fs = require('../src/wrapped-fs').default;
 const path = require('path');

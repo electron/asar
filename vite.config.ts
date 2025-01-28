@@ -13,6 +13,11 @@ export default defineConfig({
     outputFile: 'coverage/sonar-report.xml',
   },
   resolve: {
-    alias: [{ find: '@/', replacement: fileURLToPath(new URL('./', import.meta.url))
+    alias: [
+      {
+        find: '@/',
+        replacement: fileURLToPath(new URL('./', import.meta.url)),
       },
+    ],
+  },
 });

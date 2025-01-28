@@ -1,5 +1,3 @@
-'use strict';
-
 const assert = require('assert');
 const fs = require('../../src/wrapped-fs').default;
 
@@ -35,4 +33,4 @@ function isSymbolicLinkSync(path) {
   return stats.isSymbolicLink();
 }
 
-module.exports = { compFiles, isSymbolicLinkSync };
+export default { compFiles, isSymbolicLinkSync };

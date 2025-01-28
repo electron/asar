@@ -1,16 +1,14 @@
-'use strict';
-
-const assert = require('assert');
+import assert from 'assert';
+import os from 'os';
+import path from 'path';
+import rimraf from 'rimraf';
 const fs = require('../src/wrapped-fs').default;
-const os = require('os');
-const path = require('path');
-const rimraf = require('rimraf');
 
-const asar = require('..');
-const compDirs = require('./util/compareDirectories');
-const compFileLists = require('./util/compareFileLists');
-const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
-const transform = require('./util/transformStream');
+import asar from '..';
+import compDirs from './util/compareDirectories';
+import compFileLists from './util/compareFileLists';
+import { compFiles, isSymbolicLinkSync } from './util/compareFiles';
+import transform from './util/transformStream';
 
 async function assertPackageListEquals(actualList, expectedFilename) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
