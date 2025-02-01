@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "es2017",
     "lib": [
-      "es2017"
+      "es2019"
     ],
     "sourceMap": true,
     "strict": true,
@@ -20,7 +20,9 @@
     "declaration": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowJs": false,
+    "skipLibCheck": true
   },
   "include": [
     "src"

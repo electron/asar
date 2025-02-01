@@ -1,0 +1,555 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`api > should create archive from directory (with nothing packed) 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+        ],
+        "hash": "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+      },
+      "size": 19,
+      "unpacked": true,
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "size": 9,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+          "unpacked": true,
+        },
+        "file3.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "size": 3,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "emptyfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "size": 0,
+      "unpacked": true,
+    },
+    "file0.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "size": 13,
+      "unpacked": true,
+    },
+  },
+}
+`;
+
+exports[`api > should create archive from directory (with nothing packed) 2`] = `
+[
+  {
+    "content": "file one.",
+    "name": "dir1/file1.txt",
+  },
+  "dir2/file2.png",
+  {
+    "content": "123",
+    "name": "dir2/file3.txt",
+  },
+  "dir1",
+  "dir2",
+  {
+    "content": "This file is hidden",
+    "name": ".hiddenfile.txt",
+  },
+  {
+    "content": "",
+    "name": "emptyfile.txt",
+  },
+  {
+    "content": "file0 content",
+    "name": "file0.txt",
+  },
+]
+`;
+
+exports[`api > should create archive from directory (with transformed files) 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+        ],
+        "hash": "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+      },
+      "size": 19,
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "size": 9,
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+        },
+        "file3.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "size": 3,
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "size": 0,
+    },
+    "file0.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "size": 13,
+    },
+  },
+}
+`;
+
+exports[`api > should create archive from directory (without hidden files) 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "size": 9,
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+        },
+        "file3.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "size": 3,
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "size": 0,
+    },
+    "file0.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "size": 13,
+    },
+  },
+}
+`;
+
+exports[`api > should create archive from directory 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+        ],
+        "hash": "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+      },
+      "size": 19,
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "size": 9,
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+        },
+        "file3.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "size": 3,
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "size": 0,
+    },
+    "file0.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "size": 13,
+    },
+  },
+}
+`;
+
+exports[`api > should create files/directories whose names are properties of Object.prototype 1`] = `
+{
+  "files": {
+    "__proto__": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "30e2af384186b57fda019524ade9f9afe48e815480b993d14ec8dc68251b592a",
+        ],
+        "hash": "30e2af384186b57fda019524ade9f9afe48e815480b993d14ec8dc68251b592a",
+      },
+      "size": 9,
+    },
+    "constructor": {
+      "files": {
+        "__proto__": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "50fa8ecaf94e458439700a83eaf7c6f3029081d8febebc9450b6c6aee9b3a880",
+            ],
+            "hash": "50fa8ecaf94e458439700a83eaf7c6f3029081d8febebc9450b6c6aee9b3a880",
+          },
+          "size": 21,
+        },
+        "constructor": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "5c81cc87f4e79250bb43f9b3de6053bafc0cbf065c41b6a52798c9b6a03c9129",
+            ],
+            "hash": "5c81cc87f4e79250bb43f9b3de6053bafc0cbf065c41b6a52798c9b6a03c9129",
+          },
+          "size": 23,
+        },
+        "file1": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "9dd856cf2f871758dce64bdd6d49cf445b57d01aff11096f3aaa3ea33611a5a1",
+            ],
+            "hash": "9dd856cf2f871758dce64bdd6d49cf445b57d01aff11096f3aaa3ea33611a5a1",
+          },
+          "size": 17,
+        },
+      },
+    },
+    "file1": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "c147efcfc2d7ea666a9e4f5187b115c90903f0fc896a56df9a6ef5d8f3fc9f31",
+        ],
+        "hash": "c147efcfc2d7ea666a9e4f5187b115c90903f0fc896a56df9a6ef5d8f3fc9f31",
+      },
+      "size": 5,
+    },
+    "file2": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "3377870dfeaaa7adf79a374d2702a3fdb13e5e5ea0dd8aa95a802ad39044a92f",
+        ],
+        "hash": "3377870dfeaaa7adf79a374d2702a3fdb13e5e5ea0dd8aa95a802ad39044a92f",
+      },
+      "size": 5,
+    },
+    "folder1": {
+      "files": {
+        "constructor": {
+          "files": {
+            "constructor": {
+              "files": {
+                "__proto__": {
+                  "files": {
+                    "__proto__": {
+                      "integrity": {
+                        "algorithm": "SHA256",
+                        "blockSize": 4194304,
+                        "blocks": [
+                          "c40006a1a82d348f22d38f5bf10ed462c4e7cb1f50f86a8d218b27e13f25ffeb",
+                        ],
+                        "hash": "c40006a1a82d348f22d38f5bf10ed462c4e7cb1f50f86a8d218b27e13f25ffeb",
+                      },
+                      "size": 51,
+                    },
+                    "file1": {
+                      "integrity": {
+                        "algorithm": "SHA256",
+                        "blockSize": 4194304,
+                        "blocks": [
+                          "7dfbb507fe3695374af07665ac235e7fe855b915212f5bcb2598a0a52cf16195",
+                        ],
+                        "hash": "7dfbb507fe3695374af07665ac235e7fe855b915212f5bcb2598a0a52cf16195",
+                      },
+                      "size": 47,
+                    },
+                  },
+                },
+                "constructor": {
+                  "integrity": {
+                    "algorithm": "SHA256",
+                    "blockSize": 4194304,
+                    "blocks": [
+                      "0c003d40febc12fecdbd298e2333f85e4b1d9ae83cc98e774c197b9382380654",
+                    ],
+                    "hash": "0c003d40febc12fecdbd298e2333f85e4b1d9ae83cc98e774c197b9382380654",
+                  },
+                  "size": 43,
+                },
+                "file1": {
+                  "integrity": {
+                    "algorithm": "SHA256",
+                    "blockSize": 4194304,
+                    "blocks": [
+                      "0bb7a8a320274d8cae33ef227d37c185f0a8728ba1859da4bf53f4d228279809",
+                    ],
+                    "hash": "0bb7a8a320274d8cae33ef227d37c185f0a8728ba1859da4bf53f4d228279809",
+                  },
+                  "size": 37,
+                },
+              },
+            },
+          },
+        },
+        "file1": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "5ad6fb55a2abd5a1c91f956aa122ef2d0ea4adc7ea4ce148f8007ece667c23ee",
+            ],
+            "hash": "5ad6fb55a2abd5a1c91f956aa122ef2d0ea4adc7ea4ce148f8007ece667c23ee",
+          },
+          "size": 13,
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`api > should handle multibyte characters in paths 1`] = `
+{
+  "files": {
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            ],
+            "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          },
+          "size": 0,
+        },
+        "女の子.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            ],
+            "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          },
+          "size": 0,
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`api > should list files/dirs in archive 1`] = `
+[
+  "/dir1",
+  "/dir1/file1.txt",
+  "/dir2",
+  "/dir2/file2.png",
+  "/dir2/file3.txt",
+  "/emptyfile.txt",
+  "/file0.txt",
+]
+`;
+
+exports[`api > should list files/dirs in archive with option 1`] = `
+[
+  "pack   : /dir1",
+  "pack   : /dir1/file1.txt",
+  "unpack : /dir2",
+  "unpack : /dir2/file2.png",
+  "unpack : /dir2/file3.txt",
+  "pack   : /emptyfile.txt",
+  "pack   : /file0.txt",
+]
+`;

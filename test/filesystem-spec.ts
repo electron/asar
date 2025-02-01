@@ -1,12 +1,10 @@
-'use strict';
+import assert from 'assert';
+import path from 'path';
+import rimraf from 'rimraf';
+import fs from '../src/wrapped-fs';
+import createSymlinkedApp from './util/createSymlinkApp';
 
-const assert = require('assert');
-const fs = require('../lib/wrapped-fs').default;
-const path = require('path');
-const rimraf = require('rimraf');
-const createSymlinkedApp = require('./util/createSymlinkApp');
-
-const Filesystem = require('../lib/filesystem').Filesystem;
+import { Filesystem } from '../src/filesystem';
 
 describe('filesystem', function () {
   beforeEach(() => {
@@ -17,7 +15,7 @@ describe('filesystem', function () {
     const { appPath, varPath } = createSymlinkedApp('filesystem');
     const filesystem = new Filesystem(varPath);
     assert.doesNotThrow(() => {
-      filesystem.insertLink(path.join(appPath, 'file.txt'));
+      filesystem.insertLink(path.join(appPath, 'file.txt'), false);
     });
   });
 });
