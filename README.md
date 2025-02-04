@@ -116,10 +116,6 @@ await asar.createPackageWithOptions(src, dest, { transform: transform });
 console.log('done.');
 ```
 
-## Using with grunt
-
-There is also an unofficial grunt plugin to generate asar archives at [bwin/grunt-asar][grunt-asar].
-
 ## Format
 
 Asar uses [Pickle][pickle] to safely serialize binary value to file.
@@ -210,4 +206,3 @@ convert `Number` to UINT64.
 * A integer value `blockSize` representing the size in bytes of each block in the `blocks` hashes above
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/main/base/pickle.h
-[grunt-asar]: https://github.com/bwin/grunt-asar
