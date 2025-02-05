@@ -80,19 +80,21 @@ async function getFileOrdering(
   const total = filenames.length;
 
   const fileOrderingSorted: FileProperties[] = [];
+  const isAlreadySorted = (file: string) =>
+    fileOrderingSorted.findIndex((config) => file === config.filepath) > -1;
 
-  ordering
-    .filter((config) => !fileOrderingSorted.includes(config) && filenames.includes(config.filepath))
-    .forEach((config) => {
+  for (const config of ordering) {
+    if (!isAlreadySorted(config.filepath) && filenames.includes(config.filepath)) {
       fileOrderingSorted.push(config);
-    });
+    }
+  }
 
-  filenames
-    .filter((file) => fileOrderingSorted.findIndex((config) => file === config.filepath) === -1)
-    .forEach((file) => {
+  for (const file of filenames) {
+    if (!isAlreadySorted(file)) {
       fileOrderingSorted.push({ filepath: file, properties: {} });
       missing += 1;
-    });
+    }
+  }
 
   console.log(`Ordering file has ${((total - missing) / total) * 100}% coverage.`);
   return fileOrderingSorted;
