@@ -11,21 +11,38 @@ import rimraf from 'rimraf';
  * │       └── file.txt
  * └── var -> private/var
  */
-export default (testName: string) => {
-  const tmpPath = path.join(__dirname, '../..', 'tmp', testName || 'app');
-  const privateVarPath = path.join(tmpPath, 'private', 'var');
-  const varPath = path.join(tmpPath, 'var');
+const appsDir = path.join(__dirname, '../..', 'tmp');
+let counter = 0;
+const createTestApp = async (testName: string, additionalFiles: Record<string, string> = {}) => {
+  const outDir = testName || 'app-' + counter++;
+  const testPath = path.join(appsDir, outDir);
+  if (fs.existsSync(testPath)) {
+    fs.rmdirSync(testPath);
+  }
 
-  rimraf.sync(tmpPath, fs);
+  const privateVarPath = path.join(testPath, 'private', 'var');
+  const varPath = path.join(testPath, 'var');
 
-  fs.mkdirSync(privateVarPath, { recursive: true });
-  fs.symlinkSync(path.relative(tmpPath, privateVarPath), varPath);
+  await fs.mkdirp(privateVarPath);
+  await fs.symlink(path.relative(testPath, privateVarPath), varPath);
 
-  const originFilePath = path.join(varPath, 'file.txt');
-  fs.writeFileSync(originFilePath, 'hello world');
+  const files = {
+    'file.txt': 'hello world',
+    ...additionalFiles,
+  };
+  for await (const [filename, fileData] of Object.entries(files)) {
+    const originFilePath = path.join(varPath, filename);
+    await fs.writeFile(originFilePath, fileData);
+  }
   const appPath = path.join(varPath, 'app');
-  fs.mkdirpSync(appPath);
-  fs.symlinkSync('../file.txt', path.join(appPath, 'file.txt'));
+  await fs.mkdirp(appPath);
+  await fs.symlink('../file.txt', path.join(appPath, 'file.txt'));
 
-  return { appPath, tmpPath, varPath };
+  return {
+    testPath,
+    varPath,
+    appPath,
+  };
 };
+
+export default createTestApp;
