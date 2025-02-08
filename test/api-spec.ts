@@ -1,27 +1,20 @@
-'use strict';
+import assert from 'assert';
+import os from 'os';
+import { FilesystemLinkEntry } from '../lib/filesystem';
+import fs from '../lib/wrapped-fs';
+import compDirs from './util/compareDirectories';
+import compFileLists from './util/compareFileLists';
+import { compFiles, isSymbolicLinkSync } from './util/compareFiles';
+import transform from './util/transformStream';
 
-const assert = require('assert');
-const fs = require('../lib/wrapped-fs').default;
-const os = require('os');
-const path = require('path');
-const rimraf = require('rimraf');
+const asar = require('../src/asar');
 
-const asar = require('..');
-const compDirs = require('./util/compareDirectories');
-const compFileLists = require('./util/compareFileLists');
-const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
-const transform = require('./util/transformStream');
-
-async function assertPackageListEquals(actualList, expectedFilename) {
+async function assertPackageListEquals(actualList: string[], expectedFilename: string) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
   return compFileLists(actualList.join('\n'), expected);
 }
 
 describe('api', function () {
-  beforeEach(() => {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs);
-  });
-
   it('should create archive from directory', async () => {
     await asar.createPackage('test/input/packthis/', 'tmp/packthis-api.asar');
     return compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar');
@@ -47,7 +40,7 @@ describe('api', function () {
     await asar.createPackageWithOptions(
       'test/input/packthis/',
       'tmp/packthis-api-transformed.asar',
-      { transform },
+      { transform: transform as any },
     );
     return compFiles(
       'tmp/packthis-api-transformed.asar',
@@ -63,7 +56,7 @@ describe('api', function () {
   });
   it('should list files/dirs in archive', async () => {
     return assertPackageListEquals(
-      asar.listPackage('test/input/extractthis.asar'),
+      asar.listPackage('test/input/extractthis.asar', { isPack: false }),
       'test/expected/extractthis-filelist.txt',
     );
   });
@@ -193,7 +186,11 @@ describe('api', function () {
     assert.deepStrictEqual(topLevelFunctions, defaultExportFunctions);
   });
   it('should stat a symlinked file', async () => {
-    const stats = asar.statFile('test/input/stat-symlink.asar', 'real.txt', true);
+    const stats = asar.statFile(
+      'test/input/stat-symlink.asar',
+      'real.txt',
+      true,
+    ) as FilesystemLinkEntry;
     return assert.strictEqual(stats.link, undefined);
   });
 });

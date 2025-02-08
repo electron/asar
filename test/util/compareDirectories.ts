@@ -5,18 +5,18 @@ const fs = require('../../lib/wrapped-fs').default;
 const path = require('path');
 const crawlFilesystem = require('../../lib/crawlfs').crawl;
 
-module.exports = async function (dirA, dirB) {
+export default async function (dirA: string, dirB: string) {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([
     crawlFilesystem(dirA, null),
     crawlFilesystem(dirB, null),
   ]);
-  const relativeA = _.map(pathsA, (pathAItem) => path.relative(dirA, pathAItem));
-  const relativeB = _.map(pathsB, (pathBItem) => path.relative(dirB, pathBItem));
+  const relativeA = _.map(pathsA, (pathAItem: string) => path.relative(dirA, pathAItem));
+  const relativeB = _.map(pathsB, (pathBItem: string) => path.relative(dirB, pathBItem));
   const onlyInA = _.difference(relativeA, relativeB);
   const onlyInB = _.difference(relativeB, relativeA);
   const inBoth = _.intersection(pathsA, pathsB);
-  const differentFiles = [];
-  const errorMsgBuilder = [];
+  const differentFiles: string[] = [];
+  const errorMsgBuilder: string[] = [];
   for (const filename of inBoth) {
     const typeA = metadataA[filename].type;
     const typeB = metadataB[filename].type;
@@ -29,7 +29,7 @@ module.exports = async function (dirA, dirB) {
       differentFiles.push(filename);
       continue;
     }
-    const [fileContentA, fileContentB] = Promise.all(
+    const [fileContentA, fileContentB] = await Promise.all(
       [dirA, dirB].map((dir) => fs.readFile(path.join(dir, filename), 'utf8')),
     );
     if (fileContentA !== fileContentB) {
@@ -57,4 +57,4 @@ module.exports = async function (dirA, dirB) {
   if (errorMsgBuilder.length) {
     throw new Error('\n' + errorMsgBuilder.join('\n'));
   }
-};
+}

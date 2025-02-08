@@ -1,9 +1,7 @@
-'use strict';
+import assert from 'assert';
+import fs from '../../lib/wrapped-fs';
 
-const assert = require('assert');
-const fs = require('../../lib/wrapped-fs').default;
-
-async function compFiles(actualFilePath, expectedFilePath) {
+async function compFiles(actualFilePath: string, expectedFilePath: string) {
   if (process.env.ELECTRON_ASAR_SPEC_UPDATE) {
     await fs.writeFile(expectedFilePath, await fs.readFile(actualFilePath));
   }
@@ -28,9 +26,9 @@ async function compFiles(actualFilePath, expectedFilePath) {
   }
 }
 
-function isSymbolicLinkSync(path) {
+function isSymbolicLinkSync(path: string) {
   const stats = fs.lstatSync(path);
   return stats.isSymbolicLink();
 }
 
-module.exports = { compFiles, isSymbolicLinkSync };
+export { compFiles, isSymbolicLinkSync };

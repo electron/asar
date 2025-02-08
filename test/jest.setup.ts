@@ -1,8 +1,7 @@
-import * as fs from 'fs-extra';
+import rimraf from 'rimraf';
 import * as path from 'path';
-import { appsDir, asarsDir, templateApp } from './test/util';
+import fs from '../lib/wrapped-fs';
 
-export default async () => {
-  await fs.remove(appsDir);
-  await fs.mkdirp(appsDir);
+export default () => {
+  rimraf.sync(path.join(__dirname, '..', 'tmp'), fs);
 };

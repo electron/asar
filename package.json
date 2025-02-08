@@ -30,7 +30,7 @@
     "build": "tsc",
     "test": "yarn lint && yarn jest",
     "lint": "yarn prettier:check",
-    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.js\"",
+    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\"",
     "prettier:check": "yarn prettier --check",
     "prettier:write": "yarn prettier --write",
     "prepare": "tsc"
@@ -44,6 +44,7 @@
     "@types/jest": "^29.5.14",
     "@types/minimatch": "^3.0.5",
     "@types/node": "^12.0.0",
+    "@types/rimraf": "^3",
     "electron": "^22.0.0",
     "electron-mocha": "^13.0.1",
     "jest": "^29.7.0",

@@ -1,5 +1,5 @@
-const assert = require('assert');
-const { Pickle } = require('../lib/pickle');
+import assert from 'assert';
+import { Pickle } from '../lib/pickle';
 
 describe('Pickle', function () {
   it('supports multi-byte characters', function () {

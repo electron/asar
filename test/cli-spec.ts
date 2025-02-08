@@ -1,25 +1,22 @@
-'use strict';
+import assert from 'assert';
+import childProcess from 'child_process';
+import os from 'os';
+import path from 'path';
+import { promisify } from 'util';
+import fs from '../lib/wrapped-fs';
 
-const assert = require('assert');
-const childProcess = require('child_process');
-const fs = require('../lib/wrapped-fs').default;
-const os = require('os');
-const path = require('path');
-const { promisify } = require('util');
-const rimraf = require('rimraf');
-
-const compDirs = require('./util/compareDirectories');
-const compFileLists = require('./util/compareFileLists');
-const { compFiles } = require('./util/compareFiles');
-const createSymlinkApp = require('./util/createSymlinkApp');
+import compDirs from './util/compareDirectories';
+import compFileLists from './util/compareFileLists';
+import { compFiles } from './util/compareFiles';
+import createSymlinkApp from './util/createSymlinkApp';
 
 const exec = promisify(childProcess.exec);
 
-async function execAsar(args) {
+async function execAsar(args: string) {
   return exec(`node bin/asar ${args}`);
 }
 
-async function assertAsarOutputMatches(args, expectedFilename) {
+async function assertAsarOutputMatches(args: string, expectedFilename: string) {
   const [{ stdout }, expectedContents] = await Promise.all([
     execAsar(args),
     fs.readFile(expectedFilename, 'utf8'),
@@ -28,10 +25,6 @@ async function assertAsarOutputMatches(args, expectedFilename) {
 }
 
 describe('command line interface', function () {
-  beforeEach(() => {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs);
-  });
-
   it('should create archive from directory', async () => {
     await execAsar('p test/input/packthis/ tmp/packthis-cli.asar');
     await compFiles('tmp/packthis-cli.asar', 'test/expected/packthis.asar');

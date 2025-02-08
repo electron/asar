@@ -1,9 +1,9 @@
-const path = require('path');
-const fs = require('../../lib/wrapped-fs').default;
-const rimraf = require('rimraf');
+import path from 'path';
+import fs from '../../lib/wrapped-fs';
+import rimraf from 'rimraf';
 /**
  * Directory structure:
- * tmp
+ * testName
  * ├── private
  * │   └── var
  * │       ├── app
@@ -11,7 +11,7 @@ const rimraf = require('rimraf');
  * │       └── file.txt
  * └── var -> private/var
  */
-module.exports = (testName) => {
+export default (testName: string) => {
   const tmpPath = path.join(__dirname, '../..', 'tmp', testName || 'app');
   const privateVarPath = path.join(tmpPath, 'private', 'var');
   const varPath = path.join(tmpPath, 'var');
@@ -26,5 +26,6 @@ module.exports = (testName) => {
   const appPath = path.join(varPath, 'app');
   fs.mkdirpSync(appPath);
   fs.symlinkSync('../file.txt', path.join(appPath, 'file.txt'));
+
   return { appPath, tmpPath, varPath };
 };
