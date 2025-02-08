@@ -28,8 +28,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "mocha": "xvfb-maybe electron-mocha --reporter spec && mocha --reporter spec",
-    "test": "yarn lint && yarn mocha",
+    "test": "yarn lint && yarn jest",
     "lint": "yarn prettier:check",
     "prettier": "prettier \"src/**/*.ts\" \"test/**/*.js\"",
     "prettier:check": "yarn prettier --check",
@@ -42,14 +41,16 @@
     "minimatch": "^3.0.4"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/minimatch": "^3.0.5",
     "@types/node": "^12.0.0",
     "electron": "^22.0.0",
     "electron-mocha": "^13.0.1",
+    "jest": "^29.7.0",
     "lodash": "^4.17.15",
-    "mocha": "^10.1.0",
     "prettier": "^3.3.3",
     "rimraf": "^3.0.2",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.5.4",
     "xvfb-maybe": "^0.2.1"
   }
