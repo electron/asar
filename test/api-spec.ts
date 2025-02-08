@@ -6,6 +6,7 @@ import compDirs from './util/compareDirectories';
 import compFileLists from './util/compareFileLists';
 import { compFiles, isSymbolicLinkSync } from './util/compareFiles';
 import transform from './util/transformStream';
+import { verifySmartUnpack } from './util/verifySmartUnpack';
 
 const asar = require('../src/asar');
 
@@ -48,11 +49,11 @@ describe('api', function () {
     );
   });
   it('should create archive from directory (with nothing packed)', async () => {
-    await asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-unpacked.asar', {
+    const out = 'tmp/packthis-api-unpacked.asar';
+    await asar.createPackageWithOptions('test/input/packthis/', out, {
       unpackDir: '**',
     });
-    await compFiles('tmp/packthis-api-unpacked.asar', 'test/expected/packthis-all-unpacked.asar');
-    return compDirs('tmp/packthis-api-unpacked.asar.unpacked', 'test/expected/extractthis');
+    await verifySmartUnpack(out);
   });
   it('should list files/dirs in archive', async () => {
     return assertPackageListEquals(

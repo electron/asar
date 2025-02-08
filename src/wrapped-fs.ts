@@ -8,7 +8,6 @@ const promisifiedMethods = [
   'writeFile',
   'symlink',
   'readlink',
-  'readdir',
 ];
 
 type AsarFS = typeof import('fs') & {
@@ -21,7 +20,6 @@ type AsarFS = typeof import('fs') & {
   writeFile: (typeof import('fs'))['promises']['writeFile'];
   symlink: (typeof import('fs'))['promises']['symlink'];
   readlink: (typeof import('fs'))['promises']['readlink'];
-  readdir: (typeof import('fs'))['promises']['readdir'];
 };
 
 const promisified = {} as AsarFS;
