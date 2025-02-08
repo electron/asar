@@ -1,8 +1,9 @@
-'use strict';
-const Transform = require('stream').Transform;
-const basename = require('path').basename;
+import { Transform } from 'stream';
+import { basename } from 'path';
 
 class Reverser extends Transform {
+  private _data: string;
+
   constructor() {
     super();
     this._data = '';

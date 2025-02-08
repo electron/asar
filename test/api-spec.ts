@@ -40,7 +40,7 @@ describe('api', function () {
     await asar.createPackageWithOptions(
       'test/input/packthis/',
       'tmp/packthis-api-transformed.asar',
-      { transform: transform as any },
+      { transform },
     );
     return compFiles(
       'tmp/packthis-api-transformed.asar',

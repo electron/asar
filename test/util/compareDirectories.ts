@@ -1,14 +1,12 @@
-'use strict';
-
-const _ = require('lodash');
-const fs = require('../../lib/wrapped-fs').default;
-const path = require('path');
-const crawlFilesystem = require('../../lib/crawlfs').crawl;
+import _ from 'lodash';
+import fs from '../../lib/wrapped-fs';
+import path from 'path';
+import { crawl as crawlFilesystem } from '../../lib/crawlfs';
 
 export default async function (dirA: string, dirB: string) {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([
-    crawlFilesystem(dirA, null),
-    crawlFilesystem(dirB, null),
+    crawlFilesystem(dirA, {}),
+    crawlFilesystem(dirB, {}),
   ]);
   const relativeA = _.map(pathsA, (pathAItem: string) => path.relative(dirA, pathAItem));
   const relativeB = _.map(pathsB, (pathBItem: string) => path.relative(dirB, pathBItem));
