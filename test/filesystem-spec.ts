@@ -1,6 +1,6 @@
 import assert from 'assert';
 import path from 'path';
-import createSymlinkedApp from './util/createSymlinkApp';
+import createSymlinkedApp from './util/createTestApp';
 
 import { Filesystem } from '../lib/filesystem';
 

@@ -40,6 +40,9 @@ export function removeUnstableProperties(data: any) {
       if (name === 'offset') {
         return undefined;
       }
+      if (name === 'link') {
+        return toSystemIndependentPath(value);
+      }
       return value;
     }),
   );

@@ -7,7 +7,7 @@ import fs from '../lib/wrapped-fs';
 
 import compFileLists from './util/compareFileLists';
 import { compFiles } from './util/compareFiles';
-import createSymlinkApp from './util/createSymlinkApp';
+import createSymlinkApp from './util/createTestApp';
 import { verifyFileTree, verifySmartUnpack } from './util/verifySmartUnpack';
 
 const exec = promisify(childProcess.exec);
@@ -29,12 +29,13 @@ describe('command line interface', function () {
     await execAsar('p test/input/packthis/ tmp/packthis-cli.asar');
     await verifySmartUnpack('tmp/packthis-cli.asar');
   });
-  if (os.platform() === 'win32') {
-    it('should create archive from directory with windows-style path separators', async () => {
+  it.ifWindows(
+    'should create archive from directory with windows-style path separators',
+    async () => {
       await execAsar('p test\\input\\packthis\\ tmp\\packthis-cli.asar');
       await verifySmartUnpack('tmp/packthis-cli.asar');
-    });
-  }
+    },
+  );
   it('should create archive from directory without hidden files', async () => {
     await execAsar('p test/input/packthis/ tmp/packthis-without-hidden-cli.asar --exclude-hidden');
     await verifySmartUnpack('tmp/packthis-without-hidden-cli.asar');

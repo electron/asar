@@ -12,6 +12,7 @@ module.exports = {
       },
     ],
   },
-  globalSetup: './test/jest.setup.ts',
+  globalSetup: './test/setup/jest.global.setup.ts',
+  setupFilesAfterEnv: ['<rootDir>/test/setup/jest.env.setup.ts'],
   testTimeout: 10000,
 };

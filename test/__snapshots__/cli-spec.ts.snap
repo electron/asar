@@ -842,6 +842,87 @@ exports[`command line interface should create archive from directory with unpack
 ]
 `;
 
+exports[`command line interface should create archive from directory with windows-style path separators 1`] = `
+{
+  "files": {
+    ".hiddenfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+        ],
+        "hash": "d400d9a74f67e724a4793173d73e1403bd6b734930632f4eee50a3a5a1e5a478",
+      },
+      "size": 19,
+    },
+    "dir1": {
+      "files": {
+        "file1.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "size": 9,
+        },
+      },
+    },
+    "dir2": {
+      "files": {
+        "file2.png": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+        },
+        "file3.txt": {
+          "integrity": {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "size": 3,
+        },
+      },
+    },
+    "emptyfile.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "size": 0,
+    },
+    "file0.txt": {
+      "integrity": {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "size": 13,
+    },
+  },
+}
+`;
+
 exports[`command line interface should create archive from directory without hidden files 1`] = `
 {
   "files": {
