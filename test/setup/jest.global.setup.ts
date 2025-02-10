@@ -1,7 +1,8 @@
 import rimraf from 'rimraf';
-import * as path from 'path';
 import fs from '../../lib/wrapped-fs';
+import { TEST_APPS_DIR } from '../util/constants';
 
 export default () => {
-  rimraf.sync(path.join(__dirname, '..', '..', 'tmp'), fs);
+  // clean up previous tests dir 'tmp' on "global setup" of jest
+  rimraf.sync(TEST_APPS_DIR, fs);
 };

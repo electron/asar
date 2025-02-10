@@ -2,11 +2,10 @@ import { readArchiveHeaderSync } from '../../src/disk';
 import fs from '../../src/wrapped-fs';
 import * as path from 'path';
 import walk from './walk';
-
-const rootDir = path.resolve(__dirname, '..', '..');
+import { ROOT_PROJECT_DIR } from './constants';
 
 export const verifySmartUnpack = async (asarPath: string) => {
-  asarPath = path.isAbsolute(asarPath) ? asarPath : path.join(rootDir, asarPath);
+  asarPath = path.isAbsolute(asarPath) ? asarPath : path.join(ROOT_PROJECT_DIR, asarPath);
   // verify header
   const asarFs = readArchiveHeaderSync(asarPath);
   expect(removeUnstableProperties(asarFs.header)).toMatchSnapshot();
@@ -30,11 +29,11 @@ export const verifyFileTree = async (dirPath: string) => {
   expect(files).toMatchSnapshot();
 };
 
-export function toSystemIndependentPath(s: string): string {
+export const toSystemIndependentPath = (s: string): string => {
   return path.sep === '/' ? s : s.replace(/\\/g, '/');
-}
+};
 
-export function removeUnstableProperties(data: any) {
+export const removeUnstableProperties = (data: any) => {
   return JSON.parse(
     JSON.stringify(data, (name, value) => {
       if (name === 'offset') {
@@ -46,4 +45,4 @@ export function removeUnstableProperties(data: any) {
       return value;
     }),
   );
-}
+};

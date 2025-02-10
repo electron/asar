@@ -2,6 +2,7 @@ import path from 'path';
 import fs from '../../lib/wrapped-fs';
 import rimraf from 'rimraf';
 import { Dirent } from 'fs';
+import { TEST_APPS_DIR } from './constants';
 
 /**
  * Directory structure:
@@ -13,14 +14,12 @@ import { Dirent } from 'fs';
  * │       └── file.txt
  * └── var -> private/var
  */
-const appsDir = path.join(__dirname, '../..', 'tmp');
-
 const createTestApp = async (
   testName: string | undefined,
   additionalFiles: Record<string, string> = {},
 ) => {
   const outDir = testName || 'app' + Math.floor(Math.random() * 100);
-  const testPath = path.join(appsDir, outDir);
+  const testPath = path.join(TEST_APPS_DIR, outDir);
   const privateVarPath = path.join(testPath, 'private', 'var');
   const varPath = path.join(testPath, 'var');
 
