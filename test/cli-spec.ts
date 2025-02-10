@@ -155,9 +155,17 @@ describe('command line interface', function () {
     await verifySmartUnpack('tmp/packthis-unpack-subdir-cli.asar');
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
-    const { testPath } = await createSymlinkApp('app');
+    const { testPath, buildOrderingData } = await createSymlinkApp('ordered-app');
+    const orderingPath = path.join(testPath, '../ordered-app-ordering.txt');
+
+    // this is functionally the same as `--unpack *.txt --unpack-dir var`
+    const data = buildOrderingData((filepath: string) => ({
+      unpack: filepath.endsWith('.txt') || filepath.includes('var'),
+    }));
+    await fs.writeFile(orderingPath, data);
+
     await execAsar(
-      `p ${testPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
     );
     await verifySmartUnpack('tmp/packthis-with-symlink.asar');
   });
