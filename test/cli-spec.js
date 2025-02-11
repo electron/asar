@@ -190,17 +190,9 @@ describe('command line interface', function () {
     );
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
-    const { tmpPath, buildOrderingData } = createSymlinkApp('ordered-app');
-    const orderingPath = path.join(tmpPath, '../ordered-app-ordering.txt');
-
-    // this is functionally the same as `-unpack *.txt --unpack-dir var`
-    const data = buildOrderingData((filepath) => ({
-      unpack: filepath.endsWith('.txt') || filepath.includes('var'),
-    }));
-    await fs.writeFile(orderingPath, data);
-
+    const { tmpPath } = createSymlinkApp('app');
     await execAsar(
-      `p ${tmpPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
+      `p ${tmpPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
 
     assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/file.txt'));
