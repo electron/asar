@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import fs from '../lib/wrapped-fs';
 
 import compFileLists from './util/compareFileLists';
-import createSymlinkApp from './util/createTestApp';
+import createTestApp from './util/createTestApp';
 import { verifyFileTree, verifySmartUnpack } from './util/verifySmartUnpack';
 
 const exec = promisify(childProcess.exec);
@@ -152,7 +152,7 @@ describe('command line interface', function () {
     await verifySmartUnpack('tmp/packthis-unpack-subdir-cli.asar');
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
-    const { testPath } = await createSymlinkApp('app');
+    const { testPath } = await createTestApp('app');
     await execAsar(
       `p ${testPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
