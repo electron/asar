@@ -6,6 +6,8 @@ import fs from '../lib/wrapped-fs';
 import compFileLists from './util/compareFileLists';
 import createTestApp from './util/createTestApp';
 import { verifyFileTree, verifySmartUnpack } from './util/verifySmartUnpack';
+import rimraf from 'rimraf';
+import { TEST_APPS_DIR } from './util/constants';
 
 const exec = promisify(childProcess.exec);
 
@@ -22,6 +24,9 @@ async function assertAsarOutputMatches(args: string, expectedFilename: string) {
 }
 
 describe('command line interface', function () {
+  beforeEach(() => {
+    rimraf.sync(TEST_APPS_DIR, fs);
+  });
   it('should create archive from directory', async () => {
     await execAsar('p test/input/packthis/ tmp/packthis-cli.asar');
     await verifySmartUnpack('tmp/packthis-cli.asar');
@@ -84,11 +89,11 @@ describe('command line interface', function () {
   */
   it('should extract an archive', async () => {
     await execAsar('e test/input/extractthis.asar tmp/extractthis-cli/');
-    expect(await verifyFileTree('tmp/extractthis-cli/')).toMatchSnapshot();
+    await verifyFileTree('tmp/extractthis-cli/');
   });
   it('should extract an archive with unpacked files', async () => {
     await execAsar('e test/input/extractthis-unpack.asar tmp/extractthis-unpack-cli/');
-    expect(await verifyFileTree('tmp/extractthis-unpack-cli/')).toMatchSnapshot();
+    await verifyFileTree('tmp/extractthis-unpack-cli/');
   });
   it("should throw an error when trying to extract a file that doesn't exist in the archive", async () => {
     await assert.rejects(
@@ -137,7 +142,7 @@ describe('command line interface', function () {
   });
   it('should extract an archive with unpacked dirs', async () => {
     await execAsar('e test/input/extractthis-unpack-dir.asar tmp/extractthis-unpack-dir/');
-    expect(await verifyFileTree('tmp/extractthis-unpack-cli/')).toMatchSnapshot();
+    await verifyFileTree('tmp/extractthis-unpack-dir/');
   });
   it('should create archive from directory with unpacked dirs and files', async () => {
     await execAsar(
@@ -154,8 +159,8 @@ describe('command line interface', function () {
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
     const { testPath } = await createTestApp('app');
     await execAsar(
-      `p ${testPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink2.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
-    await verifySmartUnpack('tmp/packthis-with-symlink.asar');
+    await verifySmartUnpack('tmp/packthis-with-symlink2.asar');
   });
 });

@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "yarn lint && xvfb-maybe jest",
+    "test": "yarn lint && xvfb-maybe jest --runInBand",
     "lint": "yarn prettier:check",
     "prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\"",
     "prettier:check": "yarn prettier --check",

@@ -25,7 +25,6 @@ module.exports = {
     {
       ...nodeEnvConfig,
       runner: '@kayahr/jest-electron-runner/main', // fork of https://github.com/facebook-atom/jest-electron-runner but updated to support jest v27+
-      testMatch: [...nodeEnvConfig.testMatch, "!**/cli-spec.ts"], // cli isn't accessible within electron main process, right?
       testEnvironmentOptions: {
         electron: {
           options: [], // args for electron (such as 'no-sandbox' & 'force-device-scale-factor=1')

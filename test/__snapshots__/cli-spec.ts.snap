@@ -362,16 +362,6 @@ exports[`command line interface should create archive from directory with unpack
 exports[`command line interface should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern 2`] = `
 [
   {
-    "content": "fileone
-",
-    "name": "x1/file1.txt",
-  },
-  {
-    "content": "filetwo
-",
-    "name": "x2/file2.txt",
-  },
-  {
     "content": "filefour
 ",
     "name": "y3/x1/file4.txt",
@@ -384,8 +374,6 @@ exports[`command line interface should create archive from directory with unpack
   "y3/z1/x2",
   "y3/x1",
   "y3/z1",
-  "x1",
-  "x2",
   "y3",
 ]
 `;
@@ -1017,8 +1005,6 @@ exports[`command line interface should extract an archive 1`] = `
 ]
 `;
 
-exports[`command line interface should extract an archive 2`] = `undefined`;
-
 exports[`command line interface should extract an archive with unpacked dirs 1`] = `
 [
   {
@@ -1043,8 +1029,6 @@ exports[`command line interface should extract an archive with unpacked dirs 1`]
 ]
 `;
 
-exports[`command line interface should extract an archive with unpacked dirs 2`] = `undefined`;
-
 exports[`command line interface should extract an archive with unpacked files 1`] = `
 [
   {
@@ -1068,8 +1052,6 @@ exports[`command line interface should extract an archive with unpacked files 1`
   },
 ]
 `;
-
-exports[`command line interface should extract an archive with unpacked files 2`] = `undefined`;
 
 exports[`command line interface should unpack static framework with all underlying symlinks unpacked 1`] = `
 {
