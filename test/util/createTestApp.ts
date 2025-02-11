@@ -18,7 +18,7 @@ const createTestApp = async (
   testName: string | undefined,
   additionalFiles: Record<string, string> = {},
 ) => {
-  const outDir = testName || 'app' + Math.floor(Math.random() * 100);
+  const outDir = (testName || 'app') + Math.floor(Math.random() * 100);
   const testPath = path.join(TEST_APPS_DIR, outDir);
   const privateVarPath = path.join(testPath, 'private', 'var');
   const varPath = path.join(testPath, 'var');

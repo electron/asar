@@ -1085,7 +1085,6 @@ exports[`command line interface should unpack static framework with all underlyi
                   "unpacked": true,
                 },
               },
-              "unpacked": true,
             },
             "file.txt": {
               "integrity": {
@@ -1100,10 +1099,8 @@ exports[`command line interface should unpack static framework with all underlyi
               "unpacked": true,
             },
           },
-          "unpacked": true,
         },
       },
-      "unpacked": true,
     },
     "var": {
       "link": "private/var",

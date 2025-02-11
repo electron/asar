@@ -33,73 +33,6 @@ function isUnpackedDir(dirPath: string, pattern: string, unpackDirs: string[]) {
   }
 }
 
-export type FileProperties = {
-  filepath: string;
-  properties: {
-    unpack?: boolean;
-  };
-};
-
-async function getFileOrdering(
-  options: CreateOptions,
-  src: string,
-  filenames: string[],
-): Promise<FileProperties[]> {
-  if (!options.ordering) {
-    return filenames.map<FileProperties>((filepath) => ({ filepath, properties: {} }));
-  }
-  const orderingMap: FileProperties[] = (await fs.readFile(options.ordering))
-    .toString()
-    .split('\n')
-    .map<FileProperties>((line) => {
-      line = line.trim();
-      const config: FileProperties = { filepath: line, properties: {} };
-      const colonIndex = line.indexOf(':');
-      if (colonIndex > -1) {
-        config.filepath = line.substring(0, colonIndex); // file path
-        const props = line.substring(colonIndex + 1); // props on other side of the `:`
-        config.properties = props.length > 2 ? JSON.parse(props) : {}; // file properties
-      }
-      if (config.filepath.startsWith('/')) {
-        config.filepath = config.filepath.slice(1);
-      }
-      return config;
-    });
-
-  const ordering: FileProperties[] = [];
-  for (const config of orderingMap) {
-    const pathComponents = config.filepath.split(path.sep);
-    let str = src;
-    for (const pathComponent of pathComponents) {
-      str = path.join(str, pathComponent);
-      ordering.push({ filepath: str, properties: config.properties });
-    }
-  }
-
-  let missing = 0;
-  const total = filenames.length;
-
-  const fileOrderingSorted: FileProperties[] = [];
-  const isAlreadySorted = (file: string) =>
-    fileOrderingSorted.findIndex((config) => file === config.filepath) > -1;
-
-  for (const config of ordering) {
-    if (!isAlreadySorted(config.filepath) && filenames.includes(config.filepath)) {
-      fileOrderingSorted.push(config);
-    }
-  }
-
-  for (const file of filenames) {
-    if (!isAlreadySorted(file)) {
-      fileOrderingSorted.push({ filepath: file, properties: {} });
-      missing += 1;
-    }
-  }
-
-  console.log(`Ordering file has ${((total - missing) / total) * 100}% coverage.`);
-  return fileOrderingSorted;
-}
-
 export async function createPackage(src: string, dest: string) {
   return createPackageWithOptions(src, dest, {});
 }
@@ -151,10 +84,54 @@ export async function createPackageFromFiles(
   const links: disk.BasicFilesArray = [];
   const unpackDirs: string[] = [];
 
-  const filenamesSorted: FileProperties[] = await getFileOrdering(options, src, filenames);
+  let filenamesSorted: string[] = [];
+  if (options.ordering) {
+    const orderingFiles = (await fs.readFile(options.ordering))
+      .toString()
+      .split('\n')
+      .map((line) => {
+        if (line.includes(':')) {
+          line = line.split(':').pop()!;
+        }
+        line = line.trim();
+        if (line.startsWith('/')) {
+          line = line.slice(1);
+        }
+        return line;
+      });
 
-  const handleFile = async function (config: FileProperties) {
-    const filename = config.filepath;
+    const ordering: string[] = [];
+    for (const file of orderingFiles) {
+      const pathComponents = file.split(path.sep);
+      let str = src;
+      for (const pathComponent of pathComponents) {
+        str = path.join(str, pathComponent);
+        ordering.push(str);
+      }
+    }
+
+    let missing = 0;
+    const total = filenames.length;
+
+    for (const file of ordering) {
+      if (!filenamesSorted.includes(file) && filenames.includes(file)) {
+        filenamesSorted.push(file);
+      }
+    }
+
+    for (const file of filenames) {
+      if (!filenamesSorted.includes(file)) {
+        filenamesSorted.push(file);
+        missing += 1;
+      }
+    }
+
+    console.log(`Ordering file has ${((total - missing) / total) * 100}% coverage.`);
+  } else {
+    filenamesSorted = filenames;
+  }
+
+  const handleFile = async function (filename: string) {
     if (!metadata[filename]) {
       const fileType = await determineFileType(filename);
       if (!fileType) {
@@ -169,9 +146,6 @@ export async function createPackageFromFiles(
       unpack: string | undefined,
       unpackDir: string | undefined,
     ) {
-      if (config.properties.unpack != null) {
-        return config.properties.unpack;
-      }
       let shouldUnpack = false;
       if (unpack) {
         shouldUnpack = minimatch(filename, unpack, { matchBase: true });
@@ -216,12 +190,12 @@ export async function createPackageFromFiles(
 
   const names = filenamesSorted.slice();
 
-  const next = async function (config?: FileProperties) {
-    if (!config) {
+  const next = async function (name?: string) {
+    if (!name) {
       return insertsDone();
     }
 
-    await handleFile(config);
+    await handleFile(name);
     return next(names.shift());
   };
 

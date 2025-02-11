@@ -1,12 +1,9 @@
 import assert from 'assert';
 import childProcess from 'child_process';
-import os from 'os';
-import path from 'path';
 import { promisify } from 'util';
 import fs from '../lib/wrapped-fs';
 
 import compFileLists from './util/compareFileLists';
-import { compFiles } from './util/compareFiles';
 import createSymlinkApp from './util/createTestApp';
 import { verifyFileTree, verifySmartUnpack } from './util/verifySmartUnpack';
 
@@ -155,17 +152,9 @@ describe('command line interface', function () {
     await verifySmartUnpack('tmp/packthis-unpack-subdir-cli.asar');
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
-    const { testPath, buildOrderingData } = await createSymlinkApp('ordered-app');
-    const orderingPath = path.join(testPath, '../ordered-app-ordering.txt');
-
-    // this is functionally the same as `--unpack *.txt --unpack-dir var`
-    const data = buildOrderingData((filepath: string) => ({
-      unpack: filepath.endsWith('.txt') || filepath.includes('var'),
-    }));
-    await fs.writeFile(orderingPath, data);
-
+    const { testPath } = await createSymlinkApp('app');
     await execAsar(
-      `p ${testPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
     await verifySmartUnpack('tmp/packthis-with-symlink.asar');
   });
