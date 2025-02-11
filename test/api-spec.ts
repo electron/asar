@@ -1,35 +1,33 @@
-'use strict';
+import assert from 'assert';
+import os from 'os';
+import fs from '../src/wrapped-fs';
 
-const assert = require('assert');
-const fs = require('../lib/wrapped-fs').default;
-const os = require('os');
-const path = require('path');
-const rimraf = require('rimraf');
+import { expect } from 'vitest';
+import * as asar from '../src/asar';
+import { FilesystemLinkEntry } from '../src/filesystem';
+import compDirs from './util/compareDirectories';
+import compFileLists from './util/compareFileLists';
+import { compFiles, isSymbolicLinkSync } from './util/compareFiles';
+import transform from './util/transformStream';
+import { verifySmartUnpack } from './util/verifySmartUnpack';
 
-const asar = require('..');
-const compDirs = require('./util/compareDirectories');
-const compFileLists = require('./util/compareFileLists');
-const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
-const transform = require('./util/transformStream');
-
-async function assertPackageListEquals(actualList, expectedFilename) {
+async function assertPackageListEquals(actualList: string[], expectedFilename: string) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
+  expect(actualList).toMatchSnapshot();
   return compFileLists(actualList.join('\n'), expected);
 }
 
 describe('api', function () {
-  beforeEach(() => {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs);
-  });
-
   it('should create archive from directory', async () => {
     await asar.createPackage('test/input/packthis/', 'tmp/packthis-api.asar');
-    return compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar');
+    await compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar');
+    await verifySmartUnpack('tmp/packthis-api.asar');
   });
   if (os.platform() === 'win32') {
     it('should create archive with windows-style path separators', async () => {
-      await asar.createPackage('test\\input\\packthis\\', 'tmp\\packthis-api.asar');
-      return compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar');
+      await asar.createPackage('test\\input\\packthis\\', 'tmp\\packthis-api-win.asar');
+      await compFiles('tmp/packthis-api-win.asar', 'test/expected/packthis.asar');
+      await verifySmartUnpack('tmp/packthis-api-win.asar');
     });
   }
   it('should create archive from directory (without hidden files)', async () => {
@@ -38,10 +36,11 @@ describe('api', function () {
       'tmp/packthis-without-hidden-api.asar',
       { dot: false },
     );
-    return compFiles(
+    await compFiles(
       'tmp/packthis-without-hidden-api.asar',
       'test/expected/packthis-without-hidden.asar',
     );
+    await verifySmartUnpack('tmp/packthis-without-hidden-api.asar');
   });
   it('should create archive from directory (with transformed files)', async () => {
     await asar.createPackageWithOptions(
@@ -49,17 +48,16 @@ describe('api', function () {
       'tmp/packthis-api-transformed.asar',
       { transform },
     );
-    return compFiles(
-      'tmp/packthis-api-transformed.asar',
-      'test/expected/packthis-transformed.asar',
-    );
+    await compFiles('tmp/packthis-api-transformed.asar', 'test/expected/packthis-transformed.asar');
+    await verifySmartUnpack('tmp/packthis-api-transformed.asar');
   });
   it('should create archive from directory (with nothing packed)', async () => {
     await asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-unpacked.asar', {
       unpackDir: '**',
     });
     await compFiles('tmp/packthis-api-unpacked.asar', 'test/expected/packthis-all-unpacked.asar');
-    return compDirs('tmp/packthis-api-unpacked.asar.unpacked', 'test/expected/extractthis');
+    await compDirs('tmp/packthis-api-unpacked.asar.unpacked', 'test/expected/extractthis');
+    await verifySmartUnpack('tmp/packthis-api-unpacked.asar');
   });
   it('should list files/dirs in archive', async () => {
     return assertPackageListEquals(
@@ -158,7 +156,8 @@ describe('api', function () {
         },
       },
     );
-    return compFiles('tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar');
+    await compFiles('tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar');
+    await verifySmartUnpack('tmp/packthis-unicode-path.asar');
   });
   it('should extract a text file from archive with multibyte characters in path', async () => {
     const actual = asar
@@ -172,10 +171,11 @@ describe('api', function () {
       'test/input/packthis-object-prototype/',
       'tmp/packthis-object-prototype.asar',
     );
-    return compFiles(
+    await compFiles(
       'tmp/packthis-object-prototype.asar',
       'test/expected/packthis-object-prototype.asar',
     );
+    await verifySmartUnpack('tmp/packthis-object-prototype.asar');
   });
   it('should extract files/directories whose names are properties of Object.prototype', () => {
     asar.extractAll(
@@ -193,7 +193,11 @@ describe('api', function () {
     assert.deepStrictEqual(topLevelFunctions, defaultExportFunctions);
   });
   it('should stat a symlinked file', async () => {
-    const stats = asar.statFile('test/input/stat-symlink.asar', 'real.txt', true);
+    const stats = asar.statFile(
+      'test/input/stat-symlink.asar',
+      'real.txt',
+      true,
+    ) as FilesystemLinkEntry;
     return assert.strictEqual(stats.link, undefined);
   });
 });
