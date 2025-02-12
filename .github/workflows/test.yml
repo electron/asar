@@ -15,6 +15,7 @@ jobs:
   test:
     name: Test
     strategy:
+      fail-fast: false
       matrix:
         node-version:
           - '20.10'
