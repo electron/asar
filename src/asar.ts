@@ -40,6 +40,13 @@ export async function createPackage(src: string, dest: string) {
 export type CreateOptions = {
   dot?: boolean;
   globOptions?: IOptions;
+  /**
+   * Path to a file containing the list of relative filepaths relative to `src` and the specific order they should be inserted into the asar.
+   * Formats allowed below:
+   *   filepath
+   *   : filepath
+   *   <anything>:filepath
+   */
   ordering?: string;
   pattern?: string;
   transform?: (filePath: string) => NodeJS.ReadWriteStream | void;
