@@ -1,4 +1,4 @@
-const { readArchiveHeaderSync } = require('../../lib/disk');
+const { readFilesystemSync } = require('../../lib/disk');
 const fs = require('../../lib/wrapped-fs').default;
 const path = require('path');
 const walk = require('./walk');
@@ -9,8 +9,8 @@ const { expect } = require('chai');
 const verifySmartUnpack = async (asarPath) => {
   asarPath = path.isAbsolute(asarPath) ? asarPath : path.join(ROOT_PROJECT_DIR, asarPath);
   // verify header
-  const asarFs = readArchiveHeaderSync(asarPath);
-  expect(removeUnstableProperties(asarFs.header)).toMatchSnapshot();
+  const asarFs = readFilesystemSync(asarPath);
+  expect(removeUnstableProperties(asarFs.getHeader())).toMatchSnapshot();
 
   // check unpacked dir
   const unpackedDir = `${asarPath}.unpacked`;
@@ -34,9 +34,6 @@ const verifyFileTree = async (dirPath) => {
 const removeUnstableProperties = (data) => {
   return JSON.parse(
     JSON.stringify(data, (name, value) => {
-      if (name === 'offset') {
-        return undefined;
-      }
       if (name === 'link') {
         return toSystemIndependentPath(value);
       }

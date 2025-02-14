@@ -38,7 +38,10 @@ module.exports = async (testName, additionalFiles = {}) => {
   fs.mkdirpSync(appPath);
   fs.symlinkSync('../file.txt', path.join(appPath, 'file.txt'));
 
-  const filesOrdering = walk(testPath).map((filepath) => filepath.substring(testPath.length)); // convert to paths relative to root
+  // reverse otherwise we might as well just not be using ordering logic flow (it defaults to filelist order, which is the same as this non-reversed)
+  const filesOrdering = walk(testPath)
+    .reverse()
+    .map((filepath) => filepath.substring(testPath.length)); // convert to paths relative to root
 
   return { appPath, testPath, varPath, filesOrdering };
 };

@@ -23,7 +23,44 @@ Object {
                 ],
                 "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
               },
+              "offset": "15",
               "size": 11,
+            },
+            "file1.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+                ],
+                "hash": "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+              },
+              "offset": "10",
+              "size": 5,
+            },
+            "file2.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+                ],
+                "hash": "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+              },
+              "offset": "5",
+              "size": 5,
+            },
+            "file3.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+                ],
+                "hash": "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+              },
+              "offset": "0",
+              "size": 5,
             },
           },
         },
@@ -59,7 +96,44 @@ Object {
                 ],
                 "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
               },
+              "offset": "15",
               "size": 11,
+            },
+            "file1.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+                ],
+                "hash": "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+              },
+              "offset": "10",
+              "size": 5,
+            },
+            "file2.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+                ],
+                "hash": "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+              },
+              "offset": "5",
+              "size": 5,
+            },
+            "file3.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+                ],
+                "hash": "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+              },
+              "offset": "0",
+              "size": 5,
             },
           },
         },
@@ -95,7 +169,44 @@ Object {
                 ],
                 "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
               },
+              "offset": "15",
               "size": 11,
+            },
+            "file1.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+                ],
+                "hash": "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+              },
+              "offset": "10",
+              "size": 5,
+            },
+            "file2.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+                ],
+                "hash": "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+              },
+              "offset": "5",
+              "size": 5,
+            },
+            "file3.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+                ],
+                "hash": "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+              },
+              "offset": "0",
+              "size": 5,
             },
           },
         },

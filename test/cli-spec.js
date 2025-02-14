@@ -194,13 +194,17 @@ describe('command line interface', function () {
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
     const { testPath } = await createSymlinkApp('app');
     await execAsar(
-      `p ${testPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink1.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
 
-    await verifySmartUnpack('tmp/packthis-with-symlink.asar');
+    await verifySmartUnpack('tmp/packthis-with-symlink1.asar');
   });
   it('should respect ordering file (format: "${filepath}")', async () => {
-    const { testPath, filesOrdering } = await createSymlinkApp('app');
+    const { testPath, filesOrdering } = await createSymlinkApp('app-order1', {
+      'file1.txt': 'data1',
+      'file2.txt': 'data2',
+      'file3.txt': 'data3',
+    });
 
     const orderingPath = path.join(testPath, '../ordered-app-ordering1.txt');
     const data = filesOrdering.reduce((prev, curr) => {
@@ -209,12 +213,16 @@ describe('command line interface', function () {
     await fs.writeFile(orderingPath, data);
 
     await execAsar(
-      `p ${testPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink2.asar --ordering=${orderingPath} --exclude-hidden`,
     );
-    await verifySmartUnpack('tmp/packthis-with-symlink.asar');
+    await verifySmartUnpack('tmp/packthis-with-symlink2.asar');
   });
   it('should respect ordering file (format: ": ${filepath}")', async () => {
-    const { testPath, filesOrdering } = await createSymlinkApp('app');
+    const { testPath, filesOrdering } = await createSymlinkApp('app-order2', {
+      'file1.txt': 'data1',
+      'file2.txt': 'data2',
+      'file3.txt': 'data3',
+    });
 
     const orderingPath = path.join(testPath, '../ordered-app-ordering2.txt');
     const data = filesOrdering.reduce((prev, curr) => {
@@ -223,12 +231,16 @@ describe('command line interface', function () {
     await fs.writeFile(orderingPath, data);
 
     await execAsar(
-      `p ${testPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink3.asar --ordering=${orderingPath} --exclude-hidden`,
     );
-    await verifySmartUnpack('tmp/packthis-with-symlink.asar');
+    await verifySmartUnpack('tmp/packthis-with-symlink3.asar');
   });
   it('should respect ordering file (format: "${random number} : ${filepath}")', async () => {
-    const { testPath, filesOrdering } = await createSymlinkApp('app');
+    const { testPath, filesOrdering } = await createSymlinkApp('app-order3', {
+      'file1.txt': 'data1',
+      'file2.txt': 'data2',
+      'file3.txt': 'data3',
+    });
 
     const orderingPath = path.join(testPath, '../ordered-app-ordering3.txt');
     const data = filesOrdering.reduce((prev, curr) => {
@@ -237,8 +249,8 @@ describe('command line interface', function () {
     await fs.writeFile(orderingPath, data);
 
     await execAsar(
-      `p ${testPath} tmp/packthis-with-symlink.asar --ordering=${orderingPath} --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink4.asar --ordering=${orderingPath} --exclude-hidden`,
     );
-    await verifySmartUnpack('tmp/packthis-with-symlink.asar');
+    await verifySmartUnpack('tmp/packthis-with-symlink4.asar');
   });
 });
