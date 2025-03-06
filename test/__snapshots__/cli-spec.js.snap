@@ -1,0 +1,276 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`command line interface should respect ordering file (format: "\${filepath}") 1`] = `
+Object {
+  "files": Object {
+    "private": Object {
+      "files": Object {
+        "var": Object {
+          "files": Object {
+            "app": Object {
+              "files": Object {
+                "file.txt": Object {
+                  "link": "private/var/file.txt",
+                },
+              },
+            },
+            "file.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+                ],
+                "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+              },
+              "offset": "15",
+              "size": 11,
+            },
+            "file1.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+                ],
+                "hash": "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+              },
+              "offset": "10",
+              "size": 5,
+            },
+            "file2.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+                ],
+                "hash": "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+              },
+              "offset": "5",
+              "size": 5,
+            },
+            "file3.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+                ],
+                "hash": "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+              },
+              "offset": "0",
+              "size": 5,
+            },
+          },
+        },
+      },
+    },
+    "var": Object {
+      "link": "private/var",
+    },
+  },
+}
+`;
+
+exports[`command line interface should respect ordering file (format: "\${random number} : \${filepath}") 1`] = `
+Object {
+  "files": Object {
+    "private": Object {
+      "files": Object {
+        "var": Object {
+          "files": Object {
+            "app": Object {
+              "files": Object {
+                "file.txt": Object {
+                  "link": "private/var/file.txt",
+                },
+              },
+            },
+            "file.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+                ],
+                "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+              },
+              "offset": "15",
+              "size": 11,
+            },
+            "file1.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+                ],
+                "hash": "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+              },
+              "offset": "10",
+              "size": 5,
+            },
+            "file2.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+                ],
+                "hash": "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+              },
+              "offset": "5",
+              "size": 5,
+            },
+            "file3.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+                ],
+                "hash": "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+              },
+              "offset": "0",
+              "size": 5,
+            },
+          },
+        },
+      },
+    },
+    "var": Object {
+      "link": "private/var",
+    },
+  },
+}
+`;
+
+exports[`command line interface should respect ordering file (format: ": \${filepath}") 1`] = `
+Object {
+  "files": Object {
+    "private": Object {
+      "files": Object {
+        "var": Object {
+          "files": Object {
+            "app": Object {
+              "files": Object {
+                "file.txt": Object {
+                  "link": "private/var/file.txt",
+                },
+              },
+            },
+            "file.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+                ],
+                "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+              },
+              "offset": "15",
+              "size": 11,
+            },
+            "file1.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+                ],
+                "hash": "5b41362bc82b7f3d56edc5a306db22105707d01ff4819e26faef9724a2d406c9",
+              },
+              "offset": "10",
+              "size": 5,
+            },
+            "file2.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+                ],
+                "hash": "d98cf53e0c8b77c14a96358d5b69584225b4bb9026423cbc2f7b0161894c402c",
+              },
+              "offset": "5",
+              "size": 5,
+            },
+            "file3.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+                ],
+                "hash": "f60f2d65da046fcaaf8a10bd96b5630104b629e111aff46ce89792e1caa11b18",
+              },
+              "offset": "0",
+              "size": 5,
+            },
+          },
+        },
+      },
+    },
+    "var": Object {
+      "link": "private/var",
+    },
+  },
+}
+`;
+
+exports[`command line interface should unpack static framework with all underlying symlinks unpacked 1`] = `
+Object {
+  "files": Object {
+    "private": Object {
+      "files": Object {
+        "var": Object {
+          "files": Object {
+            "app": Object {
+              "files": Object {
+                "file.txt": Object {
+                  "link": "private/var/file.txt",
+                  "unpacked": true,
+                },
+              },
+            },
+            "file.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+                ],
+                "hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+              },
+              "size": 11,
+              "unpacked": true,
+            },
+          },
+        },
+      },
+    },
+    "var": Object {
+      "link": "private/var",
+      "unpacked": true,
+    },
+  },
+}
+`;
+
+exports[`command line interface should unpack static framework with all underlying symlinks unpacked 2`] = `
+Array [
+  Object {
+    "content": "hello world",
+    "name": "private/var/app/file.txt",
+  },
+  "private/var/app",
+  Object {
+    "content": "hello world",
+    "name": "private/var/file.txt",
+  },
+  "private/var",
+  "private",
+  "var",
+]
+`;

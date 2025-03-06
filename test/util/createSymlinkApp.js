@@ -1,9 +1,12 @@
 const path = require('path');
 const fs = require('../../lib/wrapped-fs').default;
 const rimraf = require('rimraf');
+const { TEST_APPS_DIR } = require('./constants');
+const walk = require('./walk');
+
 /**
  * Directory structure:
- * tmp
+ * testName
  * ├── private
  * │   └── var
  * │       ├── app
@@ -11,20 +14,34 @@ const rimraf = require('rimraf');
  * │       └── file.txt
  * └── var -> private/var
  */
-module.exports = (testName) => {
-  const tmpPath = path.join(__dirname, '../..', 'tmp', testName || 'app');
-  const privateVarPath = path.join(tmpPath, 'private', 'var');
-  const varPath = path.join(tmpPath, 'var');
+module.exports = async (testName, additionalFiles = {}) => {
+  const outDir = (testName || 'app') + Math.floor(Math.random() * 100);
+  const testPath = path.join(TEST_APPS_DIR, outDir);
+  const privateVarPath = path.join(testPath, 'private', 'var');
+  const varPath = path.join(testPath, 'var');
 
-  rimraf.sync(tmpPath, fs);
+  rimraf.sync(testPath, fs);
 
   fs.mkdirSync(privateVarPath, { recursive: true });
-  fs.symlinkSync(path.relative(tmpPath, privateVarPath), varPath);
+  fs.symlinkSync(path.relative(testPath, privateVarPath), varPath);
 
-  const originFilePath = path.join(varPath, 'file.txt');
-  fs.writeFileSync(originFilePath, 'hello world');
+  const files = {
+    'file.txt': 'hello world',
+    ...additionalFiles,
+  };
+  for await (const [filename, fileData] of Object.entries(files)) {
+    const originFilePath = path.join(varPath, filename);
+    await fs.writeFile(originFilePath, fileData);
+  }
+
   const appPath = path.join(varPath, 'app');
   fs.mkdirpSync(appPath);
   fs.symlinkSync('../file.txt', path.join(appPath, 'file.txt'));
-  return { appPath, tmpPath, varPath };
+
+  // reverse otherwise we might as well just not be using ordering logic flow (it defaults to filelist order, which is the same as this non-reversed)
+  const filesOrdering = walk(testPath)
+    .reverse()
+    .map((filepath) => filepath.substring(testPath.length)); // convert to paths relative to root
+
+  return { appPath, testPath, varPath, filesOrdering };
 };

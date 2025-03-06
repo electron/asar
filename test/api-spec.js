@@ -11,6 +11,7 @@ const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
 const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
 const transform = require('./util/transformStream');
+const { TEST_APPS_DIR } = require('./util/constants');
 
 async function assertPackageListEquals(actualList, expectedFilename) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
@@ -19,7 +20,7 @@ async function assertPackageListEquals(actualList, expectedFilename) {
 
 describe('api', function () {
   beforeEach(() => {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs);
+    rimraf.sync(TEST_APPS_DIR, fs);
   });
 
   it('should create archive from directory', async () => {

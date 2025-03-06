@@ -12,6 +12,8 @@ const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
 const { compFiles } = require('./util/compareFiles');
 const createSymlinkApp = require('./util/createSymlinkApp');
+const { verifySmartUnpack } = require('./util/verifySmartUnpack');
+const { TEST_APPS_DIR } = require('./util/constants');
 
 const exec = promisify(childProcess.exec);
 
@@ -29,7 +31,7 @@ async function assertAsarOutputMatches(args, expectedFilename) {
 
 describe('command line interface', function () {
   beforeEach(() => {
-    rimraf.sync(path.join(__dirname, '..', 'tmp'), fs);
+    rimraf.sync(TEST_APPS_DIR, fs);
   });
 
   it('should create archive from directory', async () => {
@@ -190,21 +192,65 @@ describe('command line interface', function () {
     );
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
-    const { tmpPath } = createSymlinkApp('app');
+    const { testPath } = await createSymlinkApp('app');
     await execAsar(
-      `p ${tmpPath} tmp/packthis-with-symlink.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
+      `p ${testPath} tmp/packthis-with-symlink1.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
 
-    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/file.txt'));
-    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/private/var/app/file.txt'));
-    assert.strictEqual(
-      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/private/var/app/file.txt'),
-      path.join('..', 'file.txt'),
+    await verifySmartUnpack('tmp/packthis-with-symlink1.asar');
+  });
+  it('should respect ordering file (format: "${filepath}")', async () => {
+    const { testPath, filesOrdering } = await createSymlinkApp('app-order1', {
+      'file1.txt': 'data1',
+      'file2.txt': 'data2',
+      'file3.txt': 'data3',
+    });
+
+    const orderingPath = path.join(testPath, '../ordered-app-ordering1.txt');
+    const data = filesOrdering.reduce((prev, curr) => {
+      return `${prev}${curr}\n`;
+    }, '');
+    await fs.writeFile(orderingPath, data);
+
+    await execAsar(
+      `p ${testPath} tmp/packthis-with-symlink2.asar --ordering=${orderingPath} --exclude-hidden`,
     );
-    assert.strictEqual(
-      fs.readlinkSync('tmp/packthis-with-symlink.asar.unpacked/var'),
-      path.join('private', 'var'),
+    await verifySmartUnpack('tmp/packthis-with-symlink2.asar');
+  });
+  it('should respect ordering file (format: ": ${filepath}")', async () => {
+    const { testPath, filesOrdering } = await createSymlinkApp('app-order2', {
+      'file1.txt': 'data1',
+      'file2.txt': 'data2',
+      'file3.txt': 'data3',
+    });
+
+    const orderingPath = path.join(testPath, '../ordered-app-ordering2.txt');
+    const data = filesOrdering.reduce((prev, curr) => {
+      return `${prev}: ${curr}\n`;
+    }, '');
+    await fs.writeFile(orderingPath, data);
+
+    await execAsar(
+      `p ${testPath} tmp/packthis-with-symlink3.asar --ordering=${orderingPath} --exclude-hidden`,
     );
-    assert.ok(fs.existsSync('tmp/packthis-with-symlink.asar.unpacked/var/file.txt'));
+    await verifySmartUnpack('tmp/packthis-with-symlink3.asar');
+  });
+  it('should respect ordering file (format: "${random number} : ${filepath}")', async () => {
+    const { testPath, filesOrdering } = await createSymlinkApp('app-order3', {
+      'file1.txt': 'data1',
+      'file2.txt': 'data2',
+      'file3.txt': 'data3',
+    });
+
+    const orderingPath = path.join(testPath, '../ordered-app-ordering3.txt');
+    const data = filesOrdering.reduce((prev, curr) => {
+      return `${prev}${Math.floor(Math.random() * 1000)} :  ${curr} \n`;
+    }, '');
+    await fs.writeFile(orderingPath, data);
+
+    await execAsar(
+      `p ${testPath} tmp/packthis-with-symlink4.asar --ordering=${orderingPath} --exclude-hidden`,
+    );
+    await verifySmartUnpack('tmp/packthis-with-symlink4.asar');
   });
 });
