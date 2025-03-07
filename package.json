@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "mocha": "xvfb-maybe electron-mocha --reporter spec && mocha --reporter spec",
+    "mocha": "xvfb-maybe electron-mocha && mocha",
     "mocha:update": "UPDATE_SNAPSHOT=true yarn mocha",
     "mocha:watch": "mocha --watch",
     "test": "yarn lint && yarn mocha",
