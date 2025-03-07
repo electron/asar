@@ -1,5 +1,776 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`command line interface should create archive from directory with unpacked dirs 1`] = `
+Object {
+  "files": Object {
+    "dir1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "offset": "0",
+          "size": 9,
+        },
+      },
+    },
+    "dir2": Object {
+      "files": Object {
+        "file2.png": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+          "unpacked": true,
+        },
+        "file3.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "size": 3,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "emptyfile.txt": Object {
+      "integrity": Object {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": Array [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "offset": "9",
+      "size": 0,
+    },
+    "file0.txt": Object {
+      "integrity": Object {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": Array [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "offset": "9",
+      "size": 13,
+    },
+  },
+}
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs 2`] = `
+Array [
+  "dir2/file2.png",
+  Object {
+    "content": "123",
+    "name": "dir2/file3.txt",
+  },
+  "dir2",
+]
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs and files 1`] = `
+Object {
+  "files": Object {
+    "dir1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "offset": "0",
+          "size": 9,
+        },
+      },
+    },
+    "dir2": Object {
+      "files": Object {
+        "file2.png": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+          "unpacked": true,
+        },
+        "file3.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "size": 3,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "emptyfile.txt": Object {
+      "integrity": Object {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": Array [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "offset": "9",
+      "size": 0,
+    },
+    "file0.txt": Object {
+      "integrity": Object {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": Array [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "offset": "9",
+      "size": 13,
+    },
+  },
+}
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs and files 2`] = `
+Array [
+  "dir2/file2.png",
+  Object {
+    "content": "123",
+    "name": "dir2/file3.txt",
+  },
+  "dir2",
+]
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern 1`] = `
+Object {
+  "files": Object {
+    "x1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+            ],
+            "hash": "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+          },
+          "size": 8,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "x2": Object {
+      "files": Object {
+        "file2.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+            ],
+            "hash": "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+          },
+          "size": 8,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "y3": Object {
+      "files": Object {
+        "file3.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+            ],
+            "hash": "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+          },
+          "offset": "0",
+          "size": 10,
+        },
+        "x1": Object {
+          "files": Object {
+            "file4.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+                ],
+                "hash": "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+              },
+              "size": 9,
+              "unpacked": true,
+            },
+          },
+          "unpacked": true,
+        },
+        "z1": Object {
+          "files": Object {
+            "x2": Object {
+              "files": Object {
+                "file5.txt": Object {
+                  "integrity": Object {
+                    "algorithm": "SHA256",
+                    "blockSize": 4194304,
+                    "blocks": Array [
+                      "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                    ],
+                    "hash": "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                  },
+                  "size": 9,
+                  "unpacked": true,
+                },
+              },
+              "unpacked": true,
+            },
+          },
+        },
+      },
+    },
+    "z4": Object {
+      "files": Object {
+        "w1": Object {
+          "files": Object {
+            "file6.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+                ],
+                "hash": "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+              },
+              "offset": "10",
+              "size": 8,
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs specified by foo/{bar,baz} style pattern 2`] = `
+Array [
+  Object {
+    "content": "filefour
+",
+    "name": "y3/x1/file4.txt",
+  },
+  Object {
+    "content": "filefive
+",
+    "name": "y3/z1/x2/file5.txt",
+  },
+  "y3/z1/x2",
+  "y3/x1",
+  "y3/z1",
+  "y3",
+]
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs specified by glob pattern 1`] = `
+Object {
+  "files": Object {
+    "x1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+            ],
+            "hash": "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+          },
+          "size": 8,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "x2": Object {
+      "files": Object {
+        "file2.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+            ],
+            "hash": "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+          },
+          "size": 8,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "y3": Object {
+      "files": Object {
+        "file3.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+            ],
+            "hash": "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+          },
+          "offset": "0",
+          "size": 10,
+        },
+        "x1": Object {
+          "files": Object {
+            "file4.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+                ],
+                "hash": "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+              },
+              "offset": "10",
+              "size": 9,
+            },
+          },
+        },
+        "z1": Object {
+          "files": Object {
+            "x2": Object {
+              "files": Object {
+                "file5.txt": Object {
+                  "integrity": Object {
+                    "algorithm": "SHA256",
+                    "blockSize": 4194304,
+                    "blocks": Array [
+                      "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                    ],
+                    "hash": "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                  },
+                  "offset": "19",
+                  "size": 9,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "z4": Object {
+      "files": Object {
+        "w1": Object {
+          "files": Object {
+            "file6.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+                ],
+                "hash": "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+              },
+              "offset": "28",
+              "size": 8,
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs specified by glob pattern 2`] = `
+Array [
+  Object {
+    "content": "fileone
+",
+    "name": "x1/file1.txt",
+  },
+  Object {
+    "content": "filetwo
+",
+    "name": "x2/file2.txt",
+  },
+  "x1",
+  "x2",
+]
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs specified by globstar pattern 1`] = `
+Object {
+  "files": Object {
+    "x1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+            ],
+            "hash": "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+          },
+          "size": 8,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "x2": Object {
+      "files": Object {
+        "file2.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+            ],
+            "hash": "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+          },
+          "size": 8,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "y3": Object {
+      "files": Object {
+        "file3.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+            ],
+            "hash": "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+          },
+          "offset": "0",
+          "size": 10,
+        },
+        "x1": Object {
+          "files": Object {
+            "file4.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+                ],
+                "hash": "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+              },
+              "size": 9,
+              "unpacked": true,
+            },
+          },
+          "unpacked": true,
+        },
+        "z1": Object {
+          "files": Object {
+            "x2": Object {
+              "files": Object {
+                "file5.txt": Object {
+                  "integrity": Object {
+                    "algorithm": "SHA256",
+                    "blockSize": 4194304,
+                    "blocks": Array [
+                      "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                    ],
+                    "hash": "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                  },
+                  "size": 9,
+                  "unpacked": true,
+                },
+              },
+              "unpacked": true,
+            },
+          },
+        },
+      },
+    },
+    "z4": Object {
+      "files": Object {
+        "w1": Object {
+          "files": Object {
+            "file6.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+                ],
+                "hash": "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+              },
+              "offset": "10",
+              "size": 8,
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`command line interface should create archive from directory with unpacked dirs specified by globstar pattern 2`] = `
+Array [
+  Object {
+    "content": "fileone
+",
+    "name": "x1/file1.txt",
+  },
+  Object {
+    "content": "filetwo
+",
+    "name": "x2/file2.txt",
+  },
+  Object {
+    "content": "filefour
+",
+    "name": "y3/x1/file4.txt",
+  },
+  Object {
+    "content": "filefive
+",
+    "name": "y3/z1/x2/file5.txt",
+  },
+  "y3/z1/x2",
+  "y3/x1",
+  "y3/z1",
+  "x1",
+  "x2",
+  "y3",
+]
+`;
+
+exports[`command line interface should create archive from directory with unpacked files 1`] = `
+Object {
+  "files": Object {
+    "dir1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "offset": "0",
+          "size": 9,
+        },
+      },
+    },
+    "dir2": Object {
+      "files": Object {
+        "file2.png": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+            ],
+            "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+          },
+          "size": 182,
+          "unpacked": true,
+        },
+        "file3.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            ],
+            "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+          },
+          "offset": "9",
+          "size": 3,
+        },
+      },
+    },
+    "emptyfile.txt": Object {
+      "integrity": Object {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": Array [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ],
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+      "offset": "12",
+      "size": 0,
+    },
+    "file0.txt": Object {
+      "integrity": Object {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": Array [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "offset": "12",
+      "size": 13,
+    },
+  },
+}
+`;
+
+exports[`command line interface should create archive from directory with unpacked files 2`] = `
+Array [
+  "dir2/file2.png",
+  "dir2",
+]
+`;
+
+exports[`command line interface should create archive from directory with unpacked subdirs and files using minimatch 1`] = `
+Object {
+  "files": Object {
+    "dir1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+            ],
+            "hash": "420149d3f852894ba7f32e9d3ec7d8919ee2451724bf2580b0186cd373bd6d82",
+          },
+          "size": 9,
+          "unpacked": true,
+        },
+      },
+    },
+    "dir2": Object {
+      "files": Object {
+        "subdir": Object {
+          "files": Object {
+            "file2.png": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+                ],
+                "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+              },
+              "size": 182,
+              "unpacked": true,
+            },
+            "file3.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+                ],
+                "hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+              },
+              "size": 3,
+              "unpacked": true,
+            },
+          },
+          "unpacked": true,
+        },
+        "subdir-do-not-unpack": Object {
+          "files": Object {
+            "file2.png": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+                ],
+                "hash": "cc402b796dc92b2b1f3a6d09515003d8400e63d8acaffc967e49c0cf015fcffe",
+              },
+              "offset": "0",
+              "size": 182,
+            },
+          },
+        },
+      },
+    },
+    "file0.txt": Object {
+      "integrity": Object {
+        "algorithm": "SHA256",
+        "blockSize": 4194304,
+        "blocks": Array [
+          "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+        ],
+        "hash": "41a978be88ff87a57308bf234106a57ebf9aa0971e2101e75113547a815be72b",
+      },
+      "size": 13,
+      "unpacked": true,
+    },
+  },
+}
+`;
+
+exports[`command line interface should create archive from directory with unpacked subdirs and files using minimatch 2`] = `
+Array [
+  Object {
+    "content": "file one.",
+    "name": "dir1/file1.txt",
+  },
+  "dir2/subdir/file2.png",
+  Object {
+    "content": "123",
+    "name": "dir2/subdir/file3.txt",
+  },
+  "dir2/subdir",
+  "dir1",
+  "dir2",
+  Object {
+    "content": "file0 content",
+    "name": "file0.txt",
+  },
+]
+`;
+
 exports[`command line interface should respect ordering file (format: "\${filepath}") 1`] = `
 Object {
   "files": Object {

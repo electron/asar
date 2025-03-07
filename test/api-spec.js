@@ -2,9 +2,8 @@
 
 const assert = require('assert');
 const fs = require('../lib/wrapped-fs').default;
-const os = require('os');
-const path = require('path');
 const rimraf = require('rimraf');
+const os = require('os');
 
 const asar = require('..');
 const compDirs = require('./util/compareDirectories');
@@ -12,6 +11,7 @@ const compFileLists = require('./util/compareFileLists');
 const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
 const transform = require('./util/transformStream');
 const { TEST_APPS_DIR } = require('./util/constants');
+const { verifySmartUnpack } = require('./util/verifySmartUnpack');
 
 async function assertPackageListEquals(actualList, expectedFilename) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
@@ -25,6 +25,7 @@ describe('api', function () {
 
   it('should create archive from directory', async () => {
     await asar.createPackage('test/input/packthis/', 'tmp/packthis-api.asar');
+    await verifySmartUnpack('tmp/packthis-api.asar');
     return compFiles('tmp/packthis-api.asar', 'test/expected/packthis.asar');
   });
   if (os.platform() === 'win32') {
@@ -39,6 +40,7 @@ describe('api', function () {
       'tmp/packthis-without-hidden-api.asar',
       { dot: false },
     );
+    await verifySmartUnpack('tmp/packthis-without-hidden-api.asar');
     return compFiles(
       'tmp/packthis-without-hidden-api.asar',
       'test/expected/packthis-without-hidden.asar',
@@ -50,6 +52,7 @@ describe('api', function () {
       'tmp/packthis-api-transformed.asar',
       { transform },
     );
+    await verifySmartUnpack('tmp/packthis-api-transformed.asar');
     return compFiles(
       'tmp/packthis-api-transformed.asar',
       'test/expected/packthis-transformed.asar',
@@ -59,6 +62,7 @@ describe('api', function () {
     await asar.createPackageWithOptions('test/input/packthis/', 'tmp/packthis-api-unpacked.asar', {
       unpackDir: '**',
     });
+    await verifySmartUnpack('tmp/packthis-api-unpacked.asar');
     await compFiles('tmp/packthis-api-unpacked.asar', 'test/expected/packthis-all-unpacked.asar');
     return compDirs('tmp/packthis-api-unpacked.asar.unpacked', 'test/expected/extractthis');
   });
@@ -159,6 +163,7 @@ describe('api', function () {
         },
       },
     );
+    await verifySmartUnpack('tmp/packthis-unicode-path.asar');
     return compFiles('tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar');
   });
   it('should extract a text file from archive with multibyte characters in path', async () => {
