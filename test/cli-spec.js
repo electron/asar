@@ -32,6 +32,7 @@ async function assertAsarOutputMatches(args, expectedFilename) {
 describe('command line interface', function () {
   beforeEach(() => {
     rimraf.sync(TEST_APPS_DIR, fs);
+    fs.mkdirSync(TEST_APPS_DIR);
   });
 
   it('should create archive from directory', async () => {
@@ -76,27 +77,24 @@ describe('command line interface', function () {
       'test/expected/packthis-unicode-path-filelist.txt',
     );
   });
-  // we need a way to set a path to extract to first, otherwise we pollute our project dir
-  // or we fake it by setting our cwd, but I don't like that
-  /*
   it('should extract a text file from archive', async () => {
-    await execAsar('ef test/input/extractthis.asar dir1/file1.txt')
-    const actual = await fs.readFile('tmp/file1.txt', 'utf8')
-    let expected = await fs.readFile('test/expected/extractthis/dir1/file1.txt', 'utf8')
+    await execAsar(`ef test/input/extractthis.asar dir1/file1.txt ${TEST_APPS_DIR}`);
+    const actual = await fs.readFile(path.join(TEST_APPS_DIR, 'file1.txt'), 'utf8');
+    let expected = await fs.readFile('test/expected/extractthis/dir1/file1.txt', 'utf8');
     // on windows replace crlf with lf
     if (os.platform() === 'win32') {
-      expected = expected.replace(/\r\n/g, '\n')
+      expected = expected.replace(/\r\n/g, '\n');
     }
-    assert.strictEqual(actual, expected)
-  })
+    assert.strictEqual(actual, expected);
+  });
+  it('should extract a binary file from archive', async () => {
+    await execAsar(`ef test/input/extractthis.asar dir2/file2.png ${TEST_APPS_DIR}`);
+    await compFiles(
+      path.join(TEST_APPS_DIR, 'file2.png'),
+      'test/expected/extractthis/dir2/file2.png',
+    );
+  });
 
-    it('should extract a binary file from archive', async () => {
-      await execAsar('ef test/input/extractthis.asar dir2/file2.png')
-      const actual = await fs.readFile('tmp/file2.png', 'utf8')
-      const expected = await fs.readFile('test/expected/extractthis/dir2/file2.png', 'utf8')
-      assert.strictEqual(actual, expected)
-    })
-  */
   it('should extract an archive', async () => {
     await execAsar('e test/input/extractthis.asar tmp/extractthis-cli/');
     return compDirs('tmp/extractthis-cli/', 'test/expected/extractthis');
