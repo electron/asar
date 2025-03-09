@@ -29,8 +29,7 @@ module.exports = async function (dirA, dirB) {
       differentFiles.push(filename);
       continue;
     }
-    // TODO: FIXME - This promise needs an `await`, but the fixtures are flaky across OS's and it should be investigated separately
-    const [fileContentA, fileContentB] = Promise.all(
+    const [fileContentA, fileContentB] = await Promise.all(
       [dirA, dirB].map((dir) => fs.readFile(path.join(dir, filename), 'utf8')),
     );
     if (fileContentA !== fileContentB) {

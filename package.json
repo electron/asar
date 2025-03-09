@@ -29,7 +29,7 @@
   "scripts": {
     "build": "tsc",
     "mocha": "xvfb-maybe electron-mocha && mocha",
-    "mocha:update": "UPDATE_SNAPSHOT=true yarn mocha",
+    "mocha:update": "mocha --update",
     "mocha:watch": "mocha --watch",
     "test": "yarn lint && yarn mocha",
     "lint": "yarn prettier:check",
