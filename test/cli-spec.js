@@ -32,7 +32,6 @@ async function assertAsarOutputMatches(args, expectedFilename) {
 describe('command line interface', function () {
   beforeEach(() => {
     rimraf.sync(TEST_APPS_DIR, fs);
-    fs.mkdirSync(TEST_APPS_DIR);
   });
 
   it('should create archive from directory', async () => {
@@ -78,6 +77,7 @@ describe('command line interface', function () {
     );
   });
   it('should extract a text file from archive', async () => {
+    fs.mkdirSync(TEST_APPS_DIR);
     await execAsar(`ef test/input/extractthis.asar dir1/file1.txt ${TEST_APPS_DIR}`);
     const actual = await fs.readFile(path.join(TEST_APPS_DIR, 'file1.txt'), 'utf8');
     let expected = await fs.readFile('test/expected/extractthis/dir1/file1.txt', 'utf8');
@@ -88,10 +88,17 @@ describe('command line interface', function () {
     assert.strictEqual(actual, expected);
   });
   it('should extract a binary file from archive', async () => {
+    fs.mkdirSync(TEST_APPS_DIR);
     await execAsar(`ef test/input/extractthis.asar dir2/file2.png ${TEST_APPS_DIR}`);
     await compFiles(
       path.join(TEST_APPS_DIR, 'file2.png'),
       'test/expected/extractthis/dir2/file2.png',
+    );
+  });
+  it('should throw error when extracting file to non-existant destination directory', async () => {
+    await assert.rejects(
+      execAsar(`ef test/input/extractthis.asar dir2/file2.png ${TEST_APPS_DIR}`),
+      /destination directory does not exist, please create before attempting extraction/,
     );
   });
 
