@@ -9,8 +9,9 @@ import {
   FilesystemLinkEntry,
 } from './filesystem';
 import * as disk from './disk';
-import { crawl as crawlFilesystem, determineFileType } from './crawlfs';
+import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
 import { IOptions } from './types/glob';
+import { ReadStream } from 'fs';
 
 /**
  * Whether a directory should be excluded from packing due to the `--unpack-dir" option.
@@ -176,7 +177,13 @@ export async function createPackageFromFiles(
           options.unpackDir,
         );
         files.push({ filename, unpack: shouldUnpack });
-        return filesystem.insertFile(filename, shouldUnpack, file, options);
+        return filesystem.insertFile(
+          filename,
+          () => fs.createReadStream(filename),
+          shouldUnpack,
+          file,
+          options,
+        );
       case 'link':
         shouldUnpack = shouldUnpackPath(
           path.relative(src, filename),
@@ -207,6 +214,93 @@ export async function createPackageFromFiles(
   };
 
   return next(names.shift());
+}
+
+export type Filestream = {
+  /** 
+    relative path to the file from within the archive
+  */
+  filePath: string;
+  /**
+    function that returns a read stream for the file
+    note: this is called multiple times per "file", so a new ReadStream will be created each time
+  */
+  streamGenerator: () => ReadStream;
+  properties: {
+    /**
+      relative path to the symlink target
+    */
+    symlink?: string;
+    /**
+      whether the file should be unpacked
+    */
+    unpacked: boolean;
+  } & Pick<CrawledFileType, 'type' | 'stat'>;
+};
+
+export async function createPackageFromStreams(dest: string, filestreams: Filestream[]) {
+  // We use an ambiguous root `src` since we're piping directly from a stream and the `filePath` for the stream is already relative to the src/root
+  const src = '.';
+
+  const filesystem = new Filesystem(src);
+  const files: disk.BasicStreamArray = [];
+  const links: disk.BasicStreamArray = [];
+
+  const handleFile = async function (stream: Filestream) {
+    const {
+      filePath: destinationPath,
+      streamGenerator,
+      properties: { unpacked: shouldUnpack, type, stat, symlink },
+    } = stream;
+    const filename = path.normalize(destinationPath);
+    switch (type) {
+      case 'directory':
+        filesystem.insertDirectory(filename, shouldUnpack);
+        break;
+      case 'file':
+        files.push({
+          filename,
+          streamGenerator,
+          link: undefined,
+          mode: stat.mode,
+          unpack: shouldUnpack,
+        });
+        return filesystem.insertFile(filename, streamGenerator, shouldUnpack, {
+          type: 'file',
+          stat,
+        });
+      case 'link':
+        links.push({
+          filename,
+          streamGenerator,
+          link: symlink,
+          mode: stat.mode,
+          unpack: shouldUnpack,
+        });
+        filesystem.insertLink(filename, shouldUnpack, symlink);
+        break;
+    }
+    return Promise.resolve();
+  };
+
+  const insertsDone = async function () {
+    await fs.mkdirp(path.dirname(dest));
+    return disk.streamFilesystem(dest, filesystem, { files, links });
+  };
+
+  const streams = filestreams.slice();
+
+  const next = async function (stream?: Filestream) {
+    if (!stream) {
+      return insertsDone();
+    }
+
+    await handleFile(stream);
+
+    return next(streams.shift());
+  };
+
+  return next(streams.shift());
 }
 
 export function statFile(
@@ -322,6 +416,7 @@ export default {
   createPackage,
   createPackageWithOptions,
   createPackageFromFiles,
+  createPackageFromStreams,
   statFile,
   getRawHeader,
   listPackage,

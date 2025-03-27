@@ -6,6 +6,7 @@ import * as stream from 'stream';
 import { FileIntegrity, getFileIntegrity } from './integrity';
 import fs from './wrapped-fs';
 import { CrawledFileType } from './crawlfs';
+import { ReadStream } from 'fs';
 
 const UINT32_MAX = 2 ** 32 - 1;
 
@@ -108,6 +109,7 @@ export class Filesystem {
 
   async insertFile(
     p: string,
+    streamGenerator: () => ReadStream,
     shouldUnpack: boolean,
     file: CrawledFileType,
     options: {
@@ -119,7 +121,7 @@ export class Filesystem {
     if (shouldUnpack || dirNode.unpacked) {
       node.size = file.stat.size;
       node.unpacked = true;
-      node.integrity = await getFileIntegrity(p);
+      node.integrity = await getFileIntegrity(streamGenerator());
       return Promise.resolve();
     }
 
@@ -130,9 +132,8 @@ export class Filesystem {
       const tmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'asar-'));
       const tmpfile = path.join(tmpdir, path.basename(p));
       const out = fs.createWriteStream(tmpfile);
-      const readStream = fs.createReadStream(p);
 
-      await pipeline(readStream, transformed, out);
+      await pipeline(streamGenerator(), transformed, out);
       file.transformed = {
         path: tmpfile,
         stat: await fs.lstat(tmpfile),
@@ -149,18 +150,14 @@ export class Filesystem {
 
     node.size = size;
     node.offset = this.offset.toString();
-    node.integrity = await getFileIntegrity(p);
+    node.integrity = await getFileIntegrity(streamGenerator());
     if (process.platform !== 'win32' && file.stat.mode & 0o100) {
       node.executable = true;
     }
     this.offset += BigInt(size);
   }
 
-  insertLink(p: string, shouldUnpack: boolean) {
-    const symlink = fs.readlinkSync(p);
-    // /var => /private/var
-    const parentPath = fs.realpathSync(path.dirname(p));
-    const link = path.relative(fs.realpathSync(this.src), path.join(parentPath, symlink));
+  insertLink(p: string, shouldUnpack: boolean, link: string = this.resolveLink(p)) {
     if (link.startsWith('..')) {
       throw new Error(`${p}: file "${link}" links out of the package`);
     }
@@ -170,6 +167,13 @@ export class Filesystem {
       node.unpacked = true;
     }
     node.link = link;
+    return link;
+  }
+
+  private resolveLink(p: string) {
+    const symlink = fs.readlinkSync(p);
+    const parentPath = fs.realpathSync(path.dirname(p));
+    const link = path.relative(fs.realpathSync(this.src), path.join(parentPath, symlink));
     return link;
   }
 
