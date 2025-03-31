@@ -6,7 +6,6 @@ import * as stream from 'stream';
 import { FileIntegrity, getFileIntegrity } from './integrity';
 import fs from './wrapped-fs';
 import { CrawledFileType } from './crawlfs';
-import { ReadStream } from 'fs';
 
 const UINT32_MAX = 2 ** 32 - 1;
 
@@ -109,7 +108,7 @@ export class Filesystem {
 
   async insertFile(
     p: string,
-    streamGenerator: () => ReadStream,
+    streamGenerator: () => NodeJS.ReadableStream,
     shouldUnpack: boolean,
     file: CrawledFileType,
     options: {

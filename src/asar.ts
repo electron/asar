@@ -11,7 +11,6 @@ import {
 import * as disk from './disk';
 import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
 import { IOptions } from './types/glob';
-import { ReadStream } from 'fs';
 
 /**
  * Whether a directory should be excluded from packing due to the `--unpack-dir" option.
@@ -216,29 +215,41 @@ export async function createPackageFromFiles(
   return next(names.shift());
 }
 
-export type Filestream = {
-  /** 
-    relative path to the file from within the archive
-  */
-  filePath: string;
+export type AsarStream = {
   /**
-    function that returns a read stream for the file
-    note: this is called multiple times per "file", so a new ReadStream will be created each time
+    Relative path to the file or directory from within the archive
   */
-  streamGenerator: () => ReadStream;
-  properties: {
-    /**
-      relative path to the symlink target
-    */
-    symlink?: string;
-    /**
-      whether the file should be unpacked
-    */
-    unpacked: boolean;
-  } & Pick<CrawledFileType, 'type' | 'stat'>;
+  path: string;
+  /**
+    Function that returns a read stream for a file.
+    Note: this is called multiple times per "file", so a new NodeJS.ReadableStream needs to be created each time
+  */
+  streamGenerator: () => NodeJS.ReadableStream;
+  /**
+    Whether the file/link should be unpacked
+  */
+  unpacked: boolean;
+  stat: CrawledFileType['stat'];
 };
+export type AsarDirectory = Pick<AsarStream, 'path' | 'unpacked'> & {
+  type: 'directory';
+};
+export type AsarSymlinkStream = AsarStream & {
+  type: 'link';
+  symlink: string;
+};
+export type AsarFileStream = AsarStream & {
+  type: 'file';
+};
+export type AsarStreamType = AsarDirectory | AsarFileStream | AsarSymlinkStream;
 
-export async function createPackageFromStreams(dest: string, filestreams: Filestream[]) {
+/**
+ * Create an ASAR archive from a list of streams.
+ *
+ * @param dest - Archive filename (& path).
+ * @param streams - List of streams to be piped in-memory into asar filesystem. Insertion order is preserved.
+ */
+export async function createPackageFromStreams(dest: string, streams: AsarStreamType[]) {
   // We use an ambiguous root `src` since we're piping directly from a stream and the `filePath` for the stream is already relative to the src/root
   const src = '.';
 
@@ -246,38 +257,34 @@ export async function createPackageFromStreams(dest: string, filestreams: Filest
   const files: disk.BasicStreamArray = [];
   const links: disk.BasicStreamArray = [];
 
-  const handleFile = async function (stream: Filestream) {
-    const {
-      filePath: destinationPath,
-      streamGenerator,
-      properties: { unpacked: shouldUnpack, type, stat, symlink },
-    } = stream;
+  const handleFile = async function (stream: AsarStreamType) {
+    const { path: destinationPath, type } = stream;
     const filename = path.normalize(destinationPath);
     switch (type) {
       case 'directory':
-        filesystem.insertDirectory(filename, shouldUnpack);
+        filesystem.insertDirectory(filename, stream.unpacked);
         break;
       case 'file':
         files.push({
           filename,
-          streamGenerator,
+          streamGenerator: stream.streamGenerator,
           link: undefined,
-          mode: stat.mode,
-          unpack: shouldUnpack,
+          mode: stream.stat.mode,
+          unpack: stream.unpacked,
         });
-        return filesystem.insertFile(filename, streamGenerator, shouldUnpack, {
+        return filesystem.insertFile(filename, stream.streamGenerator, stream.unpacked, {
           type: 'file',
-          stat,
+          stat: stream.stat,
         });
       case 'link':
         links.push({
           filename,
-          streamGenerator,
-          link: symlink,
-          mode: stat.mode,
-          unpack: shouldUnpack,
+          streamGenerator: stream.streamGenerator,
+          link: stream.symlink,
+          mode: stream.stat.mode,
+          unpack: stream.unpacked,
         });
-        filesystem.insertLink(filename, shouldUnpack, symlink);
+        filesystem.insertLink(filename, stream.unpacked, stream.symlink);
         break;
     }
     return Promise.resolve();
@@ -288,19 +295,19 @@ export async function createPackageFromStreams(dest: string, filestreams: Filest
     return disk.streamFilesystem(dest, filesystem, { files, links });
   };
 
-  const streams = filestreams.slice();
+  const streamQueue = streams.slice();
 
-  const next = async function (stream?: Filestream) {
+  const next = async function (stream?: AsarStreamType) {
     if (!stream) {
       return insertsDone();
     }
 
     await handleFile(stream);
 
-    return next(streams.shift());
+    return next(streamQueue.shift());
   };
 
-  return next(streams.shift());
+  return next(streamQueue.shift());
 }
 
 export function statFile(

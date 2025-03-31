@@ -3,7 +3,11 @@ import fs from './wrapped-fs';
 import { Pickle } from './pickle';
 import { Filesystem, FilesystemFileEntry } from './filesystem';
 import { CrawledFileType } from './crawlfs';
-import { ReadStream, Stats } from 'fs';
+import { Stats } from 'fs';
+import { promisify } from 'util';
+import * as stream from 'stream';
+
+const pipeline = promisify(stream.pipeline);
 
 let filesystemCache: Record<string, Filesystem | undefined> = Object.create(null);
 
@@ -19,7 +23,10 @@ async function copyFile(dest: string, src: string, filename: string) {
   return fs.writeFile(targetFile, content, { mode: stats.mode });
 }
 
-async function streamTransformedFile(stream: ReadStream, outStream: NodeJS.WritableStream) {
+async function streamTransformedFile(
+  stream: NodeJS.ReadableStream,
+  outStream: NodeJS.WritableStream,
+) {
   return new Promise<void>((resolve, reject) => {
     stream.pipe(outStream, { end: false });
     stream.on('error', reject);
@@ -38,7 +45,7 @@ export type BasicFilesArray = {
 
 export type BasicStreamArray = {
   filename: string;
-  streamGenerator: () => ReadStream; // this is called multiple times per file
+  streamGenerator: () => NodeJS.ReadableStream; // this is called multiple times per file
   mode: Stats['mode'];
   unpack: boolean;
   link: string | undefined; // only for symlinks, should refactor as part of larger project refactor in follow-up PR
@@ -101,7 +108,7 @@ export async function streamFilesystem(
       const targetFile = path.join(`${dest}.unpacked`, file.filename);
       await fs.mkdirp(path.dirname(targetFile));
       const writeStream = fs.createWriteStream(targetFile, { mode: file.mode });
-      file.streamGenerator().pipe(writeStream);
+      await pipeline(file.streamGenerator(), writeStream);
     } else {
       await streamTransformedFile(file.streamGenerator(), out);
     }

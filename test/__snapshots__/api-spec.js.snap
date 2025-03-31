@@ -366,7 +366,7 @@ Object {
 }
 `;
 
-exports[`api should create package from array of ReadStreams 1`] = `
+exports[`api should create package from array of NodeJS.ReadableStreams 1`] = `
 Object {
   "files": Object {
     "x1": Object {
@@ -479,7 +479,7 @@ Object {
 }
 `;
 
-exports[`api should create package from array of ReadStreams 2`] = `
+exports[`api should create package from array of NodeJS.ReadableStreams 2`] = `
 Array [
   Object {
     "content": "fileone
