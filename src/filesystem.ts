@@ -171,6 +171,7 @@ export class Filesystem {
 
   private resolveLink(p: string) {
     const symlink = fs.readlinkSync(p);
+    // /var/tmp => /private/var
     const parentPath = fs.realpathSync(path.dirname(p));
     const link = path.relative(fs.realpathSync(this.src), path.join(parentPath, symlink));
     return link;
