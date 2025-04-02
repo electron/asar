@@ -20,7 +20,9 @@ export type FileIntegrity = {
   blocks: string[];
 };
 
-export async function getFileIntegrity(path: string): Promise<FileIntegrity> {
+export async function getFileIntegrity(
+  inputFileStream: NodeJS.ReadableStream,
+): Promise<FileIntegrity> {
   const fileHash = crypto.createHash(ALGORITHM);
 
   const blockHashes: string[] = [];
@@ -28,7 +30,7 @@ export async function getFileIntegrity(path: string): Promise<FileIntegrity> {
   let currentBlock: Buffer[] = [];
 
   await pipeline(
-    fs.createReadStream(path),
+    inputFileStream,
     new stream.PassThrough({
       decodeStrings: false,
       transform(_chunk: Buffer, encoding, callback) {

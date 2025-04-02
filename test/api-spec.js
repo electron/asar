@@ -12,6 +12,9 @@ const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
 const transform = require('./util/transformStream');
 const { TEST_APPS_DIR } = require('./util/constants');
 const { verifySmartUnpack } = require('./util/verifySmartUnpack');
+const { crawl, determineFileType } = require('../lib/crawlfs');
+const path = require('path');
+const walk = require('./util/walk');
 
 async function assertPackageListEquals(actualList, expectedFilename) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
@@ -165,6 +168,31 @@ describe('api', function () {
     );
     await verifySmartUnpack('tmp/packthis-unicode-path.asar');
     return compFiles('tmp/packthis-unicode-path.asar', 'test/expected/packthis-unicode-path.asar');
+  });
+  it('should create package from array of NodeJS.ReadableStreams', async () => {
+    const src = 'test/input/packthis-glob/';
+    const filenames = walk(src);
+
+    const streams = await Promise.all(
+      filenames.map(async (filename, i) => {
+        const meta = await determineFileType(filename);
+        return {
+          path: path.relative(src, filename),
+          streamGenerator:
+            meta.type === 'directory' ? undefined : () => fs.createReadStream(filename),
+          symlink: meta.type === 'link' ? await fs.readlink(filename) : undefined,
+          unpacked: filename.includes('x1'),
+          type: meta.type,
+          stat: meta.stat,
+        };
+      }),
+    );
+
+    await asar.createPackageFromStreams('tmp/packthis-read-stream.asar', streams);
+    await verifySmartUnpack('tmp/packthis-read-stream.asar');
+    await compFiles('tmp/packthis-read-stream.asar', 'test/expected/packthis-read-stream.asar');
+    asar.extractAll('tmp/packthis-read-stream.asar', 'tmp/extractthis-read-stream/');
+    return compDirs('tmp/extractthis-read-stream/', src);
   });
   it('should extract a text file from archive with multibyte characters in path', async () => {
     const actual = asar

@@ -366,6 +366,137 @@ Object {
 }
 `;
 
+exports[`api should create package from array of NodeJS.ReadableStreams 1`] = `
+Object {
+  "files": Object {
+    "x1": Object {
+      "files": Object {
+        "file1.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+            ],
+            "hash": "be4f0d7f4574cda8a2c7b45495a252df4ed0ceaf8eedb692fb00e3409444b591",
+          },
+          "size": 8,
+          "unpacked": true,
+        },
+      },
+      "unpacked": true,
+    },
+    "x2": Object {
+      "files": Object {
+        "file2.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+            ],
+            "hash": "586ea213ecd662832d578a6d53b84f34a44df8a5d23555215ec11dbd708dfdb6",
+          },
+          "offset": "0",
+          "size": 8,
+        },
+      },
+    },
+    "y3": Object {
+      "files": Object {
+        "file3.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+            ],
+            "hash": "33e658c933a8d7ac2706b5ea44d0887c9a6617d33c89cfd7aa8a8a5043c5577e",
+          },
+          "offset": "17",
+          "size": 10,
+        },
+        "x1": Object {
+          "files": Object {
+            "file4.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+                ],
+                "hash": "dbeebbfbd66e243dd5c2e2fd96d83318269c89d99ebb0aa1a5a1f027092db5e1",
+              },
+              "size": 9,
+              "unpacked": true,
+            },
+          },
+          "unpacked": true,
+        },
+        "z1": Object {
+          "files": Object {
+            "x2": Object {
+              "files": Object {
+                "file5.txt": Object {
+                  "integrity": Object {
+                    "algorithm": "SHA256",
+                    "blockSize": 4194304,
+                    "blocks": Array [
+                      "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                    ],
+                    "hash": "74abc479d95c489f300f18086bcab63f188b89f6d309725ea613cf6a8d487a88",
+                  },
+                  "offset": "8",
+                  "size": 9,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "z4": Object {
+      "files": Object {
+        "w1": Object {
+          "files": Object {
+            "file6.txt": Object {
+              "integrity": Object {
+                "algorithm": "SHA256",
+                "blockSize": 4194304,
+                "blocks": Array [
+                  "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+                ],
+                "hash": "10ad5315269b2145a0990eeb305f792c522f5d8efda2c58e180fbfed5be231cd",
+              },
+              "offset": "27",
+              "size": 8,
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`api should create package from array of NodeJS.ReadableStreams 2`] = `
+Array [
+  Object {
+    "content": "fileone
+",
+    "name": "x1/file1.txt",
+  },
+  Object {
+    "content": "filefour
+",
+    "name": "y3/x1/file4.txt",
+  },
+  "y3/x1",
+  "x1",
+  "y3",
+]
+`;
+
 exports[`api should handle multibyte characters in paths 1`] = `
 Object {
   "files": Object {

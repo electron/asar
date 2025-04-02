@@ -3,6 +3,11 @@ import fs from './wrapped-fs';
 import { Pickle } from './pickle';
 import { Filesystem, FilesystemFileEntry } from './filesystem';
 import { CrawledFileType } from './crawlfs';
+import { Stats } from 'fs';
+import { promisify } from 'util';
+import * as stream from 'stream';
+
+const pipeline = promisify(stream.pipeline);
 
 let filesystemCache: Record<string, Filesystem | undefined> = Object.create(null);
 
@@ -19,12 +24,10 @@ async function copyFile(dest: string, src: string, filename: string) {
 }
 
 async function streamTransformedFile(
-  originalFilename: string,
+  stream: NodeJS.ReadableStream,
   outStream: NodeJS.WritableStream,
-  transformed: CrawledFileType['transformed'],
 ) {
   return new Promise<void>((resolve, reject) => {
-    const stream = fs.createReadStream(transformed ? transformed.path : originalFilename);
     stream.pipe(outStream, { end: false });
     stream.on('error', reject);
     stream.on('end', () => resolve());
@@ -35,15 +38,29 @@ export type InputMetadata = {
   [property: string]: CrawledFileType;
 };
 
-export type BasicFilesArray = { filename: string; unpack: boolean }[];
+export type BasicFilesArray = {
+  filename: string;
+  unpack: boolean;
+}[];
 
-export type FilesystemFilesAndLinks = { files: BasicFilesArray; links: BasicFilesArray };
+export type BasicStreamArray = {
+  filename: string;
+  streamGenerator: () => NodeJS.ReadableStream; // this is called multiple times per file
+  mode: Stats['mode'];
+  unpack: boolean;
+  link: string | undefined; // only for symlinks, should refactor as part of larger project refactor in follow-up PR
+}[];
+
+export type FilesystemFilesAndLinks<T extends BasicFilesArray | BasicStreamArray> = {
+  files: T;
+  links: T;
+};
 
 const writeFileListToStream = async function (
   dest: string,
   filesystem: Filesystem,
   out: NodeJS.WritableStream,
-  lists: FilesystemFilesAndLinks,
+  lists: FilesystemFilesAndLinks<BasicFilesArray>,
   metadata: InputMetadata,
 ) {
   const { files, links } = lists;
@@ -53,25 +70,16 @@ const writeFileListToStream = async function (
       const filename = path.relative(filesystem.getRootPath(), file.filename);
       await copyFile(`${dest}.unpacked`, filesystem.getRootPath(), filename);
     } else {
-      await streamTransformedFile(file.filename, out, metadata[file.filename].transformed);
+      const transformed = metadata[file.filename].transformed;
+      const stream = fs.createReadStream(transformed ? transformed.path : file.filename);
+      await streamTransformedFile(stream, out);
     }
   }
-  const unpackedSymlinks = links.filter((f) => f.unpack);
-  for (const file of unpackedSymlinks) {
+  for (const file of links.filter((f) => f.unpack)) {
     // the symlink needs to be recreated outside in .unpacked
     const filename = path.relative(filesystem.getRootPath(), file.filename);
     const link = await fs.readlink(file.filename);
-    // if symlink is within subdirectories, then we need to recreate dir structure
-    await fs.mkdirp(path.join(`${dest}.unpacked`, path.dirname(filename)));
-    // create symlink within unpacked dir
-    await fs.symlink(link, path.join(`${dest}.unpacked`, filename)).catch(async (error) => {
-      if (error.code === 'EPERM' && error.syscall === 'symlink') {
-        throw new Error(
-          'Could not create symlinks for unpacked assets. On Windows, consider activating Developer Mode to allow non-admin users to create symlinks by following the instructions at https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development.',
-        );
-      }
-      throw error;
-    });
+    await createSymlink(dest, filename, link);
   }
   return out.end();
 };
@@ -79,24 +87,38 @@ const writeFileListToStream = async function (
 export async function writeFilesystem(
   dest: string,
   filesystem: Filesystem,
-  lists: FilesystemFilesAndLinks,
+  lists: FilesystemFilesAndLinks<BasicFilesArray>,
   metadata: InputMetadata,
 ) {
-  const headerPickle = Pickle.createEmpty();
-  headerPickle.writeString(JSON.stringify(filesystem.getHeader()));
-  const headerBuf = headerPickle.toBuffer();
-
-  const sizePickle = Pickle.createEmpty();
-  sizePickle.writeUInt32(headerBuf.length);
-  const sizeBuf = sizePickle.toBuffer();
-
-  const out = fs.createWriteStream(dest);
-  await new Promise<void>((resolve, reject) => {
-    out.on('error', reject);
-    out.write(sizeBuf);
-    return out.write(headerBuf, () => resolve());
-  });
+  const out = await createFilesystemWriteStream(filesystem, dest);
   return writeFileListToStream(dest, filesystem, out, lists, metadata);
+}
+
+export async function streamFilesystem(
+  dest: string,
+  filesystem: Filesystem,
+  lists: FilesystemFilesAndLinks<BasicStreamArray>,
+) {
+  const out = await createFilesystemWriteStream(filesystem, dest);
+
+  const { files, links } = lists;
+  for await (const file of files) {
+    // the file should not be packed into archive
+    if (file.unpack) {
+      const targetFile = path.join(`${dest}.unpacked`, file.filename);
+      await fs.mkdirp(path.dirname(targetFile));
+      const writeStream = fs.createWriteStream(targetFile, { mode: file.mode });
+      await pipeline(file.streamGenerator(), writeStream);
+    } else {
+      await streamTransformedFile(file.streamGenerator(), out);
+    }
+  }
+
+  for (const file of links.filter((f) => f.unpack && f.link)) {
+    // the symlink needs to be recreated outside in .unpacked
+    await createSymlink(dest, file.filename, file.link!);
+  }
+  return out.end();
 }
 
 export interface FileRecord extends FilesystemFileEntry {
@@ -186,4 +208,36 @@ export function readFileSync(filesystem: Filesystem, filename: string, info: Fil
     }
   }
   return buffer;
+}
+
+async function createFilesystemWriteStream(filesystem: Filesystem, dest: string) {
+  const headerPickle = Pickle.createEmpty();
+  headerPickle.writeString(JSON.stringify(filesystem.getHeader()));
+  const headerBuf = headerPickle.toBuffer();
+
+  const sizePickle = Pickle.createEmpty();
+  sizePickle.writeUInt32(headerBuf.length);
+  const sizeBuf = sizePickle.toBuffer();
+
+  const out = fs.createWriteStream(dest);
+  await new Promise<void>((resolve, reject) => {
+    out.on('error', reject);
+    out.write(sizeBuf);
+    return out.write(headerBuf, () => resolve());
+  });
+  return out;
+}
+
+async function createSymlink(dest: string, filepath: string, link: string) {
+  // if symlink is within subdirectories, then we need to recreate dir structure
+  await fs.mkdirp(path.join(`${dest}.unpacked`, path.dirname(filepath)));
+  // create symlink within unpacked dir
+  await fs.symlink(link, path.join(`${dest}.unpacked`, filepath)).catch(async (error) => {
+    if (error.code === 'EPERM' && error.syscall === 'symlink') {
+      throw new Error(
+        'Could not create symlinks for unpacked assets. On Windows, consider activating Developer Mode to allow non-admin users to create symlinks by following the instructions at https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development.',
+      );
+    }
+    throw error;
+  });
 }

@@ -10,7 +10,7 @@ const glob = promisify(_glob);
 
 export type CrawledFileType = {
   type: 'file' | 'directory' | 'link';
-  stat: Stats;
+  stat: Pick<Stats, 'mode' | 'size'>;
   transformed?: {
     path: string;
     stat: Stats;

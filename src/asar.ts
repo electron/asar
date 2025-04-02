@@ -9,7 +9,7 @@ import {
   FilesystemLinkEntry,
 } from './filesystem';
 import * as disk from './disk';
-import { crawl as crawlFilesystem, determineFileType } from './crawlfs';
+import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
 import { IOptions } from './types/glob';
 
 /**
@@ -176,7 +176,13 @@ export async function createPackageFromFiles(
           options.unpackDir,
         );
         files.push({ filename, unpack: shouldUnpack });
-        return filesystem.insertFile(filename, shouldUnpack, file, options);
+        return filesystem.insertFile(
+          filename,
+          () => fs.createReadStream(filename),
+          shouldUnpack,
+          file,
+          options,
+        );
       case 'link':
         shouldUnpack = shouldUnpackPath(
           path.relative(src, filename),
@@ -207,6 +213,101 @@ export async function createPackageFromFiles(
   };
 
   return next(names.shift());
+}
+
+export type AsarStream = {
+  /**
+    Relative path to the file or directory from within the archive
+  */
+  path: string;
+  /**
+    Function that returns a read stream for a file.
+    Note: this is called multiple times per "file", so a new NodeJS.ReadableStream needs to be created each time
+  */
+  streamGenerator: () => NodeJS.ReadableStream;
+  /**
+    Whether the file/link should be unpacked
+  */
+  unpacked: boolean;
+  stat: CrawledFileType['stat'];
+};
+export type AsarDirectory = Pick<AsarStream, 'path' | 'unpacked'> & {
+  type: 'directory';
+};
+export type AsarSymlinkStream = AsarStream & {
+  type: 'link';
+  symlink: string;
+};
+export type AsarFileStream = AsarStream & {
+  type: 'file';
+};
+export type AsarStreamType = AsarDirectory | AsarFileStream | AsarSymlinkStream;
+
+/**
+ * Create an ASAR archive from a list of streams.
+ *
+ * @param dest - Archive filename (& path).
+ * @param streams - List of streams to be piped in-memory into asar filesystem. Insertion order is preserved.
+ */
+export async function createPackageFromStreams(dest: string, streams: AsarStreamType[]) {
+  // We use an ambiguous root `src` since we're piping directly from a stream and the `filePath` for the stream is already relative to the src/root
+  const src = '.';
+
+  const filesystem = new Filesystem(src);
+  const files: disk.BasicStreamArray = [];
+  const links: disk.BasicStreamArray = [];
+
+  const handleFile = async function (stream: AsarStreamType) {
+    const { path: destinationPath, type } = stream;
+    const filename = path.normalize(destinationPath);
+    switch (type) {
+      case 'directory':
+        filesystem.insertDirectory(filename, stream.unpacked);
+        break;
+      case 'file':
+        files.push({
+          filename,
+          streamGenerator: stream.streamGenerator,
+          link: undefined,
+          mode: stream.stat.mode,
+          unpack: stream.unpacked,
+        });
+        return filesystem.insertFile(filename, stream.streamGenerator, stream.unpacked, {
+          type: 'file',
+          stat: stream.stat,
+        });
+      case 'link':
+        links.push({
+          filename,
+          streamGenerator: stream.streamGenerator,
+          link: stream.symlink,
+          mode: stream.stat.mode,
+          unpack: stream.unpacked,
+        });
+        filesystem.insertLink(filename, stream.unpacked, stream.symlink);
+        break;
+    }
+    return Promise.resolve();
+  };
+
+  const insertsDone = async function () {
+    await fs.mkdirp(path.dirname(dest));
+    return disk.streamFilesystem(dest, filesystem, { files, links });
+  };
+
+  const streamQueue = streams.slice();
+
+  const next = async function (stream?: AsarStreamType) {
+    if (!stream) {
+      return insertsDone();
+    }
+
+    await handleFile(stream);
+
+    return next(streamQueue.shift());
+  };
+
+  return next(streamQueue.shift());
 }
 
 export function statFile(
@@ -322,6 +423,7 @@ export default {
   createPackage,
   createPackageWithOptions,
   createPackageFromFiles,
+  createPackageFromStreams,
   statFile,
   getRawHeader,
   listPackage,
