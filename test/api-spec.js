@@ -153,6 +153,13 @@ describe('api', function () {
         asar.extractAll('test/input/bad-symlink.asar', 'tmp/bad-symlink/');
       });
     });
+    it('should throw when packaging symlink outside package', async function () {
+      const src = 'test/input/packthis-with-bad-symlink/';
+      const out = 'tmp/packthis-read-stream-bad-symlink.asar';
+      assert.rejects(async () => {
+        await asar.createPackage(src, out);
+      });
+    });
   }
   it('should handle multibyte characters in paths', async () => {
     await asar.createPackageWithOptions(
