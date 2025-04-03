@@ -284,7 +284,7 @@ export async function createPackageFromStreams(dest: string, streams: AsarStream
           mode: stream.stat.mode,
           unpack: stream.unpacked,
         });
-        filesystem.insertLink(filename, stream.unpacked, stream.symlink);
+        filesystem.insertLink(filename, stream.unpacked, path.dirname(filename), stream.symlink);
         break;
     }
     return Promise.resolve();

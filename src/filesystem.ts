@@ -156,7 +156,13 @@ export class Filesystem {
     this.offset += BigInt(size);
   }
 
-  insertLink(p: string, shouldUnpack: boolean, link: string = this.resolveLink(p)) {
+  insertLink(
+    p: string,
+    shouldUnpack: boolean,
+    parentPath: string = fs.realpathSync(path.dirname(p)),
+    symlink: string = fs.readlinkSync(p), // /var/tmp => /private/var
+  ) {
+    const link = this.resolveLink(parentPath, symlink);
     if (link.startsWith('..')) {
       throw new Error(`${p}: file "${link}" links out of the package`);
     }
@@ -169,10 +175,7 @@ export class Filesystem {
     return link;
   }
 
-  private resolveLink(p: string) {
-    const symlink = fs.readlinkSync(p);
-    // /var/tmp => /private/var
-    const parentPath = fs.realpathSync(path.dirname(p));
+  private resolveLink(parentPath: string, symlink: string) {
     const link = path.relative(fs.realpathSync(this.src), path.join(parentPath, symlink));
     return link;
   }
