@@ -497,6 +497,54 @@ Array [
 ]
 `;
 
+exports[`api should create package from array of NodeJS.ReadableStreams with valid symlinks 1`] = `
+Object {
+  "files": Object {
+    "A": Object {
+      "files": Object {
+        "real.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "9ef260904c38a0173137ba5d9e95d1739b8dcac205847f202f6cff418a989bbe",
+            ],
+            "hash": "9ef260904c38a0173137ba5d9e95d1739b8dcac205847f202f6cff418a989bbe",
+          },
+          "offset": "0",
+          "size": 19,
+        },
+        "reverse-symlink.txt": Object {
+          "link": "B/reverse-symlink.txt",
+        },
+      },
+    },
+    "B": Object {
+      "files": Object {
+        "reverse-symlink.txt": Object {
+          "integrity": Object {
+            "algorithm": "SHA256",
+            "blockSize": 4194304,
+            "blocks": Array [
+              "766653f7a7a3e98a498888d5b7784bf808c5305bf5a01953ca866f7f36a9e111",
+            ],
+            "hash": "766653f7a7a3e98a498888d5b7784bf808c5305bf5a01953ca866f7f36a9e111",
+          },
+          "offset": "19",
+          "size": 22,
+        },
+      },
+    },
+    "Current": Object {
+      "link": "A",
+    },
+    "real.txt": Object {
+      "link": "Current/real.txt",
+    },
+  },
+}
+`;
+
 exports[`api should handle multibyte characters in paths 1`] = `
 Object {
   "files": Object {
