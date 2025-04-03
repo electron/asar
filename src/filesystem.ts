@@ -161,8 +161,9 @@ export class Filesystem {
     shouldUnpack: boolean,
     parentPath: string = fs.realpathSync(path.dirname(p)),
     symlink: string = fs.readlinkSync(p), // /var/tmp => /private/var
+    src: string = fs.realpathSync(this.src),
   ) {
-    const link = this.resolveLink(parentPath, symlink);
+    const link = this.resolveLink(src, parentPath, symlink);
     if (link.startsWith('..')) {
       throw new Error(`${p}: file "${link}" links out of the package`);
     }
@@ -175,8 +176,9 @@ export class Filesystem {
     return link;
   }
 
-  private resolveLink(parentPath: string, symlink: string) {
-    const link = path.relative(fs.realpathSync(this.src), path.join(parentPath, symlink));
+  private resolveLink(src: string, parentPath: string, symlink: string) {
+    const target = path.join(parentPath, symlink);
+    const link = path.relative(src, target);
     return link;
   }
 

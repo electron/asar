@@ -1,1 +1,1 @@
-../reverse-symlink.txt
+../B/reverse-symlink.txt

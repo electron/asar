@@ -179,7 +179,7 @@ describe('api', function () {
     return compDirs('tmp/extractthis-read-stream/', src);
   });
 
-  it('should create package from array of NodeJS.ReadableStreams with symlinks', async function () {
+  it('should create package from array of NodeJS.ReadableStreams with valid symlinks', async function () {
     if (os.platform() === 'win32') {
       this.skip();
     }
@@ -192,6 +192,14 @@ describe('api', function () {
     await compFiles(out, 'test/expected/packthis-read-stream-symlink.asar');
     asar.extractAll(out, 'tmp/extractthis-read-stream-symlink/');
     return compDirs('tmp/extractthis-read-stream-symlink/', src);
+  });
+  it('should throw when using NodeJS.ReadableStreams with symlink outside package', async function () {
+    const src = 'test/input/packthis-with-bad-symlink/';
+    const streams = await createReadStreams(src);
+
+    assert.rejects(async () => {
+      await asar.createPackageFromStreams(out, streams);
+    });
   });
   it('should extract a text file from archive with multibyte characters in path', async () => {
     const actual = asar
