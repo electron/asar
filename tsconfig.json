@@ -1,12 +1,7 @@
 {
+  "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES2023",
-    "lib": [
-      "ES2023"
-    ],
     "sourceMap": true,
-    "strict": true,
     "outDir": "lib",
     "types": [
       "node"
@@ -16,11 +11,9 @@
       "src/types"
     ],
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
     "declaration": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "esModuleInterop": true
   },
   "include": [
     "src"

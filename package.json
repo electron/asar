@@ -44,6 +44,7 @@
     "minimatch": "^3.0.4"
   },
   "devDependencies": {
+    "@tsconfig/node22": "^22.0.1",
     "@types/minimatch": "^3.0.5",
     "@types/node": "~22.10.7",
     "chai": "^4.5.0",
