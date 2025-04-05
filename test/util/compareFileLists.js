@@ -1,7 +1,7 @@
 'use strict';
 
-const assert = require('assert');
-const os = require('os');
+const assert = require('node:assert');
+const os = require('node:os');
 
 module.exports = function compareFileLists(actual, expected) {
   // on windows replace slashes with backslashes and crlf with lf

@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // returns a list of all directories, files, and symlinks. Automates testing `ordering` logic easy and verifying unpacked directories.
 const walk = (root) => {

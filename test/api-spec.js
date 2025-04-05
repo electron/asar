@@ -1,9 +1,9 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const fs = require('../lib/wrapped-fs').default;
 const rimraf = require('rimraf');
-const os = require('os');
+const os = require('node:os');
 
 const asar = require('..');
 const compDirs = require('./util/compareDirectories');

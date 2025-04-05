@@ -1,4 +1,4 @@
-const fs = 'electron' in process.versions ? require('original-fs') : require('fs');
+const fs = 'electron' in process.versions ? require('original-fs') : require('node:fs');
 
 const promisifiedMethods = [
   'lstat',

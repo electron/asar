@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'node:path';
 import minimatch from 'minimatch';
 
 import fs from './wrapped-fs';

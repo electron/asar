@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const fs = require('../../lib/wrapped-fs').default;
 const rimraf = require('rimraf');
 const { TEST_APPS_DIR } = require('./constants');
