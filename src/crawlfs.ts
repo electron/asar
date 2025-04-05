@@ -1,9 +1,9 @@
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import { glob as _glob } from 'glob';
 
 import fs from './wrapped-fs';
-import { Stats } from 'fs';
-import * as path from 'path';
+import { Stats } from 'node:fs';
+import path from 'node:path';
 import { IOptions } from './types/glob';
 
 const glob = promisify(_glob);

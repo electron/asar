@@ -1,6 +1,6 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const fs = require('../../lib/wrapped-fs').default;
 
 async function compFiles(actualFilePath, expectedFilePath) {

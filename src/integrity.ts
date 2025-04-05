@@ -1,7 +1,6 @@
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as stream from 'stream';
-import { promisify } from 'util';
+import crypto from 'node:crypto';
+import stream from 'node:stream';
+import { promisify } from 'node:util';
 
 const ALGORITHM = 'SHA256';
 // 4MB default block size

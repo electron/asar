@@ -1,6 +1,6 @@
 const { readFilesystemSync } = require('../../lib/disk');
 const fs = require('../../lib/wrapped-fs').default;
-const path = require('path');
+const path = require('node:path');
 const walk = require('./walk');
 const { ROOT_PROJECT_DIR } = require('./constants');
 

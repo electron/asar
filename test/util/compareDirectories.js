@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const fs = require('../../lib/wrapped-fs').default;
-const path = require('path');
+const path = require('node:path');
 const crawlFilesystem = require('../../lib/crawlfs').crawl;
 
 module.exports = async function (dirA, dirB) {

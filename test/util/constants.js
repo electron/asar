@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 
 // root dir of the repo
 const ROOT_PROJECT_DIR = path.resolve(__dirname, '..', '..');

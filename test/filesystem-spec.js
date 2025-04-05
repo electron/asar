@@ -1,8 +1,8 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const fs = require('../lib/wrapped-fs').default;
-const path = require('path');
+const path = require('node:path');
 const rimraf = require('rimraf');
 const createSymlinkedApp = require('./util/createSymlinkApp');
 const { TEST_APPS_DIR } = require('./util/constants');

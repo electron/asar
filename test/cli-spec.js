@@ -1,11 +1,11 @@
 'use strict';
 
-const assert = require('assert');
-const childProcess = require('child_process');
+const assert = require('node:assert');
+const childProcess = require('node:child_process');
 const fs = require('../lib/wrapped-fs').default;
-const os = require('os');
-const path = require('path');
-const { promisify } = require('util');
+const os = require('node:os');
+const path = require('node:path');
+const { promisify } = require('node:util');
 const rimraf = require('rimraf');
 
 const compDirs = require('./util/compareDirectories');
