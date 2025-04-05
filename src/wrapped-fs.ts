@@ -1,3 +1,7 @@
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+
 const fs = 'electron' in process.versions ? require('original-fs') : require('node:fs');
 
 const promisifiedMethods = [

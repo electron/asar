@@ -1,6 +1,6 @@
 import { glob, GlobOptionsWithFileTypesFalse } from 'glob';
 
-import fs from './wrapped-fs';
+import fs from './wrapped-fs.js';
 import { Stats } from 'node:fs';
 import path from 'node:path';
 

@@ -1,15 +1,15 @@
 import path from 'node:path';
 import minimatch from 'minimatch';
 
-import fs from './wrapped-fs';
+import fs from './wrapped-fs.js';
 import {
   Filesystem,
   FilesystemDirectoryEntry,
   FilesystemEntry,
   FilesystemLinkEntry,
-} from './filesystem';
-import * as disk from './disk';
-import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
+} from './filesystem.js';
+import * as disk from './disk.js';
+import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs.js';
 import { GlobOptionsWithFileTypesFalse } from 'glob';
 
 /**
@@ -417,8 +417,8 @@ export function uncacheAll() {
 // (https://github.com/electron/asar/blob/50b0c62e5b24c3d164687e6470b8658e09b09eea/lib/index.d.ts)
 // These don't match perfectly and are technically still a breaking change but they're close enough
 // to keep _most_ build pipelines out there from breaking.
-export { EntryMetadata } from './filesystem';
-export { InputMetadata, DirectoryRecord, FileRecord, ArchiveHeader } from './disk';
+export { EntryMetadata } from './filesystem.js';
+export { InputMetadata, DirectoryRecord, FileRecord, ArchiveHeader } from './disk.js';
 export type InputMetadataType = 'directory' | 'file' | 'link';
 export type DirectoryMetadata = FilesystemDirectoryEntry;
 export type FileMetadata = FilesystemEntry;

@@ -2,7 +2,8 @@
   "name": "@electron/asar",
   "description": "Creating Electron app packages",
   "version": "0.0.0-development",
-  "main": "./lib/asar.js",
+  "type": "module",
+  "exports": "./lib/asar.js",
   "types": "./lib/asar.d.ts",
   "bin": {
     "asar": "./bin/asar.js"
