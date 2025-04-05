@@ -2,7 +2,6 @@
 
 const assert = require('node:assert');
 const fs = require('../lib/wrapped-fs').default;
-const rimraf = require('rimraf');
 const os = require('node:os');
 
 const asar = require('..');
@@ -21,7 +20,7 @@ async function assertPackageListEquals(actualList, expectedFilename) {
 
 describe('api', function () {
   beforeEach(() => {
-    rimraf.sync(TEST_APPS_DIR, fs);
+    fs.rmSync(TEST_APPS_DIR, { recursive: true, force: true });
   });
 
   it('should create archive from directory', async () => {

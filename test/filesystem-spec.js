@@ -3,7 +3,6 @@
 const assert = require('node:assert');
 const fs = require('../lib/wrapped-fs').default;
 const path = require('node:path');
-const rimraf = require('rimraf');
 const createSymlinkedApp = require('./util/createSymlinkApp');
 const { TEST_APPS_DIR } = require('./util/constants');
 
@@ -11,7 +10,7 @@ const Filesystem = require('../lib/filesystem').Filesystem;
 
 describe('filesystem', function () {
   beforeEach(() => {
-    rimraf.sync(TEST_APPS_DIR, fs);
+    fs.rmSync(TEST_APPS_DIR, { recursive: true, force: true });
   });
 
   it('should does not throw an error when the src path includes a symbol link', async () => {
