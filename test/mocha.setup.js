@@ -1,4 +1,4 @@
-const chai = require('chai');
-const { jestSnapshotPlugin } = require('mocha-chai-jest-snapshot');
+import chai from 'chai';
+import { jestSnapshotPlugin } from 'mocha-chai-jest-snapshot';
 
 chai.use(jestSnapshotPlugin());

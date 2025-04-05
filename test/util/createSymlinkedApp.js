@@ -1,7 +1,7 @@
-const path = require('node:path');
-const fs = require('../../lib/wrapped-fs').default;
-const { TEST_APPS_DIR } = require('./constants');
-const walk = require('./walk');
+import path from 'node:path';
+import fs from '../../lib/wrapped-fs.js';
+import { TEST_APPS_DIR } from './constants.js';
+import { walk } from './walk.js';
 
 /**
  * Directory structure:
@@ -13,7 +13,7 @@ const walk = require('./walk');
  * │       └── file.txt
  * └── var -> private/var
  */
-module.exports = async (testName, additionalFiles = {}) => {
+export async function createSymlinkedApp(testName, additionalFiles = {}) {
   const outDir = (testName || 'app') + Math.floor(Math.random() * 100);
   const testPath = path.join(TEST_APPS_DIR, outDir);
   const privateVarPath = path.join(testPath, 'private', 'var');
@@ -43,4 +43,4 @@ module.exports = async (testName, additionalFiles = {}) => {
     .map((filepath) => filepath.substring(testPath.length)); // convert to paths relative to root
 
   return { appPath, testPath, varPath, filesOrdering };
-};
+}
