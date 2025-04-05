@@ -1,12 +1,8 @@
-import { promisify } from 'node:util';
-import { glob as _glob } from 'glob';
+import { glob, GlobOptionsWithFileTypesFalse } from 'glob';
 
 import fs from './wrapped-fs';
 import { Stats } from 'node:fs';
 import path from 'node:path';
-import { IOptions } from './types/glob';
-
-const glob = promisify(_glob);
 
 export type CrawledFileType = {
   type: 'file' | 'directory' | 'link';
@@ -29,11 +25,12 @@ export async function determineFileType(filename: string): Promise<CrawledFileTy
   return null;
 }
 
-export async function crawl(dir: string, options: IOptions) {
+export async function crawl(dir: string, options: GlobOptionsWithFileTypesFalse) {
   const metadata: Record<string, CrawledFileType> = {};
+  // TODO replace with `fs.glob`
   const crawled = await glob(dir, options);
   const results = await Promise.all(
-    crawled.map(async (filename) => [filename, await determineFileType(filename)] as const),
+    crawled.sort().map(async (filename) => [filename, await determineFileType(filename)] as const),
   );
   const links: string[] = [];
   const filenames = results
