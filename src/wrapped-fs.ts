@@ -26,17 +26,15 @@ type AsarFS = typeof import('fs') & {
   readlink: (typeof import('fs'))['promises']['readlink'];
 };
 
-const promisified = {} as AsarFS;
+export const wrappedFs = {} as AsarFS;
 
 for (const method of Object.keys(fs)) {
   if (promisifiedMethods.includes(method)) {
-    (promisified as any)[method] = fs.promises[method];
+    (wrappedFs as any)[method] = fs.promises[method];
   } else {
-    (promisified as any)[method] = fs[method];
+    (wrappedFs as any)[method] = fs[method];
   }
 }
 // To make it more like fs-extra
-promisified.mkdirp = (dir) => fs.promises.mkdir(dir, { recursive: true });
-promisified.mkdirpSync = (dir) => fs.mkdirSync(dir, { recursive: true });
-
-export default promisified;
+wrappedFs.mkdirp = (dir) => fs.promises.mkdir(dir, { recursive: true });
+wrappedFs.mkdirpSync = (dir) => fs.mkdirSync(dir, { recursive: true });

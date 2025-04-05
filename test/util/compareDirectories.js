@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import fs from '../../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
 import path from 'node:path';
 import { crawl as crawlFilesystem } from '../../lib/crawlfs.js';
 

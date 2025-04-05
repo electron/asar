@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import childProcess from 'node:child_process';
-import fs from '../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../lib/wrapped-fs.js';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';

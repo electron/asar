@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import packageJSON from '../package.json' with { type: 'json' };
-import asar from '../lib/asar.js';
+import { createPackageWithOptions, listPackage, extractFile, extractAll } from '../lib/asar.js';
 import program from 'commander';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -36,7 +36,7 @@ program.command('pack <dir> <output>')
       builddir: options.sb,
       dot: !options.excludeHidden
     }
-    asar.createPackageWithOptions(dir, output, options).catch(error => {
+    createPackageWithOptions(dir, output, options).catch(error => {
       console.error(error)
       process.exit(1)
     })
@@ -50,7 +50,7 @@ program.command('list <archive>')
     options = {
       isPack: options.isPack
     }
-    var files = asar.listPackage(archive, options)
+    var files = listPackage(archive, options)
     for (var i in files) {
       console.log(files[i])
     }
@@ -61,14 +61,14 @@ program.command('extract-file <archive> <filename>')
   .description('extract one file from archive')
   .action(function (archive, filename) {
     fs.writeFileSync(path.basename(filename),
-      asar.extractFile(archive, filename))
+      extractFile(archive, filename))
   })
 
 program.command('extract <archive> <dest>')
   .alias('e')
   .description('extract archive')
   .action(function (archive, dest) {
-    asar.extractAll(archive, dest)
+    extractAll(archive, dest)
   })
 
 program.command('*', { hidden: true})

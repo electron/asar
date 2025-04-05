@@ -1,7 +1,7 @@
 import path from 'node:path';
 import minimatch from 'minimatch';
 
-import fs from './wrapped-fs.js';
+import { wrappedFs as fs } from './wrapped-fs.js';
 import {
   Filesystem,
   FilesystemDirectoryEntry,
@@ -412,29 +412,3 @@ export function uncache(archivePath: string) {
 export function uncacheAll() {
   disk.uncacheAll();
 }
-
-// Legacy type exports to maintain compatibility with pre-TypeScript rewrite
-// (https://github.com/electron/asar/blob/50b0c62e5b24c3d164687e6470b8658e09b09eea/lib/index.d.ts)
-// These don't match perfectly and are technically still a breaking change but they're close enough
-// to keep _most_ build pipelines out there from breaking.
-export { EntryMetadata } from './filesystem.js';
-export { InputMetadata, DirectoryRecord, FileRecord, ArchiveHeader } from './disk.js';
-export type InputMetadataType = 'directory' | 'file' | 'link';
-export type DirectoryMetadata = FilesystemDirectoryEntry;
-export type FileMetadata = FilesystemEntry;
-export type LinkMetadata = FilesystemLinkEntry;
-
-// Export everything in default, too
-export default {
-  createPackage,
-  createPackageWithOptions,
-  createPackageFromFiles,
-  createPackageFromStreams,
-  statFile,
-  getRawHeader,
-  listPackage,
-  extractFile,
-  extractAll,
-  uncache,
-  uncacheAll,
-};

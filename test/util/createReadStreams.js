@@ -1,9 +1,9 @@
-const { determineFileType } = require('../../lib/crawlfs');
-const walk = require('./walk');
-const path = require('path');
-const fs = require('../../lib/wrapped-fs').default;
+import { determineFileType } from '../../lib/crawlfs.js';
+import { walk } from './walk.js';
+import path from 'node:path';
+import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
 
-const collectReadStreams = async (src) => {
+export const createReadStreams = async (src) => {
   const filenames = walk(src);
 
   const streams = await Promise.all(
@@ -22,5 +22,3 @@ const collectReadStreams = async (src) => {
   );
   return streams;
 };
-
-module.exports = collectReadStreams;
