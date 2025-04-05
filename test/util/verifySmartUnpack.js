@@ -1,5 +1,5 @@
 import { readFilesystemSync } from '../../lib/disk.js';
-import fs from '../../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
 import path from 'node:path';
 import { walk } from './walk.js';
 import { ROOT_PROJECT_DIR } from './constants.js';

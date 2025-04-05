@@ -4,7 +4,7 @@ import { promisify } from 'node:util';
 import stream from 'node:stream';
 
 import { FileIntegrity, getFileIntegrity } from './integrity.js';
-import fs from './wrapped-fs.js';
+import { wrappedFs as fs } from './wrapped-fs.js';
 import { CrawledFileType } from './crawlfs.js';
 
 const UINT32_MAX = 2 ** 32 - 1;

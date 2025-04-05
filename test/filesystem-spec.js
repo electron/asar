@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import fs from '../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../lib/wrapped-fs.js';
 import path from 'node:path';
 import { createSymlinkedApp } from './util/createSymlinkedApp.js';
 import { TEST_APPS_DIR } from './util/constants.js';

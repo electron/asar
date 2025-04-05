@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import fs from '../../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
 
 export async function compFiles(actualFilePath, expectedFilePath) {
   if (process.env.ELECTRON_ASAR_SPEC_UPDATE) {

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import fs from './wrapped-fs.js';
+import { wrappedFs as fs } from './wrapped-fs.js';
 import { Pickle } from './pickle.js';
 import { Filesystem, FilesystemFileEntry } from './filesystem.js';
 import { CrawledFileType } from './crawlfs.js';
