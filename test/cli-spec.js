@@ -6,7 +6,6 @@ const fs = require('../lib/wrapped-fs').default;
 const os = require('node:os');
 const path = require('node:path');
 const { promisify } = require('node:util');
-const rimraf = require('rimraf');
 
 const compDirs = require('./util/compareDirectories');
 const compFileLists = require('./util/compareFileLists');
@@ -31,7 +30,7 @@ async function assertAsarOutputMatches(args, expectedFilename) {
 
 describe('command line interface', function () {
   beforeEach(() => {
-    rimraf.sync(TEST_APPS_DIR, fs);
+    fs.rmSync(TEST_APPS_DIR, { recursive: true, force: true });
   });
 
   it('should create archive from directory', async () => {

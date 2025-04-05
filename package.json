@@ -54,7 +54,6 @@
     "mocha": "^10.1.0",
     "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.3",
-    "rimraf": "^3.0.2",
     "typescript": "^5.5.4",
     "xvfb-maybe": "^0.2.1"
   }

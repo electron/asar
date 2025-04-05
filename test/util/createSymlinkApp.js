@@ -1,6 +1,5 @@
 const path = require('node:path');
 const fs = require('../../lib/wrapped-fs').default;
-const rimraf = require('rimraf');
 const { TEST_APPS_DIR } = require('./constants');
 const walk = require('./walk');
 
@@ -20,7 +19,7 @@ module.exports = async (testName, additionalFiles = {}) => {
   const privateVarPath = path.join(testPath, 'private', 'var');
   const varPath = path.join(testPath, 'var');
 
-  rimraf.sync(testPath, fs);
+  fs.rmSync(testPath, { recursive: true, force: true });
 
   fs.mkdirSync(privateVarPath, { recursive: true });
   fs.symlinkSync(path.relative(testPath, privateVarPath), varPath);
