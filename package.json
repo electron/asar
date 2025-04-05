@@ -15,6 +15,7 @@
   "engines": {
     "node": ">=22.12.0"
   },
+  "engineStrict": true,
   "license": "MIT",
   "homepage": "https://github.com/electron/asar",
   "repository": {
@@ -47,12 +48,13 @@
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
     "@types/minimatch": "^3.0.5",
+    "@types/mocha": "^10.0.10",
     "@types/node": "~22.10.7",
     "chai": "^4.5.0",
-    "electron": "^22.0.0",
-    "electron-mocha": "^13.0.1",
+    "electron": "^34.5.0",
+    "electron-mocha": "^13.1.0",
     "lodash": "^4.17.15",
-    "mocha": "^10.1.0",
+    "mocha": "~11.0.2",
     "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4",

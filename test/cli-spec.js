@@ -1,18 +1,16 @@
-'use strict';
+import assert from 'node:assert';
+import childProcess from 'node:child_process';
+import fs from '../lib/wrapped-fs.js';
+import os from 'node:os';
+import path from 'node:path';
+import { promisify } from 'node:util';
 
-const assert = require('node:assert');
-const childProcess = require('node:child_process');
-const fs = require('../lib/wrapped-fs').default;
-const os = require('node:os');
-const path = require('node:path');
-const { promisify } = require('node:util');
-
-const compDirs = require('./util/compareDirectories');
-const compFileLists = require('./util/compareFileLists');
-const { compFiles } = require('./util/compareFiles');
-const createSymlinkApp = require('./util/createSymlinkApp');
-const { verifySmartUnpack } = require('./util/verifySmartUnpack');
-const { TEST_APPS_DIR } = require('./util/constants');
+import { compDirs } from './util/compareDirectories.js';
+import { compFileLists } from './util/compareFileLists.js';
+import { compFiles } from './util/compareFiles.js';
+import { createSymlinkedApp } from './util/createSymlinkedApp.js';
+import { verifySmartUnpack } from './util/verifySmartUnpack.js';
+import { TEST_APPS_DIR } from './util/constants.js';
 
 const exec = promisify(childProcess.exec);
 
@@ -173,7 +171,7 @@ describe('command line interface', function () {
     await verifySmartUnpack('tmp/packthis-unpack-subdir-cli.asar');
   });
   it('should unpack static framework with all underlying symlinks unpacked', async () => {
-    const { testPath } = await createSymlinkApp('app');
+    const { testPath } = await createSymlinkedApp('app');
     await execAsar(
       `p ${testPath} tmp/packthis-with-symlink1.asar --unpack *.txt --unpack-dir var --exclude-hidden`,
     );
@@ -181,7 +179,7 @@ describe('command line interface', function () {
     await verifySmartUnpack('tmp/packthis-with-symlink1.asar');
   });
   it('should respect ordering file (format: "${filepath}")', async () => {
-    const { testPath, filesOrdering } = await createSymlinkApp('app-order1', {
+    const { testPath, filesOrdering } = await createSymlinkedApp('app-order1', {
       'file1.txt': 'data1',
       'file2.txt': 'data2',
       'file3.txt': 'data3',
@@ -199,7 +197,7 @@ describe('command line interface', function () {
     await verifySmartUnpack('tmp/packthis-with-symlink2.asar');
   });
   it('should respect ordering file (format: ": ${filepath}")', async () => {
-    const { testPath, filesOrdering } = await createSymlinkApp('app-order2', {
+    const { testPath, filesOrdering } = await createSymlinkedApp('app-order2', {
       'file1.txt': 'data1',
       'file2.txt': 'data2',
       'file3.txt': 'data3',
@@ -217,7 +215,7 @@ describe('command line interface', function () {
     await verifySmartUnpack('tmp/packthis-with-symlink3.asar');
   });
   it('should respect ordering file (format: "${random number} : ${filepath}")', async () => {
-    const { testPath, filesOrdering } = await createSymlinkApp('app-order3', {
+    const { testPath, filesOrdering } = await createSymlinkedApp('app-order3', {
       'file1.txt': 'data1',
       'file2.txt': 'data2',
       'file3.txt': 'data3',

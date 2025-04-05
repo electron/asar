@@ -1,19 +1,20 @@
 #!/usr/bin/env node
 
-var packageJSON = require('../package.json')
-var splitVersion = function (version) { return version.split('.').map(function (part) { return Number(part) }) }
-var requiredNodeVersion = splitVersion(packageJSON.engines.node.slice(2))
-var actualNodeVersion = splitVersion(process.versions.node)
+import packageJSON from '../package.json' with { type: 'json' };
+import asar from '../lib/asar.js';
+import program from 'commander';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const splitVersion = function (version) { return version.split('.').map(function (part) { return Number(part) }) }
+const requiredNodeVersion = splitVersion(packageJSON.engines.node.slice(2))
+const actualNodeVersion = splitVersion(process.versions.node)
 
 if (actualNodeVersion[0] < requiredNodeVersion[0] || (actualNodeVersion[0] === requiredNodeVersion[0] && actualNodeVersion[1] < requiredNodeVersion[1])) {
   console.error('CANNOT RUN WITH NODE ' + process.versions.node)
   console.error('asar requires Node ' + packageJSON.engines.node + '.')
   process.exit(1)
 }
-
-// Not consts so that this file can load in Node < 4.0
-var asar = require('../lib/asar')
-var program = require('commander')
 
 program.version('v' + packageJSON.version)
   .description('Manipulate asar archive files')
@@ -59,7 +60,7 @@ program.command('extract-file <archive> <filename>')
   .alias('ef')
   .description('extract one file from archive')
   .action(function (archive, filename) {
-    require('fs').writeFileSync(require('path').basename(filename),
+    fs.writeFileSync(path.basename(filename),
       asar.extractFile(archive, filename))
   })
 

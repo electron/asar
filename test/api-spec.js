@@ -1,17 +1,15 @@
-'use strict';
+import assert from 'node:assert';
+import fs from '../lib/wrapped-fs.js';
+import os from 'node:os';
+import asar from '../lib/asar.js';
+import { compDirs } from './util/compareDirectories.js';
+import { compFileLists } from './util/compareFileLists.js';
+import { compFiles, isSymbolicLinkSync } from './util/compareFiles.js';
+import { transformStream as transform } from './util/transformStream.js';
 
-const assert = require('node:assert');
-const fs = require('../lib/wrapped-fs').default;
-const os = require('node:os');
-
-const asar = require('..');
-const compDirs = require('./util/compareDirectories');
-const compFileLists = require('./util/compareFileLists');
-const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
-const transform = require('./util/transformStream');
-const { TEST_APPS_DIR } = require('./util/constants');
-const { verifySmartUnpack } = require('./util/verifySmartUnpack');
-const createReadStreams = require('./util/createReadstreams');
+import { TEST_APPS_DIR } from './util/constants.js';
+import { verifySmartUnpack } from './util/verifySmartUnpack.js';
+import createReadStreams from './util/createReadstreams.js';
 
 async function assertPackageListEquals(actualList, expectedFilename) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
@@ -233,8 +231,8 @@ describe('api', function () {
   });
   it('should export all functions also in the default export', () => {
     const topLevelFunctions = Object.keys(asar).filter((key) => typeof asar[key] === 'function');
-    const defaultExportFunctions = Object.keys(asar.default).filter(
-      (key) => typeof asar.default[key] === 'function',
+    const defaultExportFunctions = Object.keys(asar).filter(
+      (key) => typeof asar[key] === 'function',
     );
 
     assert.deepStrictEqual(topLevelFunctions, defaultExportFunctions);

@@ -1,12 +1,9 @@
-'use strict';
-
-const assert = require('node:assert');
-const fs = require('../lib/wrapped-fs').default;
-const path = require('node:path');
-const createSymlinkedApp = require('./util/createSymlinkApp');
-const { TEST_APPS_DIR } = require('./util/constants');
-
-const Filesystem = require('../lib/filesystem').Filesystem;
+import assert from 'node:assert';
+import fs from '../lib/wrapped-fs.js';
+import path from 'node:path';
+import { createSymlinkedApp } from './util/createSymlinkedApp.js';
+import { TEST_APPS_DIR } from './util/constants.js';
+import { Filesystem } from '../lib/filesystem.js';
 
 describe('filesystem', function () {
   beforeEach(() => {

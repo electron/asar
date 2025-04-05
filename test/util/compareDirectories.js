@@ -1,11 +1,9 @@
-'use strict';
+import _ from 'lodash';
+import fs from '../../lib/wrapped-fs.js';
+import path from 'node:path';
+import { crawl as crawlFilesystem } from '../../lib/crawlfs.js';
 
-const _ = require('lodash');
-const fs = require('../../lib/wrapped-fs').default;
-const path = require('node:path');
-const crawlFilesystem = require('../../lib/crawlfs').crawl;
-
-module.exports = async function (dirA, dirB) {
+export async function compDirs(dirA, dirB) {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([
     crawlFilesystem(dirA, {}),
     crawlFilesystem(dirB, {}),
@@ -57,4 +55,4 @@ module.exports = async function (dirA, dirB) {
   if (errorMsgBuilder.length) {
     throw new Error('\n' + errorMsgBuilder.join('\n'));
   }
-};
+}
