@@ -10,7 +10,7 @@ import {
 } from './filesystem';
 import * as disk from './disk';
 import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
-import { IOptions } from './types/glob';
+import { GlobOptionsWithFileTypesFalse } from 'glob';
 
 /**
  * Whether a directory should be excluded from packing due to the `--unpack-dir" option.
@@ -39,7 +39,7 @@ export async function createPackage(src: string, dest: string) {
 
 export type CreateOptions = {
   dot?: boolean;
-  globOptions?: IOptions;
+  globOptions?: GlobOptionsWithFileTypesFalse;
   /**
    * Path to a file containing the list of relative filepaths relative to `src` and the specific order they should be inserted into the asar.
    * Formats allowed below:

@@ -7,8 +7,8 @@ const crawlFilesystem = require('../../lib/crawlfs').crawl;
 
 module.exports = async function (dirA, dirB) {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([
-    crawlFilesystem(dirA, null),
-    crawlFilesystem(dirB, null),
+    crawlFilesystem(dirA, {}),
+    crawlFilesystem(dirB, {}),
   ]);
   const relativeA = _.map(pathsA, (pathAItem) => path.relative(dirA, pathAItem));
   const relativeB = _.map(pathsB, (pathBItem) => path.relative(dirB, pathBItem));
