@@ -12,9 +12,7 @@ const { compFiles, isSymbolicLinkSync } = require('./util/compareFiles');
 const transform = require('./util/transformStream');
 const { TEST_APPS_DIR } = require('./util/constants');
 const { verifySmartUnpack } = require('./util/verifySmartUnpack');
-const { crawl, determineFileType } = require('../lib/crawlfs');
-const path = require('path');
-const walk = require('./util/walk');
+const createReadStreams = require('./util/createReadstreams');
 
 async function assertPackageListEquals(actualList, expectedFilename) {
   const expected = await fs.readFile(expectedFilename, 'utf8');
@@ -155,6 +153,13 @@ describe('api', function () {
         asar.extractAll('test/input/bad-symlink.asar', 'tmp/bad-symlink/');
       });
     });
+    it('should throw when packaging symlink outside package', async function () {
+      const src = 'test/input/packthis-with-bad-symlink/';
+      const out = 'tmp/packthis-read-stream-bad-symlink.asar';
+      assert.rejects(async () => {
+        await asar.createPackage(src, out);
+      });
+    });
   }
   it('should handle multibyte characters in paths', async () => {
     await asar.createPackageWithOptions(
@@ -171,28 +176,37 @@ describe('api', function () {
   });
   it('should create package from array of NodeJS.ReadableStreams', async () => {
     const src = 'test/input/packthis-glob/';
-    const filenames = walk(src);
+    const streams = await createReadStreams(src);
 
-    const streams = await Promise.all(
-      filenames.map(async (filename, i) => {
-        const meta = await determineFileType(filename);
-        return {
-          path: path.relative(src, filename),
-          streamGenerator:
-            meta.type === 'directory' ? undefined : () => fs.createReadStream(filename),
-          symlink: meta.type === 'link' ? await fs.readlink(filename) : undefined,
-          unpacked: filename.includes('x1'),
-          type: meta.type,
-          stat: meta.stat,
-        };
-      }),
-    );
-
-    await asar.createPackageFromStreams('tmp/packthis-read-stream.asar', streams);
-    await verifySmartUnpack('tmp/packthis-read-stream.asar');
-    await compFiles('tmp/packthis-read-stream.asar', 'test/expected/packthis-read-stream.asar');
-    asar.extractAll('tmp/packthis-read-stream.asar', 'tmp/extractthis-read-stream/');
+    const out = 'tmp/packthis-read-stream.asar';
+    await asar.createPackageFromStreams(out, streams);
+    await verifySmartUnpack(out);
+    await compFiles(out, 'test/expected/packthis-read-stream.asar');
+    asar.extractAll(out, 'tmp/extractthis-read-stream/');
     return compDirs('tmp/extractthis-read-stream/', src);
+  });
+
+  it('should create package from array of NodeJS.ReadableStreams with valid symlinks', async function () {
+    if (os.platform() === 'win32') {
+      this.skip();
+    }
+    const src = 'test/input/packthis-with-symlink/';
+    const streams = await createReadStreams(src);
+
+    const out = 'tmp/packthis-read-stream-symlink.asar';
+    await asar.createPackageFromStreams(out, streams);
+    await verifySmartUnpack(out);
+    await compFiles(out, 'test/expected/packthis-read-stream-symlink.asar');
+    asar.extractAll(out, 'tmp/extractthis-read-stream-symlink/');
+    return compDirs('tmp/extractthis-read-stream-symlink/', src);
+  });
+  it('should throw when using NodeJS.ReadableStreams with symlink outside package', async function () {
+    const src = 'test/input/packthis-with-bad-symlink/';
+    const streams = await createReadStreams(src);
+
+    assert.rejects(async () => {
+      await asar.createPackageFromStreams(out, streams);
+    });
   });
   it('should extract a text file from archive with multibyte characters in path', async () => {
     const actual = asar
