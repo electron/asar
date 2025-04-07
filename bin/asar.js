@@ -55,13 +55,32 @@ program.command('list <archive>')
     }
   })
 
-program.command('extract-file <archive> <filename>')
-  .alias('ef')
-  .description('extract one file from archive')
-  .action(function (archive, filename) {
-    require('fs').writeFileSync(require('path').basename(filename),
-      asar.extractFile(archive, filename))
-  })
+  program
+  .command('extract-file <archive> <filename> [destination]')
+   .alias('ef')
+  .description(
+    'extract one file from archive. Optionally output to (already-existing) destination folder, otherwise cwd will be used',
+  )
+  .action(function (archive, filename, destination) {
+    const path = require('path');
+    const fs = require('fs');
+    
+    // extract first to memory so that error is thrown if file does not exist
+    const fileData = asar.extractFile(archive, filename)
+    const file = path.basename(filename);
+    destination = destination?.trim()
+    const out = destination ? path.join(destination, file) : file;
+
+    // check if destination exists. when destination is not provided, we will write to cwd
+    if (destination && !fs.existsSync(destination)) {
+      throw new Error("destination directory does not exist, please create before attempting extraction")
+    }
+    if (fs.existsSync(out)) {
+      throw new Error("destination file already exists")
+    }
+    fs.writeFileSync(out, fileData);
+  });
+
 
 program.command('extract <archive> <dest>')
   .alias('e')
