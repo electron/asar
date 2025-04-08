@@ -2,12 +2,7 @@ import path from 'node:path';
 import minimatch from 'minimatch';
 
 import { wrappedFs as fs } from './wrapped-fs.js';
-import {
-  Filesystem,
-  FilesystemDirectoryEntry,
-  FilesystemEntry,
-  FilesystemLinkEntry,
-} from './filesystem.js';
+import { Filesystem, FilesystemEntry } from './filesystem.js';
 import * as disk from './disk.js';
 import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs.js';
 import { GlobOptionsWithFileTypesFalse } from 'glob';
