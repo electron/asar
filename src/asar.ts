@@ -1,16 +1,11 @@
-import * as path from 'path';
+import path from 'node:path';
 import minimatch from 'minimatch';
 
-import fs from './wrapped-fs';
-import {
-  Filesystem,
-  FilesystemDirectoryEntry,
-  FilesystemEntry,
-  FilesystemLinkEntry,
-} from './filesystem';
-import * as disk from './disk';
-import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
-import { IOptions } from './types/glob';
+import { wrappedFs as fs } from './wrapped-fs.js';
+import { Filesystem, FilesystemEntry } from './filesystem.js';
+import * as disk from './disk.js';
+import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs.js';
+import { GlobOptionsWithFileTypesFalse } from 'glob';
 
 /**
  * Whether a directory should be excluded from packing due to the `--unpack-dir" option.
@@ -39,7 +34,7 @@ export async function createPackage(src: string, dest: string) {
 
 export type CreateOptions = {
   dot?: boolean;
-  globOptions?: IOptions;
+  globOptions?: GlobOptionsWithFileTypesFalse;
   /**
    * Path to a file containing the list of relative filepaths relative to `src` and the specific order they should be inserted into the asar.
    * Formats allowed below:
@@ -412,29 +407,3 @@ export function uncache(archivePath: string) {
 export function uncacheAll() {
   disk.uncacheAll();
 }
-
-// Legacy type exports to maintain compatibility with pre-TypeScript rewrite
-// (https://github.com/electron/asar/blob/50b0c62e5b24c3d164687e6470b8658e09b09eea/lib/index.d.ts)
-// These don't match perfectly and are technically still a breaking change but they're close enough
-// to keep _most_ build pipelines out there from breaking.
-export { EntryMetadata } from './filesystem';
-export { InputMetadata, DirectoryRecord, FileRecord, ArchiveHeader } from './disk';
-export type InputMetadataType = 'directory' | 'file' | 'link';
-export type DirectoryMetadata = FilesystemDirectoryEntry;
-export type FileMetadata = FilesystemEntry;
-export type LinkMetadata = FilesystemLinkEntry;
-
-// Export everything in default, too
-export default {
-  createPackage,
-  createPackageWithOptions,
-  createPackageFromFiles,
-  createPackageFromStreams,
-  statFile,
-  getRawHeader,
-  listPackage,
-  extractFile,
-  extractAll,
-  uncache,
-  uncacheAll,
-};

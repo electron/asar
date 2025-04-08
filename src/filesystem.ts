@@ -1,11 +1,11 @@
-import * as os from 'os';
-import * as path from 'path';
-import { promisify } from 'util';
-import * as stream from 'stream';
+import os from 'node:os';
+import path from 'node:path';
+import { promisify } from 'node:util';
+import stream from 'node:stream';
 
-import { FileIntegrity, getFileIntegrity } from './integrity';
-import fs from './wrapped-fs';
-import { CrawledFileType } from './crawlfs';
+import { FileIntegrity, getFileIntegrity } from './integrity.js';
+import { wrappedFs as fs } from './wrapped-fs.js';
+import { CrawledFileType } from './crawlfs.js';
 
 const UINT32_MAX = 2 ** 32 - 1;
 

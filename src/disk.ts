@@ -1,11 +1,11 @@
-import * as path from 'path';
-import fs from './wrapped-fs';
-import { Pickle } from './pickle';
-import { Filesystem, FilesystemFileEntry } from './filesystem';
-import { CrawledFileType } from './crawlfs';
-import { Stats } from 'fs';
-import { promisify } from 'util';
-import * as stream from 'stream';
+import path from 'node:path';
+import { wrappedFs as fs } from './wrapped-fs.js';
+import { Pickle } from './pickle.js';
+import { Filesystem, FilesystemFileEntry } from './filesystem.js';
+import { CrawledFileType } from './crawlfs.js';
+import { Stats } from 'node:fs';
+import { promisify } from 'node:util';
+import stream from 'node:stream';
 
 const pipeline = promisify(stream.pipeline);
 
