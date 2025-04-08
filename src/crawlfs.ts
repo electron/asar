@@ -28,7 +28,10 @@ export async function determineFileType(filename: string): Promise<CrawledFileTy
 export async function crawl(dir: string, options: GlobOptionsWithFileTypesFalse) {
   const metadata: Record<string, CrawledFileType> = {};
   // TODO replace with `fs.glob`
-  const crawled = await glob(dir, options);
+  const crawled = await glob(dir, {
+    windowsPathsNoEscape: true,
+    ...options,
+  });
   const results = await Promise.all(
     crawled.sort().map(async (filename) => [filename, await determineFileType(filename)] as const),
   );
