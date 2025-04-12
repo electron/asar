@@ -50,8 +50,8 @@ program.command('list <archive>')
     options = {
       isPack: options.isPack
     }
-    var files = listPackage(archive, options)
-    for (var i in files) {
+    const files = listPackage(archive, options)
+    for (const i in files) {
       console.log(files[i])
     }
   })
