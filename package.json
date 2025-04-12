@@ -42,11 +42,10 @@
   "dependencies": {
     "commander": "^5.0.0",
     "glob": "^11.0.1",
-    "minimatch": "^3.0.4"
+    "minimatch": "^10.0.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
-    "@types/minimatch": "^3.0.5",
     "@types/mocha": "^10.0.10",
     "@types/node": "~22.10.7",
     "chai": "^4.5.0",

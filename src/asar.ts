@@ -1,5 +1,5 @@
 import path from 'node:path';
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 
 import { wrappedFs as fs } from './wrapped-fs.js';
 import { Filesystem, FilesystemEntry } from './filesystem.js';
