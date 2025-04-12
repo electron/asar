@@ -2,7 +2,7 @@
 
 import packageJSON from '../package.json' with { type: 'json' };
 import { createPackageWithOptions, listPackage, extractFile, extractAll } from '../lib/asar.js';
-import program from 'commander';
+import { program } from 'commander';
 import fs from 'node:fs';
 import path from 'node:path';
 

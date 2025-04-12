@@ -40,7 +40,7 @@
     "prepare": "tsc"
   },
   "dependencies": {
-    "commander": "^5.0.0",
+    "commander": "^13.1.0",
     "glob": "^11.0.1",
     "minimatch": "^10.0.1"
   },
