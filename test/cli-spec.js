@@ -15,7 +15,7 @@ import { TEST_APPS_DIR } from './util/constants.js';
 const exec = promisify(childProcess.exec);
 
 async function execAsar(args) {
-  return exec(`node bin/asar ${args}`);
+  return exec(`node bin/asar.mjs ${args}`);
 }
 
 async function assertAsarOutputMatches(args, expectedFilename) {
