@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
 import path from 'node:path';
 import { crawl as crawlFilesystem } from '../../lib/crawlfs.js';
@@ -8,11 +7,11 @@ export async function compDirs(dirA, dirB) {
     crawlFilesystem(dirA, {}),
     crawlFilesystem(dirB, {}),
   ]);
-  const relativeA = _.map(pathsA, (pathAItem) => path.relative(dirA, pathAItem));
-  const relativeB = _.map(pathsB, (pathBItem) => path.relative(dirB, pathBItem));
-  const onlyInA = _.difference(relativeA, relativeB);
-  const onlyInB = _.difference(relativeB, relativeA);
-  const inBoth = _.intersection(pathsA, pathsB);
+  const relativeA = new Set(pathsA.map((pathAItem) => path.relative(dirA, pathAItem)));
+  const relativeB = new Set(pathsB.map((pathBItem) => path.relative(dirB, pathBItem)));
+  const onlyInA = relativeA.difference(relativeB);
+  const onlyInB = relativeB.difference(relativeA);
+  const inBoth = new Set(pathsA).intersection(new Set(pathsB));
   const differentFiles = [];
   const errorMsgBuilder = [];
   for (const filename of inBoth) {

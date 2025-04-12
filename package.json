@@ -53,7 +53,6 @@
     "chai": "^4.5.0",
     "electron": "^34.5.0",
     "electron-mocha": "^13.1.0",
-    "lodash": "^4.17.15",
     "mocha": "~11.0.2",
     "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.3",
