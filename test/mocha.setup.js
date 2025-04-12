@@ -1,4 +1,4 @@
-import chai from 'chai';
+import { use } from 'chai';
 import { jestSnapshotPlugin } from 'mocha-chai-jest-snapshot';
 
-chai.use(jestSnapshotPlugin());
+use(jestSnapshotPlugin());
