@@ -1,15 +1,12 @@
 import os from 'node:os';
 import path from 'node:path';
-import { promisify } from 'node:util';
-import stream from 'node:stream';
+import stream from 'node:stream/promises';
 
 import { FileIntegrity, getFileIntegrity } from './integrity.js';
 import { wrappedFs as fs } from './wrapped-fs.js';
 import { CrawledFileType } from './crawlfs.js';
 
 const UINT32_MAX = 2 ** 32 - 1;
-
-const pipeline = promisify(stream.pipeline);
 
 export type EntryMetadata = {
   unpacked?: boolean;
@@ -132,7 +129,7 @@ export class Filesystem {
       const tmpfile = path.join(tmpdir, path.basename(p));
       const out = fs.createWriteStream(tmpfile);
 
-      await pipeline(streamGenerator(), transformed, out);
+      await stream.pipeline(streamGenerator(), transformed, out);
       file.transformed = {
         path: tmpfile,
         stat: await fs.lstat(tmpfile),
