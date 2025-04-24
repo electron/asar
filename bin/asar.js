@@ -70,7 +70,7 @@ program.command('extract <archive> <dest>')
     asar.extractAll(archive, dest)
   })
 
-program.command('*')
+program.command('*', { hidden: true})
   .action(function (_cmd, args) {
     console.log('asar: \'%s\' is not an asar command. See \'asar --help\'.', args[0])
   })
