@@ -29,6 +29,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:docs": "typedoc src/asar.ts",
     "mocha": "xvfb-maybe electron-mocha && mocha",
     "mocha:update": "mocha --update",
     "mocha:watch": "mocha --watch",
@@ -54,6 +55,7 @@
     "mocha": "~11.0.2",
     "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.3",
+    "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
     "xvfb-maybe": "^0.2.1"
   }
