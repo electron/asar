@@ -2,17 +2,18 @@
   "name": "@electron/asar",
   "description": "Creating Electron app packages",
   "version": "0.0.0-development",
-  "main": "./lib/asar.js",
+  "type": "module",
+  "exports": "./lib/asar.js",
   "types": "./lib/asar.d.ts",
   "bin": {
-    "asar": "./bin/asar.js"
+    "asar": "./bin/asar.mjs"
   },
   "files": [
     "bin",
     "lib"
   ],
   "engines": {
-    "node": ">=10.12.0"
+    "node": ">=22.12.0"
   },
   "license": "MIT",
   "homepage": "https://github.com/electron/asar",
@@ -28,6 +29,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:docs": "typedoc src/asar.ts",
     "mocha": "xvfb-maybe electron-mocha && mocha",
     "mocha:update": "mocha --update",
     "mocha:watch": "mocha --watch",
@@ -39,21 +41,21 @@
     "prepare": "tsc"
   },
   "dependencies": {
-    "commander": "^5.0.0",
-    "glob": "^7.1.6",
-    "minimatch": "^3.0.4"
+    "commander": "^13.1.0",
+    "glob": "^11.0.1",
+    "minimatch": "^10.0.1"
   },
   "devDependencies": {
-    "@types/minimatch": "^3.0.5",
-    "@types/node": "^12.0.0",
-    "chai": "^4.5.0",
-    "electron": "^22.0.0",
-    "electron-mocha": "^13.0.1",
-    "lodash": "^4.17.15",
-    "mocha": "^10.1.0",
+    "@tsconfig/node22": "^22.0.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "~22.10.7",
+    "chai": "^5.2.0",
+    "electron": "^34.5.0",
+    "electron-mocha": "^13.1.0",
+    "mocha": "~11.0.2",
     "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.3",
-    "rimraf": "^3.0.2",
+    "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
     "xvfb-maybe": "^0.2.1"
   }

@@ -1,0 +1,35 @@
+name: Publish documentation
+
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    environment: docs-publish
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # tag: v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # tag: v4.4.0
+        with:
+          node-version: 22.12.x
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Build API documentation
+        run: yarn build:docs
+      - name: Azure login
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        with:
+          client-id: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_OIDC_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_OIDC_SUBSCRIPTION_ID }}
+      - name: Upload to Azure Blob Storage
+        uses: azure/cli@089eac9d8cc39f5d003e94f8b65efc51076c9cbd  # tag: v2.1.0
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name ${{ secrets.AZURE_ECOSYSTEM_PACKAGES_STORAGE_ACCOUNT_NAME }} -d '$web/asar/${{ github.ref_name }}' -s ./docs --overwrite --auth-mode login

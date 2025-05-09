@@ -1,6 +1,5 @@
-'use strict';
-const Transform = require('stream').Transform;
-const basename = require('path').basename;
+import { Transform } from 'node:stream';
+import { basename } from 'node:path';
 
 class Reverser extends Transform {
   constructor() {
@@ -20,8 +19,8 @@ class Reverser extends Transform {
   }
 }
 
-module.exports = function (filename) {
+export function transformStream(filename) {
   if (basename(filename) === 'file0.txt') {
     return new Reverser();
   }
-};
+}

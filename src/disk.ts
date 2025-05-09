@@ -1,13 +1,10 @@
-import * as path from 'path';
-import fs from './wrapped-fs';
-import { Pickle } from './pickle';
-import { Filesystem, FilesystemFileEntry } from './filesystem';
-import { CrawledFileType } from './crawlfs';
-import { Stats } from 'fs';
-import { promisify } from 'util';
-import * as stream from 'stream';
-
-const pipeline = promisify(stream.pipeline);
+import path from 'node:path';
+import { wrappedFs as fs } from './wrapped-fs.js';
+import { Pickle } from './pickle.js';
+import { Filesystem, FilesystemFileEntry } from './filesystem.js';
+import { CrawledFileType } from './crawlfs.js';
+import { Stats } from 'node:fs';
+import stream from 'node:stream/promises';
 
 let filesystemCache: Record<string, Filesystem | undefined> = Object.create(null);
 
@@ -108,7 +105,7 @@ export async function streamFilesystem(
       const targetFile = path.join(`${dest}.unpacked`, file.filename);
       await fs.mkdirp(path.dirname(targetFile));
       const writeStream = fs.createWriteStream(targetFile, { mode: file.mode });
-      await pipeline(file.streamGenerator(), writeStream);
+      await stream.pipeline(file.streamGenerator(), writeStream);
     } else {
       await streamTransformedFile(file.streamGenerator(), out);
     }
