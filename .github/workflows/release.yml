@@ -29,6 +29,7 @@ jobs:
       - name: Install
         run: yarn install --frozen-lockfile
       - uses: continuousauth/action@4e8a2573eeb706f6d7300d6a9f3ca6322740b72d # v1.0.5
+        timeout-minutes: 60
         with:
           project-id: ${{ secrets.CFA_PROJECT_ID }}
           secret: ${{ secrets.CFA_SECRET }}
