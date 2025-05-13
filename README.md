@@ -86,12 +86,12 @@ $ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
 ### Example
 
 ```javascript
-const asar = require('@electron/asar');
+import { createPackage } from '@electron/asar';
 
 const src = 'some/path/';
 const dest = 'name.asar';
 
-await asar.createPackage(src, dest);
+await createPackage(src, dest);
 console.log('done.');
 ```
 
@@ -103,7 +103,7 @@ nothing, or a `stream.Transform`. The latter will be used on files that will be
 in the `.asar` file to transform them (e.g. compress).
 
 ```javascript
-const asar = require('@electron/asar');
+import { createPackageWithOptions } from '@electron/asar';
 
 const src = 'some/path/';
 const dest = 'name.asar';
@@ -112,7 +112,7 @@ function transform (filename) {
   return new CustomTransformStream()
 }
 
-await asar.createPackageWithOptions(src, dest, { transform: transform });
+await createPackageWithOptions(src, dest, { transform: transform });
 console.log('done.');
 ```
 
