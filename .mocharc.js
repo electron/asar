@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   'watch-files': ['test/**/*.js', 'lib/**/*.js'],
   recursive: true,
   file: './test/mocha.setup.js', // setup file before everything else loads

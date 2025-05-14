@@ -1,16 +1,20 @@
-import * as path from 'path';
-import minimatch from 'minimatch';
+import path from 'node:path';
+import { minimatch } from 'minimatch';
 
-import fs from './wrapped-fs';
+import { wrappedFs as fs } from './wrapped-fs.js';
+import { Filesystem, FilesystemEntry } from './filesystem.js';
 import {
-  Filesystem,
-  FilesystemDirectoryEntry,
-  FilesystemEntry,
-  FilesystemLinkEntry,
-} from './filesystem';
-import * as disk from './disk';
-import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs';
-import { IOptions } from './types/glob';
+  BasicFilesArray,
+  BasicStreamArray,
+  InputMetadata,
+  readArchiveHeaderSync,
+  readFilesystemSync,
+  readFileSync,
+  streamFilesystem,
+  writeFilesystem,
+} from './disk.js';
+import { CrawledFileType, crawl as crawlFilesystem, determineFileType } from './crawlfs.js';
+import { GlobOptionsWithFileTypesFalse } from 'glob';
 
 /**
  * Whether a directory should be excluded from packing due to the `--unpack-dir" option.
@@ -39,7 +43,7 @@ export async function createPackage(src: string, dest: string) {
 
 export type CreateOptions = {
   dot?: boolean;
-  globOptions?: IOptions;
+  globOptions?: GlobOptionsWithFileTypesFalse;
   /**
    * Path to a file containing the list of relative filepaths relative to `src` and the specific order they should be inserted into the asar.
    * Formats allowed below:
@@ -77,7 +81,7 @@ export async function createPackageFromFiles(
   src: string,
   dest: string,
   filenames: string[],
-  metadata: disk.InputMetadata = {},
+  metadata: InputMetadata = {},
   options: CreateOptions = {},
 ) {
   src = path.normalize(src);
@@ -87,8 +91,8 @@ export async function createPackageFromFiles(
   });
 
   const filesystem = new Filesystem(src);
-  const files: disk.BasicFilesArray = [];
-  const links: disk.BasicFilesArray = [];
+  const files: BasicFilesArray = [];
+  const links: BasicFilesArray = [];
   const unpackDirs: string[] = [];
 
   let filenamesSorted: string[] = [];
@@ -198,7 +202,7 @@ export async function createPackageFromFiles(
 
   const insertsDone = async function () {
     await fs.mkdirp(path.dirname(dest));
-    return disk.writeFilesystem(dest, filesystem, { files, links }, metadata);
+    return writeFilesystem(dest, filesystem, { files, links }, metadata);
   };
 
   const names = filenamesSorted.slice();
@@ -254,8 +258,8 @@ export async function createPackageFromStreams(dest: string, streams: AsarStream
   const src = '.';
 
   const filesystem = new Filesystem(src);
-  const files: disk.BasicStreamArray = [];
-  const links: disk.BasicStreamArray = [];
+  const files: BasicStreamArray = [];
+  const links: BasicStreamArray = [];
 
   const handleFile = async function (stream: AsarStreamType) {
     const { path: destinationPath, type } = stream;
@@ -298,7 +302,7 @@ export async function createPackageFromStreams(dest: string, streams: AsarStream
 
   const insertsDone = async function () {
     await fs.mkdirp(path.dirname(dest));
-    return disk.streamFilesystem(dest, filesystem, { files, links });
+    return streamFilesystem(dest, filesystem, { files, links });
   };
 
   const streamQueue = streams.slice();
@@ -321,12 +325,12 @@ export function statFile(
   filename: string,
   followLinks: boolean = true,
 ): FilesystemEntry {
-  const filesystem = disk.readFilesystemSync(archivePath);
+  const filesystem = readFilesystemSync(archivePath);
   return filesystem.getFile(filename, followLinks);
 }
 
 export function getRawHeader(archivePath: string) {
-  return disk.readArchiveHeaderSync(archivePath);
+  return readArchiveHeaderSync(archivePath);
 }
 
 export interface ListOptions {
@@ -334,20 +338,20 @@ export interface ListOptions {
 }
 
 export function listPackage(archivePath: string, options: ListOptions) {
-  return disk.readFilesystemSync(archivePath).listFiles(options);
+  return readFilesystemSync(archivePath).listFiles(options);
 }
 
 export function extractFile(archivePath: string, filename: string, followLinks: boolean = true) {
-  const filesystem = disk.readFilesystemSync(archivePath);
+  const filesystem = readFilesystemSync(archivePath);
   const fileInfo = filesystem.getFile(filename, followLinks);
   if ('link' in fileInfo || 'files' in fileInfo) {
     throw new Error('Expected to find file at: ' + filename + ' but found a directory or link');
   }
-  return disk.readFileSync(filesystem, filename, fileInfo);
+  return readFileSync(filesystem, filename, fileInfo);
 }
 
 export function extractAll(archivePath: string, dest: string) {
-  const filesystem = disk.readFilesystemSync(archivePath);
+  const filesystem = readFilesystemSync(archivePath);
   const filenames = filesystem.listFiles();
 
   // under windows just extract links as regular files
@@ -387,7 +391,7 @@ export function extractAll(archivePath: string, dest: string) {
     } else {
       // it's a file, try to extract it
       try {
-        const content = disk.readFileSync(filesystem, filename, file);
+        const content = readFileSync(filesystem, filename, file);
         fs.writeFileSync(destFilename, content);
         if (file.executable) {
           fs.chmodSync(destFilename, '755');
@@ -405,36 +409,4 @@ export function extractAll(archivePath: string, dest: string) {
   }
 }
 
-export function uncache(archivePath: string) {
-  return disk.uncacheFilesystem(archivePath);
-}
-
-export function uncacheAll() {
-  disk.uncacheAll();
-}
-
-// Legacy type exports to maintain compatibility with pre-TypeScript rewrite
-// (https://github.com/electron/asar/blob/50b0c62e5b24c3d164687e6470b8658e09b09eea/lib/index.d.ts)
-// These don't match perfectly and are technically still a breaking change but they're close enough
-// to keep _most_ build pipelines out there from breaking.
-export { EntryMetadata } from './filesystem';
-export { InputMetadata, DirectoryRecord, FileRecord, ArchiveHeader } from './disk';
-export type InputMetadataType = 'directory' | 'file' | 'link';
-export type DirectoryMetadata = FilesystemDirectoryEntry;
-export type FileMetadata = FilesystemEntry;
-export type LinkMetadata = FilesystemLinkEntry;
-
-// Export everything in default, too
-export default {
-  createPackage,
-  createPackageWithOptions,
-  createPackageFromFiles,
-  createPackageFromStreams,
-  statFile,
-  getRawHeader,
-  listPackage,
-  extractFile,
-  extractAll,
-  uncache,
-  uncacheAll,
-};
+export { uncacheAll, uncacheFilesystem as uncache } from './disk.js';

@@ -1,20 +1,17 @@
-'use strict';
+import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
+import path from 'node:path';
+import { crawl as crawlFilesystem } from '../../lib/crawlfs.js';
 
-const _ = require('lodash');
-const fs = require('../../lib/wrapped-fs').default;
-const path = require('path');
-const crawlFilesystem = require('../../lib/crawlfs').crawl;
-
-module.exports = async function (dirA, dirB) {
+export async function compDirs(dirA, dirB) {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([
-    crawlFilesystem(dirA, null),
-    crawlFilesystem(dirB, null),
+    crawlFilesystem(dirA, {}),
+    crawlFilesystem(dirB, {}),
   ]);
-  const relativeA = _.map(pathsA, (pathAItem) => path.relative(dirA, pathAItem));
-  const relativeB = _.map(pathsB, (pathBItem) => path.relative(dirB, pathBItem));
-  const onlyInA = _.difference(relativeA, relativeB);
-  const onlyInB = _.difference(relativeB, relativeA);
-  const inBoth = _.intersection(pathsA, pathsB);
+  const relativeA = new Set(pathsA.map((pathAItem) => path.relative(dirA, pathAItem)));
+  const relativeB = new Set(pathsB.map((pathBItem) => path.relative(dirB, pathBItem)));
+  const onlyInA = relativeA.difference(relativeB);
+  const onlyInB = relativeB.difference(relativeA);
+  const inBoth = new Set(pathsA).intersection(new Set(pathsB));
   const differentFiles = [];
   const errorMsgBuilder = [];
   for (const filename of inBoth) {
@@ -57,4 +54,4 @@ module.exports = async function (dirA, dirB) {
   if (errorMsgBuilder.length) {
     throw new Error('\n' + errorMsgBuilder.join('\n'));
   }
-};
+}

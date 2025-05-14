@@ -1,12 +1,12 @@
-const { readFilesystemSync } = require('../../lib/disk');
-const fs = require('../../lib/wrapped-fs').default;
-const path = require('path');
-const walk = require('./walk');
-const { ROOT_PROJECT_DIR } = require('./constants');
+import { readFilesystemSync } from '../../lib/disk.js';
+import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
+import path from 'node:path';
+import { walk } from './walk.js';
+import { ROOT_PROJECT_DIR } from './constants.js';
 
-const { expect } = require('chai');
+import { expect } from 'chai';
 
-const verifySmartUnpack = async (asarPath) => {
+export const verifySmartUnpack = async (asarPath) => {
   asarPath = path.isAbsolute(asarPath) ? asarPath : path.join(ROOT_PROJECT_DIR, asarPath);
   // verify header
   const asarFs = readFilesystemSync(asarPath);
@@ -19,7 +19,7 @@ const verifySmartUnpack = async (asarPath) => {
   }
 };
 
-const verifyFileTree = async (dirPath) => {
+export const verifyFileTree = async (dirPath) => {
   const dirFiles = walk(dirPath);
   const files = dirFiles.map((it) => {
     const name = toSystemIndependentPath(path.relative(dirPath, it));
@@ -45,5 +45,3 @@ const removeUnstableProperties = (data) => {
 const toSystemIndependentPath = (filepath) => {
   return path.sep === '/' ? filepath : filepath.replace(/\\/g, '/');
 };
-
-module.exports = { verifySmartUnpack, verifyFileTree };

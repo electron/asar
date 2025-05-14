@@ -1,13 +1,10 @@
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as stream from 'stream';
-import { promisify } from 'util';
+import crypto from 'node:crypto';
+import stream from 'node:stream';
+import streamPromises from 'node:stream/promises';
 
 const ALGORITHM = 'SHA256';
 // 4MB default block size
 const BLOCK_SIZE = 4 * 1024 * 1024;
-
-const pipeline = promisify(stream.pipeline);
 
 function hashBlock(block: Buffer) {
   return crypto.createHash(ALGORITHM).update(block).digest('hex');
@@ -29,7 +26,7 @@ export async function getFileIntegrity(
   let currentBlockSize = 0;
   let currentBlock: Buffer[] = [];
 
-  await pipeline(
+  await streamPromises.pipeline(
     inputFileStream,
     new stream.PassThrough({
       decodeStrings: false,

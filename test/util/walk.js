@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 // returns a list of all directories, files, and symlinks. Automates testing `ordering` logic easy and verifying unpacked directories.
-const walk = (root) => {
+export const walk = (root) => {
   const getPaths = (filepath, filter) =>
     fs
       .readdirSync(filepath, { withFileTypes: true })
@@ -16,5 +16,3 @@ const walk = (root) => {
     getPaths(root, (dirent) => dirent.isFile() || dirent.isSymbolicLink()),
   );
 };
-
-module.exports = walk;
