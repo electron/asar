@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, expect } from 'vitest';
 import childProcess from 'node:child_process';
-import { wrappedFs as fs } from '../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';

@@ -1,6 +1,6 @@
-import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../../src/wrapped-fs.js';
 import path from 'node:path';
-import { crawl as crawlFilesystem } from '../../lib/crawlfs.js';
+import { crawl as crawlFilesystem } from '../../src/crawlfs.js';
 
 export async function compDirs(dirA: string, dirB: string): Promise<void> {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([

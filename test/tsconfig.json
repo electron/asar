@@ -1,7 +1,8 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["vitest/globals", "node"],
+    "lib": ["ESNext"],
+    "types": ["node"],
     "allowJs": true,
     "checkJs": false,
     "noEmit": true

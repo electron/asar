@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, expect } from 'vitest';
-import { wrappedFs as fs } from '../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import os from 'node:os';
 import {
   createPackage,
@@ -9,7 +9,7 @@ import {
   extractFile,
   listPackage,
   statFile,
-} from '../lib/asar.js';
+} from '../src/asar.js';
 import { compDirs } from './util/compareDirectories.js';
 import { compFileLists } from './util/compareFileLists.js';
 import { compFiles, isSymbolicLinkSync } from './util/compareFiles.js';
@@ -75,7 +75,7 @@ describe('api', () => {
 
   it('should list files/dirs in archive', async () => {
     return assertPackageListEquals(
-      listPackage('test/input/extractthis.asar'),
+      listPackage('test/input/extractthis.asar', { isPack: false }),
       'test/expected/extractthis-filelist.txt',
     );
   });
@@ -182,7 +182,7 @@ describe('api', () => {
       'tmp/packthis-unicode-path.asar',
       {
         globOptions: {
-          nosort: true,
+          nocase: true,
         },
       },
     );
@@ -256,6 +256,6 @@ describe('api', () => {
 
   it('should stat a symlinked file', async () => {
     const stats = statFile('test/input/stat-symlink.asar', 'real.txt', true);
-    return expect(stats.link).toBeUndefined();
+    return expect('link' in stats).toBeFalsy();
   });
 });

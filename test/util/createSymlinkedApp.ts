@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../../src/wrapped-fs.js';
 import { TEST_APPS_DIR } from './constants.js';
 import { walk } from './walk.js';
 

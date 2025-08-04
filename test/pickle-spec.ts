@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Pickle } from '../lib/pickle.js';
+import { Pickle } from '../src/pickle.js';
 
 describe('Pickle', () => {
   it('supports multi-byte characters', () => {
