@@ -5,9 +5,7 @@
   "type": "module",
   "exports": "./lib/asar.js",
   "types": "./lib/asar.d.ts",
-  "bin": {
-    "asar": "./bin/asar.mjs"
-  },
+  "bin": "./bin/asar.mjs",
   "files": [
     "bin",
     "lib"
@@ -58,5 +56,6 @@
     "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
     "xvfb-maybe": "^0.2.1"
-  }
+  },
+  "packageManager": "yarn@4.1.0"
 }
