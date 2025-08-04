@@ -1,7 +1,7 @@
-import assert from 'node:assert';
+import { expect } from 'vitest';
 import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
 
-export async function compFiles(actualFilePath, expectedFilePath) {
+export async function compFiles(actualFilePath: string, expectedFilePath: string): Promise<void> {
   if (process.env.ELECTRON_ASAR_SPEC_UPDATE) {
     await fs.writeFile(expectedFilePath, await fs.readFile(actualFilePath));
   }
@@ -9,24 +9,24 @@ export async function compFiles(actualFilePath, expectedFilePath) {
     fs.readFile(actualFilePath, 'utf8'),
     fs.readFile(expectedFilePath, 'utf8'),
   ]);
-  assert.strictEqual(actualFileContent, expectedFileContent);
+  expect(actualFileContent).toBe(expectedFileContent);
 
   const [actualIsSymlink, expectedIsSymlink] = [
     isSymbolicLinkSync(actualFilePath),
     isSymbolicLinkSync(expectedFilePath),
   ];
-  assert.strictEqual(actualIsSymlink, expectedIsSymlink);
+  expect(actualIsSymlink).toBe(expectedIsSymlink);
 
   if (actualIsSymlink && expectedIsSymlink) {
     const [actualSymlinkPointer, expectedSymlinkPointer] = [
       fs.readlinkSync(actualFilePath),
       fs.readlinkSync(expectedFilePath),
     ];
-    assert.strictEqual(actualSymlinkPointer, expectedSymlinkPointer);
+    expect(actualSymlinkPointer).toBe(expectedSymlinkPointer);
   }
 }
 
-export function isSymbolicLinkSync(path) {
+export function isSymbolicLinkSync(path: string): boolean {
   const stats = fs.lstatSync(path);
   return stats.isSymbolicLink();
 }

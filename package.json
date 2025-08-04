@@ -28,12 +28,11 @@
   "scripts": {
     "build": "tsc",
     "build:docs": "typedoc src/asar.ts",
-    "mocha": "xvfb-maybe electron-mocha && mocha",
-    "mocha:update": "mocha --update",
-    "mocha:watch": "mocha --watch",
-    "test": "yarn lint && yarn mocha",
+    "test": "yarn lint && yarn vitest run && electron node_modules/vitest/vitest.mjs run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "lint": "yarn prettier:check",
-    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.js\" \"*.js\"",
+    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" \"*.js\"",
     "prettier:check": "yarn prettier --check",
     "prettier:write": "yarn prettier --write",
     "prepare": "tsc"
@@ -45,16 +44,13 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
-    "@types/mocha": "^10.0.10",
     "@types/node": "~22.10.7",
-    "chai": "^5.2.0",
+    "@vitest/ui": "^2.0.0",
     "electron": "^34.5.0",
-    "electron-mocha": "^13.1.0",
-    "mocha": "~11.0.2",
-    "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.3",
     "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
+    "vitest": "^2.0.0",
     "xvfb-maybe": "^0.2.1"
   },
   "packageManager": "yarn@4.1.0"
