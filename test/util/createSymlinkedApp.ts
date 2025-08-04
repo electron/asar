@@ -13,7 +13,10 @@ import { walk } from './walk.js';
  * │       └── file.txt
  * └── var -> private/var
  */
-export async function createSymlinkedApp(testName, additionalFiles = {}) {
+export async function createSymlinkedApp(
+  testName?: string,
+  additionalFiles: Record<string, string> = {},
+) {
   const outDir = (testName || 'app') + Math.floor(Math.random() * 100);
   const testPath = path.join(TEST_APPS_DIR, outDir);
   const privateVarPath = path.join(testPath, 'private', 'var');

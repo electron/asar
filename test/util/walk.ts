@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // returns a list of all directories, files, and symlinks. Automates testing `ordering` logic easy and verifying unpacked directories.
-export const walk = (root) => {
-  const getPaths = (filepath, filter) =>
+export const walk = (root: string): string[] => {
+  const getPaths = (filepath: string, filter: (dirent: fs.Dirent) => boolean) =>
     fs
       .readdirSync(filepath, { withFileTypes: true })
       .filter(filter)
