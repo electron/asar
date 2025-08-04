@@ -5,9 +5,7 @@
   "type": "module",
   "exports": "./lib/asar.js",
   "types": "./lib/asar.d.ts",
-  "bin": {
-    "asar": "./bin/asar.mjs"
-  },
+  "bin": "./bin/asar.mjs",
   "files": [
     "bin",
     "lib"
@@ -30,15 +28,16 @@
   "scripts": {
     "build": "tsc",
     "build:docs": "typedoc src/asar.ts",
-    "mocha": "xvfb-maybe electron-mocha && mocha",
-    "mocha:update": "mocha --update",
-    "mocha:watch": "mocha --watch",
-    "test": "yarn lint && yarn mocha",
-    "lint": "yarn prettier:check",
-    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.js\" \"*.js\"",
+    "test": "yarn lint && yarn vitest run && xvfb-maybe electron node_modules/vitest/vitest.mjs run",
+    "test:typecheck": "cd test && tsc",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "yarn prettier:check && yarn test:typecheck",
+    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" \"*.js\"",
     "prettier:check": "yarn prettier --check",
     "prettier:write": "yarn prettier --write",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "postinstall": "tsc"
   },
   "dependencies": {
     "commander": "^13.1.0",
@@ -47,16 +46,13 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "~22.10.7",
-    "chai": "^5.2.0",
+    "@types/node": "^22.12.0",
     "electron": "^34.5.0",
-    "electron-mocha": "^13.1.0",
-    "mocha": "~11.0.2",
-    "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.3",
     "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
+    "vitest": "^3.2.4",
     "xvfb-maybe": "^0.2.1"
-  }
+  },
+  "packageManager": "yarn@4.1.0"
 }
