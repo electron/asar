@@ -28,7 +28,7 @@
   "scripts": {
     "build": "tsc",
     "build:docs": "typedoc src/asar.ts",
-    "test": "yarn lint && yarn vitest run && electron node_modules/vitest/vitest.mjs run",
+    "test": "yarn lint && yarn vitest run && xvfb-maybe electron node_modules/vitest/vitest.mjs run",
     "test:typecheck": "cd test && tsc",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -47,12 +47,11 @@
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
     "@types/node": "~22.10.7",
-    "@vitest/ui": "^2.0.0",
     "electron": "^34.5.0",
     "prettier": "^3.3.3",
     "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.0",
+    "vitest": "^3.2.4",
     "xvfb-maybe": "^0.2.1"
   },
   "packageManager": "yarn@4.1.0"
