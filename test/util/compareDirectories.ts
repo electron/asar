@@ -1,8 +1,8 @@
-import { wrappedFs as fs } from '../../lib/wrapped-fs.js';
+import { wrappedFs as fs } from '../../src/wrapped-fs.js';
 import path from 'node:path';
-import { crawl as crawlFilesystem } from '../../lib/crawlfs.js';
+import { crawl as crawlFilesystem } from '../../src/crawlfs.js';
 
-export async function compDirs(dirA, dirB) {
+export async function compDirs(dirA: string, dirB: string): Promise<void> {
   const [[pathsA, metadataA], [pathsB, metadataB]] = await Promise.all([
     crawlFilesystem(dirA, {}),
     crawlFilesystem(dirB, {}),
@@ -12,8 +12,9 @@ export async function compDirs(dirA, dirB) {
   const onlyInA = relativeA.difference(relativeB);
   const onlyInB = relativeB.difference(relativeA);
   const inBoth = new Set(pathsA).intersection(new Set(pathsB));
-  const differentFiles = [];
-  const errorMsgBuilder = [];
+  const differentFiles: string[] = [];
+  const errorMsgBuilder: string[] = [];
+
   for (const filename of inBoth) {
     const typeA = metadataA[filename].type;
     const typeB = metadataB[filename].type;
@@ -33,13 +34,14 @@ export async function compDirs(dirA, dirB) {
       differentFiles.push(filename);
     }
   }
-  if (onlyInA.length) {
+
+  if (onlyInA.size) {
     errorMsgBuilder.push(`\tEntries only in '${dirA}':`);
     for (const file of onlyInA) {
       errorMsgBuilder.push(`\t  ${file}`);
     }
   }
-  if (onlyInB.length) {
+  if (onlyInB.size) {
     errorMsgBuilder.push(`\tEntries only in '${dirB}':`);
     for (const file of onlyInB) {
       errorMsgBuilder.push(`\t  ${file}`);
