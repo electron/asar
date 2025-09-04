@@ -47,7 +47,7 @@
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
     "@types/node": "^22.12.0",
-    "electron": "^34.5.0",
+    "electron": "^35.7.5",
     "prettier": "^3.3.3",
     "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
