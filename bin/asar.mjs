@@ -2,6 +2,7 @@
 
 import packageJSON from '../package.json' with { type: 'json' };
 import { createPackageWithOptions, listPackage, extractFile, extractAll } from '../lib/asar.js';
+import { enableIntegrityDigestForApp, disableIntegrityDigestForApp, verifyIntegrityDigestForApp, printStoredIntegrityDigestForApp } from '../lib/integrity-digest.js';
 import { program } from 'commander';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -69,6 +70,26 @@ program.command('extract <archive> <dest>')
   .description('extract archive')
   .action(function (archive, dest) {
     extractAll(archive, dest)
+  })
+
+program.command('integrity-digest <app> <command>')
+  .alias('id')
+  .description('manage integrity digest in app binary')
+  .action(async function (app, command) {
+    const allowedCommands = ['on', 'off', 'status', 'verify']
+    switch (command) {
+      case 'on': await enableIntegrityDigestForApp(app)
+      break
+      case 'off': await disableIntegrityDigestForApp(app)
+      break
+      case 'status': await printStoredIntegrityDigestForApp(app)
+      break
+      case 'verify': await verifyIntegrityDigestForApp(app)
+      break
+      default:
+        console.log('Unknown integrity digest command: %s. Allowed commands are: %s', command, allowedCommands.join(', '))
+        process.exit(1)
+    }
   })
 
 program.command('*', { hidden: true})
