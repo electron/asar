@@ -41,7 +41,7 @@ function calculateIntegrityDigestV1(
     }
 }
 
-export function calculateIntegrityDigestV1ForApp(
+function calculateIntegrityDigestV1ForApp(
     appPath: string,
 ): IntegrityDigestV1 {
     const plistPath = path.join(appPath, 'Contents', 'Info.plist');
@@ -99,7 +99,7 @@ function forEachSentinelInApp(
     }
 }
 
-export function doDigestsMatch(
+function doDigestsMatch(
     digestA: AnyIntegrityDigest,
     digestB: AnyIntegrityDigest,
 ): boolean {
@@ -142,7 +142,7 @@ function sentinelIndexToDigest<T extends AnyIntegrityDigest>(
     }
 }
 
-export async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
+async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
     appPath: string,
 ): Promise<T> {
     let lastDigestFound: T | null = null;
@@ -164,7 +164,7 @@ export async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDiges
     return lastDigestFound;
 }
 
-export async function setStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
+async function setStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
     appPath: string,
     digest: T,
 ): Promise<void> {
@@ -207,7 +207,7 @@ export async function setStoredIntegrityDigestForApp<T extends AnyIntegrityDiges
 
 // High-level integrity digest management functions
 
-export function printDigest(digest: AnyIntegrityDigest, prefix: string = '') {
+function printDigest(digest: AnyIntegrityDigest, prefix: string = '') {
     const digestLogger = prefix ? (s: string, ...args: any[]) => console.log(prefix + s, ...args) : console.log;
     if (!digest.used) {
         digestLogger('Integrity digest is OFF');
