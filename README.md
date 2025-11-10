@@ -2,24 +2,25 @@
 
 [![Test](https://github.com/electron/asar/actions/workflows/test.yml/badge.svg)](https://github.com/electron/asar/actions/workflows/test.yml)
 [![npm version](http://img.shields.io/npm/v/@electron/asar.svg)](https://npmjs.org/package/@electron/asar)
+[![API docs](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.npmjs.org%2F%40electron%2Fasar%2Flatest&query=%24.version&logo=typescript&logoColor=white&label=API%20Docs)](https://packages.electronjs.org/asar)
 
-Asar is a simple extensive archive format, it works like `tar` that concatenates
-all files together without compression, while having random access support.
+ASAR is a simple extensive archive format. It concatenates all files together without compression
+(like [`tar`](https://www.gnu.org/software/tar/)) while having random access support.
 
 ## Features
 
 * Support random access
-* Use JSON to store files' information
+* Use JSON to store file information
 * Very easy to write a parser
 
-## Command line utility
+## CLI
 
 ### Install
 
 This module requires Node 22.12.0 or later.
 
 ```bash
-$ npm install --engine-strict @electron/asar
+npm install --engine-strict @electron/asar
 ```
 
 ### Usage
@@ -54,7 +55,8 @@ $ asar --help
 #### Excluding multiple resources from being packed
 
 Given:
-```
+
+```text
     app
 (a) ├── x1
 (b) ├── x2
@@ -67,21 +69,26 @@ Given:
 ```
 
 Exclude: a, b
+
 ```bash
-$ asar pack app app.asar --unpack-dir "{x1,x2}"
+asar pack app app.asar --unpack-dir "{x1,x2}"
 ```
 
 Exclude: a, b, d, f
+
 ```bash
-$ asar pack app app.asar --unpack-dir "**/{x1,x2}"
+asar pack app app.asar --unpack-dir "**/{x1,x2}"
 ```
 
 Exclude: a, b, d, f, h
+
 ```bash
-$ asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
+asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
 ```
 
-## Using programmatically
+## Programmatic usage
+
+For full API usage, see the [API documentation](https://packages.electronjs.org/asar).
 
 ### Example
 
@@ -98,6 +105,7 @@ console.log('done.');
 Please note that there is currently **no** error handling provided!
 
 ### Transform
+
 You can pass in a `transform` option, that is a function, which either returns
 nothing, or a `stream.Transform`. The latter will be used on files that will be
 in the `.asar` file to transform them (e.g. compress).
@@ -122,7 +130,7 @@ Asar uses [Pickle][pickle] to safely serialize binary value to file.
 
 The format of asar is very flat:
 
-```
+```markdown
 | UInt32: header_size | String: header | Bytes: file1 | ... | Bytes: file42 |
 ```
 
@@ -200,9 +208,10 @@ because file size in Node.js is represented as `Number` and it is not safe to
 convert `Number` to UINT64.
 
 `integrity` is an object consisting of a few keys:
+
 * A hashing `algorithm`, currently only `SHA256` is supported.
 * A hex encoded `hash` value representing the hash of the entire file.
-* An array of hex encoded hashes for the `blocks` of the file.  i.e. for a blockSize of 4KB this array contains the hash of every block if you split the file into N 4KB blocks.
-* A integer value `blockSize` representing the size in bytes of each block in the `blocks` hashes above
+* An array of hex encoded hashes for the `blocks` of the file (i.e. for a blockSize of 4KB, this array contains the hash of every block if you split the file into N 4KB blocks).
+* A integer value `blockSize` representing the size in bytes of each block in the `blocks` hashes above.
 
 [pickle]: https://chromium.googlesource.com/chromium/src/+/main/base/pickle.h
