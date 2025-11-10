@@ -2,8 +2,7 @@
 
 [![Test](https://github.com/electron/asar/actions/workflows/test.yml/badge.svg)](https://github.com/electron/asar/actions/workflows/test.yml)
 [![npm version](http://img.shields.io/npm/v/@electron/asar.svg)](https://npmjs.org/package/@electron/asar)
-[![API docs](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.npmjs.org%2F%40electron%asar%2Flatest&query=%24.version&logo=typescript&logoColor=white&label=API%20Docs
-)](https://packages.electronjs.org/asar)
+[![API docs](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.npmjs.org%2F%40electron%2Fasar%2Flatest&query=%24.version&logo=typescript&logoColor=white&label=API%20Docs)](https://packages.electronjs.org/asar)
 
 ASAR is a simple extensive archive format. It concatenates all files together without compression
 (like [`tar`](https://www.gnu.org/software/tar/)) while having random access support.
