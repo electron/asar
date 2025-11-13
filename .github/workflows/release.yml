@@ -13,9 +13,9 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     needs: test
-    environment: npm
+    environment: npm-trusted-publisher
     permissions:
-      id-token: write # for CFA and npm provenance
+      id-token: write # for publishing releases
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -24,13 +24,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version: '22.12.x'
-          cache: 'yarn'
+          node-version-file: .nvmrc
+          package-manager-cache: false
       - name: Install
-        run: yarn install --frozen-lockfile
-      - uses: continuousauth/action@4e8a2573eeb706f6d7300d6a9f3ca6322740b72d # v1.0.5
-        timeout-minutes: 60
+        run: yarn install --immutable
+      - name: Get GitHub app token
+        id: secret-service
+        uses: electron/secret-service-action@3476425e8b30555aac15b1b7096938e254b0e155 # v1.0.0
+      - name: Run semantic release
+        uses: electron/semantic-trusted-release@5eceb399ac8de8863205cf6e34109bce473ba566 # v1.0.1
         with:
-          project-id: ${{ secrets.CFA_PROJECT_ID }}
-          secret: ${{ secrets.CFA_SECRET }}
-          npm-token: ${{ secrets.NPM_TOKEN }}
+          github-token: ${{ fromJSON(steps.secret-service.outputs.secrets).GITHUB_TOKEN }}
