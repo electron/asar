@@ -5,21 +5,25 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
-permissions:
-  id-token: write
-  contents: read
+permissions: {}
 
 jobs:
   docs:
     runs-on: ubuntu-latest
     environment: docs-publish
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # tag: v6.0.2
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238  # tag: v6.2.0
         with:
           node-version: 22.12.x
+          package-manager-cache: false
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --immutable
       - name: Build API documentation
         run: yarn build:docs
       - name: Azure login
@@ -31,5 +35,5 @@ jobs:
       - name: Upload to Azure Blob Storage
         uses: azure/cli@9f7ce6f37c31b777ec6c6b6d1dfe7db79f497956  # tag: v2.2.0
         with:
-          inlineScript: |
-            az storage blob upload-batch --account-name ${{ secrets.AZURE_ECOSYSTEM_PACKAGES_STORAGE_ACCOUNT_NAME }} -d '$web/asar/${{ github.ref_name }}' -s ./docs --overwrite --auth-mode login
+          inlineScript: | # zizmor: ignore[template-injection] This only runs on tags
+            az storage blob upload-batch --account-name ${{ secrets.AZURE_ECOSYSTEM_PACKAGES_STORAGE_ACCOUNT_NAME }} -d '$web/get/${{ github.ref_name }}' -s ./docs --overwrite --auth-mode login
