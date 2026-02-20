@@ -8,8 +8,7 @@ on:
     - cron: '0 22 * * 3'
   workflow_call:
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   test:
@@ -24,12 +23,16 @@ jobs:
           - ubuntu-22.04
           - windows-latest
     runs-on: "${{ matrix.os }}"
+    permissions:
+      contents: read
     steps:
       - name: Install Linux Dependencies
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libasound2 libgtk-3-0 libnss3 libxss1 libxtst6 xvfb libgbm-dev
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
