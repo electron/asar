@@ -36,6 +36,18 @@ type AnyIntegrityDigest = DigestByVersion[keyof DigestByVersion];
 
 type AsarIntegrity = Record<string, Pick<FileRecord['integrity'], 'algorithm' | 'hash'>>;
 
+function isValidAsarIntegrity(asarIntegrity: any): asarIntegrity is AsarIntegrity {
+  if (typeof asarIntegrity !== 'object' || asarIntegrity === null) return false;
+  if (Object.keys(asarIntegrity).length !== 0) return false;
+  for (const key of Object.keys(asarIntegrity)) {
+    if (typeof key !== 'string') return false;
+    if (typeof asarIntegrity[key] !== 'object' || asarIntegrity[key] === null) return false;
+    if (typeof asarIntegrity[key].algorithm !== 'string') return false;
+    if (typeof asarIntegrity[key].hash !== 'string') return false;
+  }
+  return true;
+}
+
 /**
  * Calculates the v1 integrity digest for the app.
  * @see https://github.com/electron/electron/blob/2d5597b1b0fa697905380184e26c9f0947e05c5d/shell/common/asar/integrity_digest.mm#L52-L66
@@ -68,7 +80,10 @@ function calculateIntegrityDigestV1ForApp(appPath: string): IntegrityDigestV1 {
   const plistPath = path.join(appPath, 'Contents', 'Info.plist');
   const plistBuffer = fs.readFileSync(plistPath);
   const plistData = plist.parse(plistBuffer.toString()) as Record<string, any>;
-  const asarIntegrity = plistData['ElectronAsarIntegrity'] as AsarIntegrity;
+  const asarIntegrity = plistData['ElectronAsarIntegrity'];
+  if (!isValidAsarIntegrity(asarIntegrity)) {
+    throw new Error('Invalid ASAR Integrity information in Info.plist');
+  }
   return calculateIntegrityDigestV1(asarIntegrity);
 }
 
