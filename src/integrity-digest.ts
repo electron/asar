@@ -232,9 +232,9 @@ export function calculateIntegrityDigestForApp<Version extends keyof DigestByVer
  * @param appPath - The path to the app bundle.
  * @returns The stored integrity digest for the app.
  */
-export async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
+export function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
   appPath: string,
-): Promise<T> {
+): T {
   let lastDigestFound: T | null = null;
   forEachSentinelInApp(appPath, (sentinelIndex, integrityFile) => {
     const currentDigest = sentinelIndexToDigest<T>(integrityFile, sentinelIndex);
@@ -257,10 +257,10 @@ export async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDiges
  * @param digest - The integrity digest to set.
  * @returns The stored integrity digest for the app.
  */
-export async function setStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
+export function setStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
   appPath: string,
   digest: T,
-): Promise<void> {
+): void {
   if (digest.used === true && digest.version !== 1) {
     throw new UnknownIntegrityDigestVersionError(digest.version);
   }
