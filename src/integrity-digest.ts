@@ -82,12 +82,40 @@ function calculateIntegrityDigestV1ForApp(appPath: string): IntegrityDigestV1 {
   const plistData = plist.parse(plistBuffer.toString()) as Record<string, any>;
   const asarIntegrity = plistData['ElectronAsarIntegrity'];
   if (!isValidAsarIntegrity(asarIntegrity)) {
-    throw new Error('Invalid ASAR Integrity information in Info.plist');
+    throw new InvalidAsarIntegrityError();
   }
   return calculateIntegrityDigestV1(asarIntegrity);
 }
 
-/// Integrity digest handling errors
+/// Integrity digest handling errors (API)
+
+export const InvalidAppPathError = class extends Error {
+  constructor() {
+    super('Invalid app path');
+    this.name = 'InvalidAppPathError';
+  }
+};
+
+export const InvalidAsarIntegrityError = class extends Error {
+  constructor() {
+    super('Invalid ASAR Integrity information in Info.plist');
+    this.name = 'InvalidAsarIntegrityError';
+  }
+};
+
+export const MissingIntegrityDigestError = class extends Error {
+  constructor() {
+    super('No integrity digest found in the binary');
+    this.name = 'MissingIntegrityDigestError';
+  }
+};
+
+export const MultipleDifferentIntegrityDigestsError = class extends Error {
+  constructor() {
+    super('Multiple different integrity digests found in the binary');
+    this.name = 'MultipleDifferentIntegrityDigestsError';
+  }
+};
 
 const UnknownIntegrityDigestVersionError = class extends Error {
   constructor(version: number) {
@@ -113,7 +141,7 @@ function pathToIntegrityDigestFile(appPath: string) {
       'Electron Framework',
     );
   }
-  throw new Error('App path must be an .app bundle');
+  throw new InvalidAppPathError();
 }
 
 function forEachSentinelInApp(
@@ -213,12 +241,12 @@ export async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDiges
     if (lastDigestFound === null) {
       lastDigestFound = currentDigest;
     } else if (!doDigestsMatch(currentDigest, lastDigestFound)) {
-      throw new Error('Multiple differing integrity digests found in the binary');
+      throw new MultipleDifferentIntegrityDigestsError();
     }
     lastDigestFound = currentDigest;
   });
   if (lastDigestFound === null) {
-    throw new Error('No integrity digest found in the binary');
+    throw new MissingIntegrityDigestError();
   }
   return lastDigestFound;
 }

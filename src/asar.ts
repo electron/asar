@@ -414,4 +414,8 @@ export {
   calculateIntegrityDigestForApp,
   getStoredIntegrityDigestForApp,
   setStoredIntegrityDigestForApp,
+  InvalidAppPathError,
+  InvalidAsarIntegrityError,
+  MissingIntegrityDigestError,
+  MultipleDifferentIntegrityDigestsError,
 } from './integrity-digest.js';
