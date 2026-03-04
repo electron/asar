@@ -131,10 +131,11 @@ describe('integrity digest integration', () => {
 
     const electronVersion = await getTargetElectronVersion();
     const parsedElectronVersion = semver.parse(electronVersion);
-    if (!parsedElectronVersion || 41 > parsedElectronVersion.major) {
-      throw new Error(
-        `The integrity digest is only supported for Electron >=41. Got ${electronVersion}.`,
-      );
+    if (!parsedElectronVersion) {
+      throw new Error(`Failed to parse Electron version: ${electronVersion}`);
+    }
+    if (parsedElectronVersion.major < 41) {
+      throw new Error(`The integrity digest is only supported for Electron >=41. Got ${electronVersion}.`);
     }
 
     // Step 1: download and extract the Electron app.
