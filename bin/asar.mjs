@@ -79,14 +79,18 @@ program.command('integrity-digest <command> <app>')
     // No platform guard just in case users want to run this on other platforms
     const allowedCommands = ['on', 'off', 'status', 'verify']
     switch (command) {
-      case 'on': await enableIntegrityDigestForApp(app)
-      break
-      case 'off': await disableIntegrityDigestForApp(app)
-      break
-      case 'status': await printStoredIntegrityDigestForApp(app)
-      break
-      case 'verify': await verifyIntegrityDigestForApp(app)
-      break
+      case 'on':
+        await enableIntegrityDigestForApp(app)
+        break
+      case 'off':
+        await disableIntegrityDigestForApp(app)
+        break
+      case 'status':
+        await printStoredIntegrityDigestForApp(app)
+        break
+      case 'verify':
+        await verifyIntegrityDigestForApp(app)
+        break
       default:
         console.log('Unknown integrity digest command: %s. Allowed commands are: %s', command, allowedCommands.join(', '))
         process.exit(1)
