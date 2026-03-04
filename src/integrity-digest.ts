@@ -89,35 +89,35 @@ function calculateIntegrityDigestV1ForApp(appPath: string): IntegrityDigestV1 {
 
 /// Integrity digest handling errors (API)
 
-export const InvalidAppPathError = class extends Error {
+export class InvalidAppPathError extends Error {
   constructor() {
     super('Invalid app path');
     this.name = 'InvalidAppPathError';
   }
 };
 
-export const InvalidAsarIntegrityError = class extends Error {
+export class InvalidAsarIntegrityError extends Error {
   constructor() {
     super('Invalid ASAR Integrity information in Info.plist');
     this.name = 'InvalidAsarIntegrityError';
   }
 };
 
-export const MissingIntegrityDigestError = class extends Error {
+export class MissingIntegrityDigestError extends Error {
   constructor() {
     super('No integrity digest found in the binary');
     this.name = 'MissingIntegrityDigestError';
   }
 };
 
-export const MultipleDifferentIntegrityDigestsError = class extends Error {
+export class MultipleDifferentIntegrityDigestsError extends Error {
   constructor() {
     super('Multiple different integrity digests found in the binary');
     this.name = 'MultipleDifferentIntegrityDigestsError';
   }
 };
 
-const UnknownIntegrityDigestVersionError = class extends Error {
+export class UnknownIntegrityDigestVersionError extends Error {
   constructor(version: number) {
     super(`Unknown integrity digest version: ${version}`);
     this.name = 'UnknownIntegrityDigestVersionError';

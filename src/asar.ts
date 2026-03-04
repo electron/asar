@@ -418,4 +418,5 @@ export {
   InvalidAsarIntegrityError,
   MissingIntegrityDigestError,
   MultipleDifferentIntegrityDigestsError,
+  UnknownIntegrityDigestVersionError,
 } from './integrity-digest.js';
