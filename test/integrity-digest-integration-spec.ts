@@ -113,11 +113,14 @@ describe('integrity digest integration', () => {
   it('downloads an app, enables ASAR integrity, and verifies digest survives launch', async ({
     skip,
   }) => {
+    if (process.versions.electron) {
+      skip(); // Running under Electron, skip. This test only works when running under Node.js.
+    }
     if (process.platform !== 'darwin') {
-      skip();
+      skip(); // Not macOS, skip. The integrity digest feature is only available on macOS.
     }
     if (!process.env.CI) {
-      skip();
+      skip(); // Not CI, skip. We only want to run this test in CI.
     }
 
     const baseDir = path.join(TEST_APPS_DIR, 'integrity-digest-integration');
