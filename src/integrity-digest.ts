@@ -38,7 +38,7 @@ type AsarIntegrity = Record<string, Pick<FileRecord['integrity'], 'algorithm' | 
 
 function isValidAsarIntegrity(asarIntegrity: any): asarIntegrity is AsarIntegrity {
   if (typeof asarIntegrity !== 'object' || asarIntegrity === null) return false;
-  if (Object.keys(asarIntegrity).length !== 0) return false;
+  if (Object.keys(asarIntegrity).length === 0) return false;
   for (const key of Object.keys(asarIntegrity)) {
     if (typeof key !== 'string') return false;
     if (typeof asarIntegrity[key] !== 'object' || asarIntegrity[key] === null) return false;
@@ -232,9 +232,7 @@ export function calculateIntegrityDigestForApp<Version extends keyof DigestByVer
  * @param appPath - The path to the app bundle.
  * @returns The stored integrity digest for the app.
  */
-export function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
-  appPath: string,
-): T {
+export function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(appPath: string): T {
   let lastDigestFound: T | null = null;
   forEachSentinelInApp(appPath, (sentinelIndex, integrityFile) => {
     const currentDigest = sentinelIndexToDigest<T>(integrityFile, sentinelIndex);
