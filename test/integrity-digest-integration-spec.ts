@@ -135,7 +135,9 @@ describe('integrity digest integration', () => {
       throw new Error(`Failed to parse Electron version: ${electronVersion}`);
     }
     if (parsedElectronVersion.major < 41) {
-      throw new Error(`The integrity digest is only supported for Electron >=41. Got ${electronVersion}.`);
+      throw new Error(
+        `The integrity digest is only supported for Electron >=41. Got ${electronVersion}.`,
+      );
     }
 
     // Step 1: download and extract the Electron app.
