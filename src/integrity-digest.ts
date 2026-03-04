@@ -72,7 +72,7 @@ function calculateIntegrityDigestV1(asarIntegrity: AsarIntegrity): IntegrityDige
 
 /**
  * Reads the integrity information from the Info.plist of the given app
- *  bundle and calculates the v1 integrity digest for the app.
+ * bundle and calculates the v1 integrity digest for the app.
  * @param appPath - The path to the app bundle.
  * @returns The v1 integrity digest for the app.
  */
