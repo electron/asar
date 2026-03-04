@@ -1,7 +1,7 @@
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { promisify } from 'node:util';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { describe, expect, it } from 'vitest';
 import plist from 'plist';
 import semver from 'semver';
@@ -94,8 +94,6 @@ async function getTargetElectronVersion(): Promise<string> {
     `Could not find matching Electron version for major=${targetMajorVersion}, channel=${configuredReleaseChannel}`,
   );
 }
-
-const sleep = promisify(setTimeout);
 
 function runCommand(command: string, args: string[]) {
   return new Promise<void>((resolve, reject) => {
