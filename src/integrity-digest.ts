@@ -94,35 +94,35 @@ export class InvalidAppPathError extends Error {
     super('Invalid app path');
     this.name = 'InvalidAppPathError';
   }
-};
+}
 
 export class InvalidAsarIntegrityError extends Error {
   constructor() {
     super('Invalid ASAR Integrity information in Info.plist');
     this.name = 'InvalidAsarIntegrityError';
   }
-};
+}
 
 export class MissingIntegrityDigestError extends Error {
   constructor() {
     super('No integrity digest found in the binary');
     this.name = 'MissingIntegrityDigestError';
   }
-};
+}
 
 export class MultipleDifferentIntegrityDigestsError extends Error {
   constructor() {
     super('Multiple different integrity digests found in the binary');
     this.name = 'MultipleDifferentIntegrityDigestsError';
   }
-};
+}
 
 export class UnknownIntegrityDigestVersionError extends Error {
   constructor(version: number) {
     super(`Unknown integrity digest version: ${version}`);
     this.name = 'UnknownIntegrityDigestVersionError';
   }
-};
+}
 
 // Integrity digest storage and retrieval helpers
 
