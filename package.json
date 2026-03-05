@@ -33,11 +33,11 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "lint": "yarn prettier:check && yarn test:typecheck",
-    "prettier": "prettier \"src/**/*.ts\" \"test/**/*.ts\" \"*.js\"",
+    "prettier": "prettier \"src/**/*.{ts,cts,mts}\" \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs}\"",
     "prettier:check": "yarn prettier --check",
     "prettier:write": "yarn prettier --write",
-    "prepare": "tsc",
-    "postinstall": "tsc"
+    "prepack": "yarn build",
+    "prepare": "husky"
   },
   "dependencies": {
     "commander": "^13.1.0",
@@ -53,7 +53,9 @@
     "@types/plist": "^3.0.5",
     "@types/semver": "^7.7.1",
     "electron": "^35.7.5",
-    "prettier": "^3.3.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
     "semver": "^7.7.4",
     "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
@@ -65,5 +67,11 @@
     "electron": {
       "built": true
     }
+  },
+  "lint-staged": {
+    "*.{json,md}": "prettier --write --experimental-cli",
+    "*.{js,ts, cjs, mjs, cts, mts}": [
+      "prettier --write --experimental-cli"
+    ]
   }
 }
