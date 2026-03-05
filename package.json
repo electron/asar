@@ -42,15 +42,21 @@
   "dependencies": {
     "commander": "^13.1.0",
     "glob": "^13.0.2",
-    "minimatch": "^10.0.1"
+    "minimatch": "^10.0.1",
+    "plist": "^3.1.0"
   },
   "devDependencies": {
+    "@electron/fuses": "^2.1.0",
+    "@electron/get": "^4.0.2",
     "@tsconfig/node22": "^22.0.1",
     "@types/node": "^22.12.0",
+    "@types/plist": "^3.0.5",
+    "@types/semver": "^7.7.1",
     "electron": "^35.7.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
+    "semver": "^7.7.4",
     "typedoc": "~0.25.13",
     "typescript": "^5.5.4",
     "vitest": "^3.2.4",

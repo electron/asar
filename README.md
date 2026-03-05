@@ -44,6 +44,9 @@ $ asar --help
     extract|e <archive> <dest>
        extract archive
 
+    integrity-digest|id <command> <app>
+       manage integrity digest in app binary (macOS only)
+
 
   Options:
 
@@ -53,6 +56,7 @@ $ asar --help
 ```
 
 #### Excluding multiple resources from being packed
+
 
 Given:
 
@@ -84,6 +88,30 @@ Exclude: a, b, d, f, h
 
 ```bash
 asar pack app app.asar --unpack-dir "{**/x1,**/x2,z4/w1}"
+```
+
+#### Integrity digest
+
+The integrity digest is a macOS-specific feature that further hardens apps which utilize [ASAR Integrity](https://www.electronjs.org/docs/latest/tutorial/asar-integrity) from tampering by storing a hash of the integrity info within the code of the app itself. If you modify this hash, you ***must*** re-sign your app afterwards. By default, this feature is off.
+
+To enable the integrity digest, run:
+```bash
+asar integrity-digest on /path/to/YourApp.app
+```
+
+To disable the integrity digest, run:
+```bash
+asar integrity-digest off /path/to/YourApp.app
+```
+
+To see the status of the integrity digest, run:
+```bash
+asar integrity-digest status /path/to/YourApp.app
+```
+
+To verify the status of the integrity digest, run:
+```bash
+asar integrity-digest verify /path/to/YourApp.app
 ```
 
 ## Programmatic usage
