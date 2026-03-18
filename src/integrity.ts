@@ -68,7 +68,7 @@ export async function getFileIntegrity(
 
 export type ArchiveIntegrity = Pick<FileRecord['integrity'], 'algorithm' | 'hash'>;
 
-export function getArchiveIntegrity(archivePath: string) {
+export function getArchiveIntegrity(archivePath: string): ArchiveIntegrity {
   const { headerString } = getRawHeader(archivePath);
   return {
     algorithm: 'SHA256',
