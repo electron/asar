@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import stream from 'node:stream';
 import streamPromises from 'node:stream/promises';
+import { FileRecord, getRawHeader } from './asar.js';
 
 const ALGORITHM = 'SHA256';
 // 4MB default block size
@@ -62,5 +63,15 @@ export async function getFileIntegrity(
     hash: fileHash.digest('hex'),
     blockSize: BLOCK_SIZE,
     blocks: blockHashes,
+  };
+}
+
+export type ArchiveIntegrity = Pick<FileRecord['integrity'], 'algorithm' | 'hash'>;
+
+export function getArchiveIntegrity(archivePath: string) {
+  const { headerString } = getRawHeader(archivePath);
+  return {
+    algorithm: 'SHA256',
+    hash: crypto.createHash('SHA256').update(headerString).digest('hex'),
   };
 }

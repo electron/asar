@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import plist from 'plist';
 
 import { wrappedFs as fs } from './wrapped-fs.js';
-import { FileRecord } from './disk.js';
+import { ArchiveIntegrity } from './integrity.js';
 
 // Integrity digest type definitions
 
@@ -34,7 +34,7 @@ type AnyIntegrityDigest = DigestByVersion[keyof DigestByVersion];
 
 // Integrity digest calculation functions
 
-type AsarIntegrity = Record<string, Pick<FileRecord['integrity'], 'algorithm' | 'hash'>>;
+type AsarIntegrity = Record<string, ArchiveIntegrity>;
 
 function isValidAsarIntegrity(asarIntegrity: any): asarIntegrity is AsarIntegrity {
   if (typeof asarIntegrity !== 'object' || asarIntegrity === null) return false;
