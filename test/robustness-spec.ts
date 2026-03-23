@@ -607,11 +607,13 @@ describe('robustness', () => {
     });
 
     it('should handle deeply nested directories', async () => {
-      const deepPath = Array.from({ length: 20 }, (_, i) => `d${i}`).join('/');
+      const parts = Array.from({ length: 20 }, (_, i) => `d${i}`);
+      const deepPath = parts.join('/');
       const src = createFixture('deep-nest', { [`${deepPath}/file.txt`]: 'deep' });
       const dest = path.join(TEST_APPS_DIR, 'deep-nest.asar');
       await createPackage(src, dest);
-      expect(extractFile(dest, `${deepPath}/file.txt`).toString()).toBe('deep');
+      const extractPath = path.join(...parts, 'file.txt');
+      expect(extractFile(dest, extractPath).toString()).toBe('deep');
     });
   });
 
