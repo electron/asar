@@ -7,9 +7,7 @@ describe('ensureWithin', () => {
   const container = '/archive.asar.unpacked';
 
   it('should return resolved path for valid filenames', () => {
-    expect(ensureWithin(container, 'file.txt')).toBe(
-      path.resolve(container, 'file.txt'),
-    );
+    expect(ensureWithin(container, 'file.txt')).toBe(path.resolve(container, 'file.txt'));
     expect(ensureWithin(container, 'sub/dir/file.txt')).toBe(
       path.resolve(container, 'sub/dir/file.txt'),
     );
@@ -22,9 +20,7 @@ describe('ensureWithin', () => {
   });
 
   it('should allow .. that stays within container', () => {
-    expect(ensureWithin(container, 'sub/../file.txt')).toBe(
-      path.resolve(container, 'file.txt'),
-    );
+    expect(ensureWithin(container, 'sub/../file.txt')).toBe(path.resolve(container, 'file.txt'));
   });
 
   it('should throw for absolute paths outside container', () => {
