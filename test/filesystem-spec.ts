@@ -3,7 +3,7 @@ import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import path from 'node:path';
 import { createSymlinkedApp } from './util/createSymlinkedApp.js';
 import { TEST_APPS_DIR } from './util/constants.js';
-import { Filesystem } from '../src/filesystem.js';
+import { Filesystem, FilesystemEntry } from '../src/filesystem.js';
 import {
   createPackage,
   createPackageWithOptions,
@@ -85,6 +85,147 @@ describe('filesystem', () => {
       await createPackage(src, dest);
       const extractPath = path.join(...parts, 'file.txt');
       expect(extractFile(dest, extractPath).toString()).toBe('deep');
+    });
+  });
+
+  describe('symlink recursion protection', () => {
+    function createFilesystemWithHeader(header: FilesystemEntry): Filesystem {
+      const filesystem = new Filesystem('/tmp/fake-asar');
+      filesystem.setHeader(header, 0);
+      return filesystem;
+    }
+
+    it('should detect direct circular symlink (A → B → A) in getFile', () => {
+      // dirA/fileA is a symlink to dirB/fileB, and dirB/fileB is a symlink to dirA/fileA
+      const header: FilesystemEntry = {
+        files: {
+          dirA: {
+            files: {
+              fileA: { link: 'dirB/fileB' },
+            },
+          },
+          dirB: {
+            files: {
+              fileB: { link: 'dirA/fileA' },
+            },
+          },
+        },
+      };
+      const filesystem = createFilesystemWithHeader(header);
+      expect(() => filesystem.getFile('dirA/fileA')).toThrow(/circular symlink detected/);
+    });
+
+    it('should detect circular symlink chain (A → B → C → A) in getFile', () => {
+      const header: FilesystemEntry = {
+        files: {
+          dirA: {
+            files: {
+              fileA: { link: 'dirB/fileB' },
+            },
+          },
+          dirB: {
+            files: {
+              fileB: { link: 'dirC/fileC' },
+            },
+          },
+          dirC: {
+            files: {
+              fileC: { link: 'dirA/fileA' },
+            },
+          },
+        },
+      };
+      const filesystem = createFilesystemWithHeader(header);
+      expect(() => filesystem.getFile('dirA/fileA')).toThrow(/circular symlink detected/);
+    });
+
+    it('should detect self-referencing symlink in getFile', () => {
+      const header: FilesystemEntry = {
+        files: {
+          dir: {
+            files: {
+              file: { link: 'dir/file' },
+            },
+          },
+        },
+      };
+      const filesystem = createFilesystemWithHeader(header);
+      expect(() => filesystem.getFile('dir/file')).toThrow(/circular symlink detected/);
+    });
+
+    it('should detect circular symlink in getNode via directory link', () => {
+      // A directory that is a symlink creating a cycle
+      const header: FilesystemEntry = {
+        files: {
+          dirA: { link: 'dirB' },
+          dirB: { link: 'dirA' },
+        },
+      };
+      const filesystem = createFilesystemWithHeader(header);
+      expect(() => filesystem.getNode('dirA/somefile')).toThrow(
+        /circular symlink detected|too many levels of symbolic links/,
+      );
+    });
+
+    it('should enforce max symlink depth limit in getFile', () => {
+      // Build a chain of 50 symlinks: file0 → file1 → file2 → ... → file49 → file50 (not a link)
+      // This exceeds the 40 depth limit
+      const files: Record<string, any> = {};
+      for (let i = 0; i < 50; i++) {
+        files[`file${i}`] = { link: `file${i + 1}` };
+      }
+      files['file50'] = {
+        unpacked: false,
+        executable: false,
+        offset: '0',
+        size: 10,
+        integrity: { algorithm: 'SHA256', hash: 'abc', blockSize: 0, blocks: [] },
+      };
+      const header: FilesystemEntry = { files };
+      const filesystem = createFilesystemWithHeader(header);
+      expect(() => filesystem.getFile('file0')).toThrow(/too many levels of symbolic links/);
+    });
+
+    it('should resolve symlinks within the depth limit', () => {
+      // Build a chain of 5 symlinks: file0 → file1 → ... → file5 (real file)
+      const files: Record<string, any> = {};
+      for (let i = 0; i < 5; i++) {
+        files[`file${i}`] = { link: `file${i + 1}` };
+      }
+      files['file5'] = {
+        unpacked: false,
+        executable: false,
+        offset: '0',
+        size: 10,
+        integrity: { algorithm: 'SHA256', hash: 'abc', blockSize: 0, blocks: [] },
+      };
+      const header: FilesystemEntry = { files };
+      const filesystem = createFilesystemWithHeader(header);
+      const result = filesystem.getFile('file0');
+      expect(result).toBeDefined();
+      expect('size' in result).toBe(true);
+    });
+
+    it('should not follow symlinks when followLinks is false', () => {
+      const header: FilesystemEntry = {
+        files: {
+          dirA: {
+            files: {
+              fileA: { link: 'dirB/fileB' },
+            },
+          },
+          dirB: {
+            files: {
+              fileB: { link: 'dirA/fileA' },
+            },
+          },
+        },
+      };
+      const filesystem = createFilesystemWithHeader(header);
+      // Should not throw because we're not following links
+      const result = filesystem.getFile('dirA/fileA', false);
+      expect(result).toBeDefined();
+      expect('link' in result).toBe(true);
     });
   });
 });
