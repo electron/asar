@@ -17,19 +17,34 @@ class HeaderValidationError extends Error {
 
 function validateFileEntry(entry: Record<string, unknown>, entryPath: string): void {
   if (typeof entry.offset !== 'string') {
-    throw new HeaderValidationError(entryPath, `"offset" must be a string, got ${typeof entry.offset}`);
+    throw new HeaderValidationError(
+      entryPath,
+      `"offset" must be a string, got ${typeof entry.offset}`,
+    );
   }
   if (!/^\d+$/.test(entry.offset)) {
-    throw new HeaderValidationError(entryPath, `"offset" must be a numeric string, got "${entry.offset}"`);
+    throw new HeaderValidationError(
+      entryPath,
+      `"offset" must be a numeric string, got "${entry.offset}"`,
+    );
   }
   if (typeof entry.size !== 'number' || !Number.isFinite(entry.size) || entry.size < 0) {
-    throw new HeaderValidationError(entryPath, `"size" must be a non-negative number, got ${JSON.stringify(entry.size)}`);
+    throw new HeaderValidationError(
+      entryPath,
+      `"size" must be a non-negative number, got ${JSON.stringify(entry.size)}`,
+    );
   }
   if (entry.unpacked !== undefined && typeof entry.unpacked !== 'boolean') {
-    throw new HeaderValidationError(entryPath, `"unpacked" must be a boolean, got ${typeof entry.unpacked}`);
+    throw new HeaderValidationError(
+      entryPath,
+      `"unpacked" must be a boolean, got ${typeof entry.unpacked}`,
+    );
   }
   if (entry.executable !== undefined && typeof entry.executable !== 'boolean') {
-    throw new HeaderValidationError(entryPath, `"executable" must be a boolean, got ${typeof entry.executable}`);
+    throw new HeaderValidationError(
+      entryPath,
+      `"executable" must be a boolean, got ${typeof entry.executable}`,
+    );
   }
   if (entry.integrity !== undefined) {
     validateIntegrity(entry.integrity, entryPath);
@@ -38,13 +53,19 @@ function validateFileEntry(entry: Record<string, unknown>, entryPath: string): v
 
 function validateUnpackedFileEntry(entry: Record<string, unknown>, entryPath: string): void {
   if (typeof entry.size !== 'number' || !Number.isFinite(entry.size) || entry.size < 0) {
-    throw new HeaderValidationError(entryPath, `"size" must be a non-negative number, got ${JSON.stringify(entry.size)}`);
+    throw new HeaderValidationError(
+      entryPath,
+      `"size" must be a non-negative number, got ${JSON.stringify(entry.size)}`,
+    );
   }
   if (entry.unpacked !== true) {
     throw new HeaderValidationError(entryPath, `"unpacked" must be true for unpacked file entries`);
   }
   if (entry.executable !== undefined && typeof entry.executable !== 'boolean') {
-    throw new HeaderValidationError(entryPath, `"executable" must be a boolean, got ${typeof entry.executable}`);
+    throw new HeaderValidationError(
+      entryPath,
+      `"executable" must be a boolean, got ${typeof entry.executable}`,
+    );
   }
   if (entry.integrity !== undefined) {
     validateIntegrity(entry.integrity, entryPath);
@@ -113,7 +134,10 @@ function validateHeaderEntry(entry: unknown, entryPath: string): void {
   } else if ('unpacked' in rec && rec.unpacked === true && 'size' in rec) {
     validateUnpackedFileEntry(rec, entryPath);
   } else {
-    throw new HeaderValidationError(entryPath, 'entry must be a directory (with "files"), a file (with "offset" or "unpacked"), or a link (with "link")');
+    throw new HeaderValidationError(
+      entryPath,
+      'entry must be a directory (with "files"), a file (with "offset" or "unpacked"), or a link (with "link")',
+    );
   }
 }
 
