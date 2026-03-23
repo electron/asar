@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import path from 'node:path';
 import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import { Pickle } from '../src/pickle.js';
-import { readArchiveHeaderSync, readFileSync, uncacheAll } from '../src/disk.js';
+import { readArchiveHeaderSync, uncacheAll } from '../src/disk.js';
 import { extractFile } from '../src/asar.js';
 import { TEST_APPS_DIR } from './util/constants.js';
 
