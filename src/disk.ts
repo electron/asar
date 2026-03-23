@@ -220,7 +220,12 @@ export function readFileSync(filesystem: Filesystem, filename: string, info: Fil
   }
   if (info.unpacked) {
     // it's an unpacked file, copy it.
-    buffer = fs.readFileSync(path.join(`${filesystem.getRootPath()}.unpacked`, filename));
+    const unpackedDir = `${filesystem.getRootPath()}.unpacked`;
+    const resolvedPath = path.resolve(unpackedDir, filename);
+    if (!resolvedPath.startsWith(unpackedDir + path.sep) && resolvedPath !== unpackedDir) {
+      throw new Error(`File "${filename}" traverses outside the unpacked directory`);
+    }
+    buffer = fs.readFileSync(resolvedPath);
   } else {
     // Node throws an exception when reading 0 bytes into a 0-size buffer,
     // so we short-circuit the read in this case.
