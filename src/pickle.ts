@@ -232,7 +232,9 @@ export class Pickle {
 
   resize(newCapacity: number) {
     newCapacity = alignInt(newCapacity, PAYLOAD_UNIT);
-    this.header = Buffer.concat([this.header, Buffer.alloc(newCapacity)]);
+    const newHeader = Buffer.alloc(this.headerSize + newCapacity);
+    this.header.copy(newHeader, 0, 0, this.headerSize + this.writeOffset);
+    this.header = newHeader;
     this.capacityAfterHeader = newCapacity;
   }
 }

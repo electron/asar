@@ -78,7 +78,10 @@ const writeFileListToStream = async function (
     const link = await fs.readlink(file.filename);
     await createSymlink(dest, filename, link);
   }
-  return out.end();
+  return new Promise<void>((resolve, reject) => {
+    out.on('error', reject);
+    out.end(() => resolve());
+  });
 };
 
 export async function writeFilesystem(
@@ -115,7 +118,10 @@ export async function streamFilesystem(
     // the symlink needs to be recreated outside in .unpacked
     await createSymlink(dest, file.filename, file.link!);
   }
-  return out.end();
+  return new Promise<void>((resolve, reject) => {
+    out.on('error', reject);
+    out.end(() => resolve());
+  });
 }
 
 export interface FileRecord extends FilesystemFileEntry {

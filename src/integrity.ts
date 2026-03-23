@@ -50,8 +50,10 @@ export async function getFileIntegrity(
         callback();
       },
       flush(callback) {
-        blockHashes.push(hashBlock(Buffer.concat(currentBlock)));
-        currentBlock = [];
+        if (currentBlockSize > 0 || blockHashes.length === 0) {
+          blockHashes.push(hashBlock(Buffer.concat(currentBlock)));
+          currentBlock = [];
+        }
         callback();
       },
     }),
