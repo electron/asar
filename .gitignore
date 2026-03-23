@@ -11,3 +11,4 @@ npm-debug.log
 lib
 docs
 .yarn/install-state.gz
+package-lock.json
