@@ -226,7 +226,20 @@ export function readFileSync(filesystem: Filesystem, filename: string, info: Fil
     // so we short-circuit the read in this case.
     const fd = fs.openSync(filesystem.getRootPath(), 'r');
     try {
-      const offset = 8 + filesystem.getHeaderSize() + parseInt(info.offset);
+      const fileOffset = parseInt(info.offset);
+      if (Number.isNaN(fileOffset) || fileOffset < 0 || !Number.isSafeInteger(fileOffset)) {
+        throw new Error(`Invalid file offset in archive header: ${info.offset}`);
+      }
+      const offset = 8 + filesystem.getHeaderSize() + fileOffset;
+      if (!Number.isSafeInteger(offset)) {
+        throw new Error(`Computed offset exceeds safe integer range`);
+      }
+      const archiveSize = fs.statSync(filesystem.getRootPath()).size;
+      if (offset < 0 || offset + info.size > archiveSize) {
+        throw new Error(
+          `File entry extends beyond archive boundary (offset=${offset}, size=${info.size}, archiveSize=${archiveSize})`,
+        );
+      }
       fs.readSync(fd, buffer, 0, info.size, offset);
     } finally {
       fs.closeSync(fd);
