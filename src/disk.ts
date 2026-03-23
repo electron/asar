@@ -8,6 +8,126 @@ import stream from 'node:stream/promises';
 
 let filesystemCache: Record<string, Filesystem | undefined> = Object.create(null);
 
+class HeaderValidationError extends Error {
+  constructor(path: string, message: string) {
+    super(`Invalid archive header at "${path}": ${message}`);
+    this.name = 'HeaderValidationError';
+  }
+}
+
+function validateFileEntry(entry: Record<string, unknown>, entryPath: string): void {
+  if (typeof entry.offset !== 'string') {
+    throw new HeaderValidationError(entryPath, `"offset" must be a string, got ${typeof entry.offset}`);
+  }
+  if (!/^\d+$/.test(entry.offset)) {
+    throw new HeaderValidationError(entryPath, `"offset" must be a numeric string, got "${entry.offset}"`);
+  }
+  if (typeof entry.size !== 'number' || !Number.isFinite(entry.size) || entry.size < 0) {
+    throw new HeaderValidationError(entryPath, `"size" must be a non-negative number, got ${JSON.stringify(entry.size)}`);
+  }
+  if (entry.unpacked !== undefined && typeof entry.unpacked !== 'boolean') {
+    throw new HeaderValidationError(entryPath, `"unpacked" must be a boolean, got ${typeof entry.unpacked}`);
+  }
+  if (entry.executable !== undefined && typeof entry.executable !== 'boolean') {
+    throw new HeaderValidationError(entryPath, `"executable" must be a boolean, got ${typeof entry.executable}`);
+  }
+  if (entry.integrity !== undefined) {
+    validateIntegrity(entry.integrity, entryPath);
+  }
+}
+
+function validateUnpackedFileEntry(entry: Record<string, unknown>, entryPath: string): void {
+  if (typeof entry.size !== 'number' || !Number.isFinite(entry.size) || entry.size < 0) {
+    throw new HeaderValidationError(entryPath, `"size" must be a non-negative number, got ${JSON.stringify(entry.size)}`);
+  }
+  if (entry.unpacked !== true) {
+    throw new HeaderValidationError(entryPath, `"unpacked" must be true for unpacked file entries`);
+  }
+  if (entry.executable !== undefined && typeof entry.executable !== 'boolean') {
+    throw new HeaderValidationError(entryPath, `"executable" must be a boolean, got ${typeof entry.executable}`);
+  }
+  if (entry.integrity !== undefined) {
+    validateIntegrity(entry.integrity, entryPath);
+  }
+}
+
+function validateIntegrity(integrity: unknown, entryPath: string): void {
+  if (typeof integrity !== 'object' || integrity === null || Array.isArray(integrity)) {
+    throw new HeaderValidationError(entryPath, `"integrity" must be an object`);
+  }
+  const rec = integrity as Record<string, unknown>;
+  if (typeof rec.algorithm !== 'string') {
+    throw new HeaderValidationError(entryPath, `"integrity.algorithm" must be a string`);
+  }
+  if (typeof rec.hash !== 'string') {
+    throw new HeaderValidationError(entryPath, `"integrity.hash" must be a string`);
+  }
+  if (typeof rec.blockSize !== 'number' || !Number.isFinite(rec.blockSize) || rec.blockSize <= 0) {
+    throw new HeaderValidationError(entryPath, `"integrity.blockSize" must be a positive number`);
+  }
+  if (!Array.isArray(rec.blocks)) {
+    throw new HeaderValidationError(entryPath, `"integrity.blocks" must be an array`);
+  }
+  for (let i = 0; i < rec.blocks.length; i++) {
+    if (typeof rec.blocks[i] !== 'string') {
+      throw new HeaderValidationError(entryPath, `"integrity.blocks[${i}]" must be a string`);
+    }
+  }
+}
+
+function validateLinkEntry(entry: Record<string, unknown>, entryPath: string): void {
+  if (typeof entry.link !== 'string') {
+    throw new HeaderValidationError(entryPath, `"link" must be a string, got ${typeof entry.link}`);
+  }
+  if (entry.link.length === 0) {
+    throw new HeaderValidationError(entryPath, `"link" must not be empty`);
+  }
+}
+
+function validateDirectoryEntry(entry: Record<string, unknown>, entryPath: string): void {
+  if (typeof entry.files !== 'object' || entry.files === null || Array.isArray(entry.files)) {
+    throw new HeaderValidationError(entryPath, `"files" must be a plain object`);
+  }
+  const files = entry.files as Record<string, unknown>;
+  for (const [name, child] of Object.entries(files)) {
+    if (name.includes('/') || name.includes('\\') || name === '.' || name === '..') {
+      throw new HeaderValidationError(entryPath, `invalid entry name "${name}"`);
+    }
+    const childPath = entryPath === '/' ? `/${name}` : `${entryPath}/${name}`;
+    validateHeaderEntry(child, childPath);
+  }
+}
+
+function validateHeaderEntry(entry: unknown, entryPath: string): void {
+  if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+    throw new HeaderValidationError(entryPath, 'entry must be an object');
+  }
+  const rec = entry as Record<string, unknown>;
+
+  if ('link' in rec) {
+    validateLinkEntry(rec, entryPath);
+  } else if ('files' in rec) {
+    validateDirectoryEntry(rec, entryPath);
+  } else if ('offset' in rec) {
+    validateFileEntry(rec, entryPath);
+  } else if ('unpacked' in rec && rec.unpacked === true && 'size' in rec) {
+    validateUnpackedFileEntry(rec, entryPath);
+  } else {
+    throw new HeaderValidationError(entryPath, 'entry must be a directory (with "files"), a file (with "offset" or "unpacked"), or a link (with "link")');
+  }
+}
+
+export function validateHeader(header: unknown): void {
+  if (typeof header !== 'object' || header === null || Array.isArray(header)) {
+    throw new HeaderValidationError('/', 'header must be an object');
+  }
+  const rec = header as Record<string, unknown>;
+  if (!('files' in rec)) {
+    throw new HeaderValidationError('/', 'root header must be a directory with a "files" property');
+  }
+  validateDirectoryEntry(rec, '/');
+}
+
 async function copyFile(dest: string, src: string, filename: string) {
   const srcFile = path.join(src, filename);
   const targetFile = path.join(dest, filename);
@@ -188,7 +308,9 @@ export function readArchiveHeaderSync(archivePath: string): ArchiveHeader {
 
   const headerPickle = Pickle.createFromBuffer(headerBuf);
   const header = headerPickle.createIterator().readString();
-  return { headerString: header, header: JSON.parse(header), headerSize: size };
+  const parsedHeader = JSON.parse(header);
+  validateHeader(parsedHeader);
+  return { headerString: header, header: parsedHeader, headerSize: size };
 }
 
 export function readFilesystemSync(archivePath: string) {
