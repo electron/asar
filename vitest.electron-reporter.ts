@@ -1,5 +1,18 @@
-import { RunnerTestFile } from "vitest"
+import { RunnerTestFile, Task } from "vitest"
 import { Reporter } from "vitest/reporters"
+
+function countFailures(tasks: Task[]): number {
+  let count = 0
+  for (const task of tasks) {
+    if (task.result?.state === 'fail') {
+      count++
+    }
+    if ('tasks' in task && task.tasks) {
+      count += countFailures(task.tasks)
+    }
+  }
+  return count
+}
 
 export default class ElectronExitReporter implements Reporter {
   onFinished(files: RunnerTestFile[], errors: unknown[]) {
@@ -9,31 +22,26 @@ export default class ElectronExitReporter implements Reporter {
 
     let failureCount = 0
 
-    files.forEach(file => {
-      if (file.result) {
-        // Count individual test results
-        if (file.result.state === 'fail') {
-          failureCount++
-        }
-        
-        // Also check for failed tasks within the file
-        if (file.tasks) {
-          file.tasks.forEach(task => {
-            if (task.result?.state === 'fail') {
-              failureCount++
-            }
-          })
-        }
+    for (const file of files) {
+      if (file.result?.state === 'fail') {
+        failureCount++
       }
-    })
-    
-    // Check for execution errors
+      if (file.tasks) {
+        failureCount += countFailures(file.tasks)
+      }
+    }
+
     const hasExecutionErrors = errors && errors.length > 0
-    
-    if (failureCount > 0 || hasExecutionErrors) {
-      process.exit(1)
-    } else {
-      process.exit(0)
+    const exitCode = failureCount > 0 || hasExecutionErrors ? 1 : 0;
+
+    // In Electron, vitest calls process.exit() after onFinished with its own
+    // exit code, which doesn't account for nested test failures. Override
+    // process.exit so our exit code takes precedence on failure.
+    if (exitCode !== 0) {
+      const originalExit = process.exit;
+      process.exit = ((_code?: number) => {
+        originalExit.call(process, exitCode);
+      }) as never;
     }
   }
 }
