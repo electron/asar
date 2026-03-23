@@ -1,5 +1,5 @@
 import { describe, it, afterAll, expect } from 'vitest';
-import fs from 'node:fs';
+import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
