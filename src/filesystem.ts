@@ -2,11 +2,15 @@ import os from 'node:os';
 import path from 'node:path';
 import stream from 'node:stream/promises';
 
-import { FileIntegrity, getFileIntegrity } from './integrity.js';
+import { FileIntegrity, getFileIntegrity, getFileIntegrityFromBuffer } from './integrity.js';
 import { wrappedFs as fs } from './wrapped-fs.js';
 import { CrawledFileType } from './crawlfs.js';
 
 const UINT32_MAX = 2 ** 32 - 1;
+
+// Files smaller than this use buffer-based integrity hashing (avoids stream overhead).
+// Files larger than this use streaming to avoid holding large buffers in memory.
+const BUFFER_HASH_THRESHOLD = 2 * 1024 * 1024; // 2MB
 
 export type EntryMetadata = {
   unpacked?: boolean;
@@ -103,7 +107,7 @@ export class Filesystem {
     return node.files;
   }
 
-  async insertFile(
+  insertFile(
     p: string,
     streamGenerator: () => NodeJS.ReadableStream,
     shouldUnpack: boolean,
@@ -111,33 +115,23 @@ export class Filesystem {
     options: {
       transform?: (filePath: string) => NodeJS.ReadWriteStream | void;
     } = {},
-  ) {
+  ): Promise<void> {
     const dirNode = this.searchNodeFromPath(path.dirname(p)) as FilesystemDirectoryEntry;
     const node = this.searchNodeFromPath(p) as FilesystemFileEntry;
     if (shouldUnpack || dirNode.unpacked) {
       node.size = file.stat.size;
       node.unpacked = true;
-      node.integrity = await getFileIntegrity(streamGenerator());
-      return Promise.resolve();
+      return getFileIntegrity(streamGenerator()).then((integrity) => {
+        node.integrity = integrity;
+      });
     }
-
-    let size: number;
 
     const transformed = options.transform && options.transform(p);
     if (transformed) {
-      const tmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'asar-'));
-      const tmpfile = path.join(tmpdir, path.basename(p));
-      const out = fs.createWriteStream(tmpfile);
-
-      await stream.pipeline(streamGenerator(), transformed, out);
-      file.transformed = {
-        path: tmpfile,
-        stat: await fs.lstat(tmpfile),
-      };
-      size = file.transformed.stat.size;
-    } else {
-      size = file.stat.size;
+      return this.insertFileAsync(p, streamGenerator, file, node, transformed);
     }
+
+    const size = file.stat.size;
 
     // JavaScript cannot precisely present integers >= UINT32_MAX.
     if (size > UINT32_MAX) {
@@ -146,10 +140,57 @@ export class Filesystem {
 
     node.size = size;
     node.offset = this.offset.toString();
-    node.integrity = await getFileIntegrity(streamGenerator());
     if (process.platform !== 'win32' && file.stat.mode & 0o100) {
       node.executable = true;
     }
+
+    if (size <= BUFFER_HASH_THRESHOLD) {
+      // Fully synchronous fast path — no Promise, no stream, no microtask yield
+      try {
+        const fileBuffer = fs.readFileSync(p);
+        node.integrity = getFileIntegrityFromBuffer(fileBuffer);
+        file.cachedBuffer = fileBuffer;
+        this.offset += BigInt(size);
+        return Promise.resolve();
+      } catch {
+        // Fall through to stream path
+      }
+    }
+
+    return getFileIntegrity(streamGenerator()).then((integrity) => {
+      node.integrity = integrity;
+      this.offset += BigInt(size);
+    });
+  }
+
+  private async insertFileAsync(
+    p: string,
+    streamGenerator: () => NodeJS.ReadableStream,
+    file: CrawledFileType,
+    node: FilesystemFileEntry,
+    transformed: NodeJS.ReadWriteStream,
+  ) {
+    const tmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'asar-'));
+    const tmpfile = path.join(tmpdir, path.basename(p));
+    const out = fs.createWriteStream(tmpfile);
+
+    await stream.pipeline(streamGenerator(), transformed, out);
+    file.transformed = {
+      path: tmpfile,
+      stat: await fs.lstat(tmpfile),
+    };
+    const size = file.transformed.stat.size;
+
+    if (size > UINT32_MAX) {
+      throw new Error(`${p}: file size can not be larger than 4.2GB`);
+    }
+
+    node.size = size;
+    node.offset = this.offset.toString();
+    if (process.platform !== 'win32' && file.stat.mode & 0o100) {
+      node.executable = true;
+    }
+    node.integrity = await getFileIntegrity(streamGenerator());
     this.offset += BigInt(size);
   }
 
