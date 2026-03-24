@@ -1,7 +1,6 @@
-import { describe, it, afterAll, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import path from 'node:path';
-import os from 'node:os';
 import crypto from 'node:crypto';
 import { Readable } from 'node:stream';
 
@@ -19,38 +18,11 @@ import {
   uncacheAll,
   type AsarStreamType,
 } from '../src/asar.js';
-import { Pickle } from '../src/pickle.js';
-import { getFileIntegrity } from '../src/integrity.js';
-import { readArchiveHeaderSync, readFilesystemSync, uncacheFilesystem } from '../src/disk.js';
-import { crawl, determineFileType } from '../src/crawlfs.js';
+import { crawl } from '../src/crawlfs.js';
+import { useTmpDir } from './util/tmpDir.js';
 
-// Each test run gets its own temp directory to avoid conflicts and
-// flaky rmSync on Windows (file locks, antivirus).
-const testRunDir = fs.mkdtempSync(path.join(os.tmpdir(), 'asar-test-'));
-
-function tmpDir(name: string) {
-  const dir = path.join(testRunDir, name);
-  fs.mkdirSync(dir, { recursive: true });
-  return dir;
-}
-
-function createFixture(name: string, files: Record<string, string | Buffer>) {
-  const dir = tmpDir(name);
-  for (const [filePath, content] of Object.entries(files)) {
-    const full = path.join(dir, filePath);
-    fs.mkdirSync(path.dirname(full), { recursive: true });
-    fs.writeFileSync(full, content);
-  }
-  return dir;
-}
-
-describe('robustness', () => {
-  afterAll(() => {
-    uncacheAll();
-    fs.rmSync(testRunDir, { recursive: true, force: true });
-  });
-
-  // ─── Empty and degenerate archives ───────────────────────────────
+describe('asar', () => {
+  const { testRunDir, tmpDir, createFixture } = useTmpDir(uncacheAll);
 
   describe('empty and degenerate inputs', () => {
     it('should create archive from empty directory', async () => {
@@ -94,8 +66,6 @@ describe('robustness', () => {
       expect(files.some((f) => f.includes('f'))).toBe(true);
     });
   });
-
-  // ─── Roundtrip integrity ─────────────────────────────────────────
 
   describe('roundtrip integrity', () => {
     it('should preserve exact file contents through pack/extract cycle', async () => {
@@ -165,8 +135,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── Special filenames ───────────────────────────────────────────
-
   describe('special filenames', () => {
     it('should handle files with spaces in names', async () => {
       const src = createFixture('spaces-in-names', {
@@ -213,8 +181,6 @@ describe('robustness', () => {
       expect(extractFile(dest, 'Ñoño.txt').toString()).toBe('spanish');
     });
   });
-
-  // ─── File size edge cases ────────────────────────────────────────
 
   describe('file sizes', () => {
     it('should handle a mix of empty and non-empty files', async () => {
@@ -278,8 +244,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── Error handling ──────────────────────────────────────────────
-
   describe('error handling', () => {
     it('should throw when extracting non-existent file from archive', async () => {
       const src = createFixture('for-error', { 'exists.txt': 'yes' });
@@ -323,303 +287,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── Cache behavior ──────────────────────────────────────────────
-
-  describe('caching', () => {
-    it('uncacheFilesystem should return true for cached and false for uncached', async () => {
-      const src = createFixture('cache-test', { 'file.txt': 'hi' });
-      const dest = path.join(testRunDir, 'cache-test.asar');
-      await createPackage(src, dest);
-
-      // First read caches it
-      readFilesystemSync(dest);
-      expect(uncacheFilesystem(dest)).toBe(true);
-      expect(uncacheFilesystem(dest)).toBe(false);
-    });
-
-    it('uncacheAll should clear all cached filesystems', async () => {
-      const src = createFixture('cache-all', { 'file.txt': 'hi' });
-      const dest1 = path.join(testRunDir, 'cache1.asar');
-      const dest2 = path.join(testRunDir, 'cache2.asar');
-      await createPackage(src, dest1);
-      await createPackage(src, dest2);
-
-      readFilesystemSync(dest1);
-      readFilesystemSync(dest2);
-      uncacheAll();
-      expect(uncacheFilesystem(dest1)).toBe(false);
-      expect(uncacheFilesystem(dest2)).toBe(false);
-    });
-
-    it('should return same filesystem instance from cache', async () => {
-      const src = createFixture('cache-identity', { 'file.txt': 'hi' });
-      const dest = path.join(testRunDir, 'cache-identity.asar');
-      await createPackage(src, dest);
-
-      const fs1 = readFilesystemSync(dest);
-      const fs2 = readFilesystemSync(dest);
-      expect(fs1).toBe(fs2);
-    });
-  });
-
-  // ─── Integrity hashing ──────────────────────────────────────────
-
-  describe('integrity', () => {
-    it('should produce consistent results for same data', async () => {
-      const data = crypto.randomBytes(8192);
-      const tmpFile = path.join(os.tmpdir(), 'integrity-test-' + Date.now());
-      fs.writeFileSync(tmpFile, data);
-
-      try {
-        const result1 = await getFileIntegrity(fs.createReadStream(tmpFile));
-        const result2 = await getFileIntegrity(fs.createReadStream(tmpFile));
-        expect(result1).toEqual(result2);
-      } finally {
-        fs.unlinkSync(tmpFile);
-      }
-    });
-
-    it('should handle empty file', async () => {
-      const tmpFile = path.join(os.tmpdir(), 'integrity-empty-' + Date.now());
-      fs.writeFileSync(tmpFile, Buffer.alloc(0));
-
-      try {
-        const result = await getFileIntegrity(fs.createReadStream(tmpFile));
-        expect(result.blocks.length).toBe(1);
-        expect(result.algorithm).toBe('SHA256');
-        expect(result.hash).toBeTruthy();
-      } finally {
-        fs.unlinkSync(tmpFile);
-      }
-    });
-
-    it('should produce correct block count for multi-block files', async () => {
-      // 9MB file should produce 3 blocks (4MB + 4MB + 1MB)
-      const data = crypto.randomBytes(9 * 1024 * 1024);
-      const tmpFile = path.join(os.tmpdir(), 'integrity-multi-' + Date.now());
-      fs.writeFileSync(tmpFile, data);
-
-      try {
-        const result = await getFileIntegrity(fs.createReadStream(tmpFile));
-        expect(result.blocks.length).toBe(3);
-        expect(result.blockSize).toBe(4 * 1024 * 1024);
-        expect(result.algorithm).toBe('SHA256');
-      } finally {
-        fs.unlinkSync(tmpFile);
-      }
-    });
-
-    it('should produce exactly one block for file smaller than block size', async () => {
-      const tmpFile = path.join(os.tmpdir(), 'integrity-small-' + Date.now());
-      fs.writeFileSync(tmpFile, crypto.randomBytes(100));
-
-      try {
-        const result = await getFileIntegrity(fs.createReadStream(tmpFile));
-        expect(result.blocks.length).toBe(1);
-      } finally {
-        fs.unlinkSync(tmpFile);
-      }
-    });
-
-    it('should produce one block for file exactly at block size', async () => {
-      const tmpFile = path.join(os.tmpdir(), 'integrity-exact-' + Date.now());
-      fs.writeFileSync(tmpFile, crypto.randomBytes(4 * 1024 * 1024));
-
-      try {
-        const result = await getFileIntegrity(fs.createReadStream(tmpFile));
-        expect(result.blocks.length).toBe(1);
-      } finally {
-        fs.unlinkSync(tmpFile);
-      }
-    });
-
-    it('should produce different hashes for different content', async () => {
-      const tmp1 = path.join(os.tmpdir(), 'integrity-diff1-' + Date.now());
-      const tmp2 = path.join(os.tmpdir(), 'integrity-diff2-' + Date.now());
-      fs.writeFileSync(tmp1, 'hello');
-      fs.writeFileSync(tmp2, 'world');
-
-      try {
-        const result1 = await getFileIntegrity(fs.createReadStream(tmp1));
-        const result2 = await getFileIntegrity(fs.createReadStream(tmp2));
-        expect(result1.hash).not.toBe(result2.hash);
-      } finally {
-        fs.unlinkSync(tmp1);
-        fs.unlinkSync(tmp2);
-      }
-    });
-
-    it('integrity hash stored in archive should match file content', async () => {
-      const content = 'test content for integrity verification';
-      const src = createFixture('integrity-verify', { 'test.txt': content });
-      const dest = path.join(testRunDir, 'integrity-verify.asar');
-      await createPackage(src, dest);
-
-      const header = getRawHeader(dest);
-      const fileEntry = (header.header as any).files['test.txt'];
-      const expectedHash = crypto.createHash('SHA256').update(content).digest('hex');
-      expect(fileEntry.integrity.hash).toBe(expectedHash);
-    });
-  });
-
-  // ─── Pickle serialization ───────────────────────────────────────
-
-  describe('pickle', () => {
-    it('should roundtrip all integer types', () => {
-      const p = Pickle.createEmpty();
-      p.writeInt(-42);
-      p.writeUInt32(42);
-      p.writeInt64(123456789);
-      p.writeUInt64(987654321);
-
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      expect(iter.readInt()).toBe(-42);
-      expect(iter.readUInt32()).toBe(42);
-      expect(iter.readInt64()).toBe(BigInt(123456789));
-      expect(iter.readUInt64()).toBe(BigInt(987654321));
-    });
-
-    it('should roundtrip float and double', () => {
-      const p = Pickle.createEmpty();
-      p.writeFloat(3.14);
-      p.writeDouble(2.718281828459045);
-
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      expect(iter.readFloat()).toBeCloseTo(3.14, 2);
-      expect(iter.readDouble()).toBeCloseTo(2.718281828459045, 10);
-    });
-
-    it('should roundtrip boolean values', () => {
-      const p = Pickle.createEmpty();
-      p.writeBool(true);
-      p.writeBool(false);
-
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      expect(iter.readBool()).toBe(true);
-      expect(iter.readBool()).toBe(false);
-    });
-
-    it('should roundtrip empty string', () => {
-      const p = Pickle.createEmpty();
-      p.writeString('');
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      expect(iter.readString()).toBe('');
-    });
-
-    it('should roundtrip very long string', () => {
-      const longStr = 'x'.repeat(100000);
-      const p = Pickle.createEmpty();
-      p.writeString(longStr);
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      expect(iter.readString()).toBe(longStr);
-    });
-
-    it('should throw when reading past end of pickle', () => {
-      const p = Pickle.createEmpty();
-      p.writeInt(1);
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      iter.readInt(); // consume the one value
-      expect(() => iter.readInt()).toThrow(/Failed to read data/);
-    });
-
-    it('should handle multiple resizes for large payloads', () => {
-      const p = Pickle.createEmpty();
-      // Write enough data to trigger multiple resizes (initial capacity is 64 bytes)
-      for (let i = 0; i < 100; i++) {
-        p.writeString(`string-${i}-${'x'.repeat(50)}`);
-      }
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      for (let i = 0; i < 100; i++) {
-        expect(iter.readString()).toBe(`string-${i}-${'x'.repeat(50)}`);
-      }
-    });
-
-    it('should handle mixed types in sequence', () => {
-      const p = Pickle.createEmpty();
-      p.writeInt(1);
-      p.writeString('hello');
-      p.writeBool(true);
-      p.writeDouble(99.9);
-      p.writeUInt32(0xffffffff);
-      p.writeString('世界');
-
-      const iter = Pickle.createFromBuffer(p.toBuffer()).createIterator();
-      expect(iter.readInt()).toBe(1);
-      expect(iter.readString()).toBe('hello');
-      expect(iter.readBool()).toBe(true);
-      expect(iter.readDouble()).toBeCloseTo(99.9);
-      expect(iter.readUInt32()).toBe(0xffffffff);
-      expect(iter.readString()).toBe('世界');
-    });
-
-    it('should throw on zero-length buffer in createFromBuffer', () => {
-      const buf = Buffer.alloc(0);
-      expect(() => Pickle.createFromBuffer(buf)).toThrow();
-    });
-  });
-
-  // ─── Filesystem tree operations ──────────────────────────────────
-
-  describe('filesystem', () => {
-    it('should handle getFile with followLinks=false', async () => {
-      if (process.platform === 'win32') return;
-      const src = tmpDir('follow-links-false');
-      fs.writeFileSync(path.join(src, 'target.txt'), 'content');
-      fs.symlinkSync('target.txt', path.join(src, 'link.txt'));
-
-      const dest = path.join(testRunDir, 'follow-links.asar');
-      await createPackage(src, dest);
-
-      const stat = statFile(dest, 'link.txt', false);
-      expect('link' in stat).toBe(true);
-
-      const statFollowed = statFile(dest, 'link.txt', true);
-      expect('link' in statFollowed).toBe(false);
-    });
-
-    it('should list files with isPack option showing pack/unpack state', async () => {
-      const src = createFixture('pack-list', {
-        'packed.txt': 'packed',
-        'unpacked.node': 'native',
-      });
-      const dest = path.join(testRunDir, 'pack-list.asar');
-      await createPackageWithOptions(src, dest, { unpack: '*.node' });
-
-      const list = listPackage(dest, { isPack: true });
-      const packedEntry = list.find((l) => l.includes('packed.txt'));
-      const unpackedEntry = list.find((l) => l.includes('unpacked.node'));
-      expect(packedEntry).toMatch(/pack\s+:/);
-      expect(unpackedEntry).toMatch(/unpack\s*:/);
-    });
-
-    it('getRawHeader should return parseable header', async () => {
-      const src = createFixture('raw-header', {
-        'file1.txt': 'hello',
-        'dir/file2.txt': 'world',
-      });
-      const dest = path.join(testRunDir, 'raw-header.asar');
-      await createPackage(src, dest);
-
-      const { header, headerString, headerSize } = getRawHeader(dest);
-      expect(headerSize).toBeGreaterThan(0);
-      expect(headerString).toBeTruthy();
-      expect(header.files).toBeDefined();
-      expect(JSON.parse(headerString)).toEqual(header);
-    });
-
-    it('should handle deeply nested directories', async () => {
-      const parts = Array.from({ length: 20 }, (_, i) => `d${i}`);
-      const deepPath = parts.join('/');
-      const src = createFixture('deep-nest', { [`${deepPath}/file.txt`]: 'deep' });
-      const dest = path.join(testRunDir, 'deep-nest.asar');
-      await createPackage(src, dest);
-      const extractPath = path.join(...parts, 'file.txt');
-      expect(extractFile(dest, extractPath).toString()).toBe('deep');
-    });
-  });
-
-  // ─── Unpack patterns ─────────────────────────────────────────────
-
   describe('unpack patterns', () => {
     it('should unpack files matching glob pattern', async () => {
       const src = createFixture('unpack-glob', {
@@ -655,8 +322,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── createPackageFromFiles ──────────────────────────────────────
-
   describe('createPackageFromFiles', () => {
     it('should work with pre-crawled files', async () => {
       const src = createFixture('from-files', {
@@ -683,8 +348,6 @@ describe('robustness', () => {
       expect(extractFile(dest, 'file.txt').toString()).toBe('content');
     });
   });
-
-  // ─── createPackageFromStreams ─────────────────────────────────────
 
   describe('createPackageFromStreams', () => {
     it('should create archive from synthetic streams', async () => {
@@ -738,44 +401,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── crawlfs ─────────────────────────────────────────────────────
-
-  describe('crawlfs', () => {
-    it('determineFileType should return null for special files', async () => {
-      // /dev/null is not a regular file, directory, or symlink
-      if (process.platform === 'win32') return;
-      const result = await determineFileType('/dev/null');
-      // /dev/null is classified as a file on macOS
-      // This test just verifies it doesn't crash
-      expect(result === null || result.type === 'file').toBe(true);
-    });
-
-    it('crawl should return sorted filenames', async () => {
-      const src = createFixture('crawl-sort', {
-        'z.txt': 'z',
-        'a.txt': 'a',
-        'm.txt': 'm',
-      });
-      const [filenames] = await crawl(src + '/**/*', { dot: true });
-      const basenames = filenames.map((f) => path.basename(f)).filter((f) => f.endsWith('.txt'));
-      expect(basenames).toEqual([...basenames].sort());
-    });
-
-    it('crawl should respect dot option', async () => {
-      const src = createFixture('crawl-dot', {
-        'visible.txt': 'visible',
-        '.hidden': 'hidden',
-      });
-      const [withDot] = await crawl(src + '/**/*', { dot: true });
-      const [withoutDot] = await crawl(src + '/**/*', { dot: false });
-
-      expect(withDot.some((f) => f.includes('.hidden'))).toBe(true);
-      expect(withoutDot.some((f) => f.includes('.hidden'))).toBe(false);
-    });
-  });
-
-  // ─── extractAll edge cases ───────────────────────────────────────
-
   describe('extractAll edge cases', () => {
     it('should overwrite existing files on re-extract', async () => {
       const src = createFixture('overwrite', { 'file.txt': 'original' });
@@ -822,8 +447,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── Binary content edge cases ───────────────────────────────────
-
   describe('binary content', () => {
     it('should handle all possible byte values', async () => {
       const allBytes = Buffer.alloc(256);
@@ -856,8 +479,6 @@ describe('robustness', () => {
       expect(fs.readFileSync(path.join(extractDir, 'data.bin'))).toEqual(buf);
     });
   });
-
-  // ─── Concurrent operations ───────────────────────────────────────
 
   describe('concurrent operations', () => {
     it('should handle concurrent pack operations to different files', async () => {
@@ -924,8 +545,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── Transform function ──────────────────────────────────────────
-
   describe('transform', () => {
     it('should allow no-op transform (return void)', async () => {
       const src = createFixture('noop-transform', { 'file.txt': 'content' });
@@ -937,60 +556,6 @@ describe('robustness', () => {
     });
   });
 
-  // ─── Header parsing robustness ───────────────────────────────────
-
-  describe('header parsing', () => {
-    it('should parse header from archive with single file', async () => {
-      const src = createFixture('single-file-header', { 'only.txt': 'x' });
-      const dest = path.join(testRunDir, 'single-file-header.asar');
-      await createPackage(src, dest);
-
-      const { header } = readArchiveHeaderSync(dest);
-      expect(header.files).toBeDefined();
-      expect((header.files as any)['only.txt']).toBeDefined();
-      expect((header.files as any)['only.txt'].size).toBe(1);
-    });
-
-    it('should contain integrity info for every file', async () => {
-      const src = createFixture('integrity-header', {
-        'a.txt': 'hello',
-        'b.txt': 'world',
-        'dir/c.txt': 'nested',
-      });
-      const dest = path.join(testRunDir, 'integrity-header.asar');
-      await createPackage(src, dest);
-
-      const { header } = readArchiveHeaderSync(dest);
-      const aFile = (header.files as any)['a.txt'];
-      expect(aFile.integrity).toBeDefined();
-      expect(aFile.integrity.algorithm).toBe('SHA256');
-      expect(aFile.integrity.hash).toBeTruthy();
-      expect(aFile.integrity.blocks).toBeInstanceOf(Array);
-      expect(aFile.integrity.blocks.length).toBeGreaterThan(0);
-    });
-
-    it('should store correct file offsets in header', async () => {
-      const src = createFixture('offsets', {
-        'first.txt': 'aaaa', // 4 bytes, offset 0
-        'second.txt': 'bb', // 2 bytes, offset 4
-        'third.txt': 'ccccc', // 5 bytes, offset 6
-      });
-      const dest = path.join(testRunDir, 'offsets.asar');
-      await createPackage(src, dest);
-
-      const { header } = readArchiveHeaderSync(dest);
-      const first = (header.files as any)['first.txt'];
-      const second = (header.files as any)['second.txt'];
-      const third = (header.files as any)['third.txt'];
-
-      expect(parseInt(first.offset)).toBe(0);
-      expect(parseInt(second.offset)).toBe(4);
-      expect(parseInt(third.offset)).toBe(6);
-    });
-  });
-
-  // ─── Path traversal protection ──────────────────────────────────
-
   describe('path traversal protection', () => {
     it('should reject symlinks pointing outside the archive during extract', () => {
       expect(() => {
@@ -998,8 +563,6 @@ describe('robustness', () => {
       }).toThrow();
     });
   });
-
-  // ─── Ordering file support ──────────────────────────────────────
 
   describe('ordering', () => {
     it('should accept ordering file that references non-existent files', async () => {
@@ -1040,8 +603,6 @@ describe('robustness', () => {
       expect(extractFile(dest, 'second.txt').toString()).toBe('2');
     });
   });
-
-  // ─── Stress and fuzz-like scenarios ──────────────────────────────
 
   describe('stress scenarios', () => {
     it('should handle archive with many directories but few files', async () => {
@@ -1130,39 +691,6 @@ describe('robustness', () => {
       for (let i = 1; i < 20; i += 2) {
         expect(fs.existsSync(path.join(`${dest}.unpacked`, `file${i}.node`))).toBe(true);
       }
-    });
-  });
-
-  // ─── Archive format validation ──────────────────────────────────
-
-  describe('archive format', () => {
-    it('should produce archives with valid pickle header structure', async () => {
-      const src = createFixture('pickle-validate', { 'test.txt': 'hello' });
-      const dest = path.join(testRunDir, 'pickle-validate.asar');
-      await createPackage(src, dest);
-
-      const raw = fs.readFileSync(dest);
-      // First 4 bytes: payload size of the size pickle (should be 4 for UInt32)
-      expect(raw.readUInt32LE(0)).toBe(4);
-      // Bytes 4-7: the header size value
-      const headerSize = raw.readUInt32LE(4);
-      expect(headerSize).toBeGreaterThan(0);
-      // The total archive must be larger than header
-      expect(raw.length).toBeGreaterThan(8 + headerSize);
-    });
-
-    it('should produce valid JSON in header', async () => {
-      const src = createFixture('json-validate', {
-        'a.txt': 'x',
-        'b/c.txt': 'y',
-      });
-      const dest = path.join(testRunDir, 'json-validate.asar');
-      await createPackage(src, dest);
-
-      const { headerString, header } = getRawHeader(dest);
-      expect(() => JSON.parse(headerString)).not.toThrow();
-      expect(header).toHaveProperty('files');
-      expect(header.files).toHaveProperty('b');
     });
   });
 });
