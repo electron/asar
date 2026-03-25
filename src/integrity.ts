@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import stream from 'node:stream';
 import streamPromises from 'node:stream/promises';
+import { FileRecord, getRawHeader } from './asar.js';
 
 const ALGORITHM = 'SHA256';
 // 4MB default block size
@@ -65,4 +66,60 @@ export async function getFileIntegrity(
     blockSize: BLOCK_SIZE,
     blocks: blockHashes,
   };
+}
+
+export type ArchiveIntegrity = Pick<FileRecord['integrity'], 'algorithm' | 'hash'>;
+
+export function getArchiveIntegrity(archivePath: string): ArchiveIntegrity {
+  const { headerString } = getRawHeader(archivePath);
+  return {
+    algorithm: 'SHA256',
+    hash: crypto.createHash('SHA256').update(headerString).digest('hex'),
+  };
+}
+
+// To be inserted into Info.plist of the app.
+export type AsarIntegrityInfoMacOS = Record<string, ArchiveIntegrity>;
+
+// To be added as a resource to the app.
+export type AsarIntegrityInfoWindows = { resourceType: 'Integrity', resourceName: 'ElectronAsar', resourceData: Buffer };
+export type AsarIntegrityInfoWindowsFiles = {file: string, alg: string, value: string}[];
+
+type ASARIntegrityPlatformInfoMap = {
+  macos: AsarIntegrityInfoMacOS;
+  windows: AsarIntegrityInfoWindows;
+};
+
+export function getAsarIntegrityInfo(
+  files: { relativePath: string; fullPath: string }[],
+  platform: 'macos',
+): AsarIntegrityInfoMacOS;
+export function getAsarIntegrityInfo(
+  files: { relativePath: string; fullPath: string }[],
+  platform: 'windows',
+): AsarIntegrityInfoWindows;
+export function getAsarIntegrityInfo(
+  files: { relativePath: string; fullPath: string }[],
+  platform: keyof ASARIntegrityPlatformInfoMap,
+) {
+  switch (platform) {
+    case 'macos':
+      return Object.fromEntries(
+        files.map((file) => [file.relativePath, getArchiveIntegrity(file.fullPath)]),
+      );
+    case 'windows': {
+        const filesJson: AsarIntegrityInfoWindowsFiles = files.map((file) => ({
+          file: file.relativePath,
+          alg: 'SHA256',
+          value: getArchiveIntegrity(file.fullPath).hash,
+        }));
+        return {
+          resourceType: 'Integrity',
+          resourceName: 'ElectronAsar',
+          resourceData: Buffer.from(JSON.stringify(filesJson), 'utf-8'),
+        } as AsarIntegrityInfoWindows;
+      }
+    default:
+      throw new Error(`Invalid platform: ${platform}`);
+  }
 }

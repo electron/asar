@@ -409,6 +409,7 @@ export function extractAll(archivePath: string, dest: string) {
   }
 }
 
+export { getArchiveIntegrity, getAsarIntegrityInfo } from './integrity.js';
 export { uncacheAll, uncacheFilesystem as uncache, FileRecord, DirectoryRecord } from './disk.js';
 export {
   calculateIntegrityDigestForApp,
