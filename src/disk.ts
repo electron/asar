@@ -234,7 +234,7 @@ export function readFileSync(filesystem: Filesystem, filename: string, info: Fil
       if (!Number.isSafeInteger(offset)) {
         throw new Error(`Computed offset exceeds safe integer range`);
       }
-      const archiveSize = fs.statSync(filesystem.getRootPath()).size;
+      const archiveSize = fs.fstatSync(fd).size;
       if (offset < 0 || offset + info.size > archiveSize) {
         throw new Error(
           `File entry extends beyond archive boundary (offset=${offset}, size=${info.size}, archiveSize=${archiveSize})`,
