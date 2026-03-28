@@ -61,19 +61,41 @@ const writeFileListToStream = async function (
   metadata: InputMetadata,
 ) {
   const { files, links } = lists;
+
+  // Batch cached buffers into a single write to avoid per-file write syscalls
+  let pendingBuffers: Buffer[] = [];
+
+  const flushPendingBuffers = async () => {
+    if (pendingBuffers.length === 0) return;
+    const combined =
+      pendingBuffers.length === 1 ? pendingBuffers[0] : Buffer.concat(pendingBuffers);
+    pendingBuffers = [];
+    await new Promise<void>((resolve, reject) => {
+      out.write(combined, (err) => (err ? reject(err) : resolve()));
+    });
+  };
+
   for (const file of files) {
     if (file.unpack) {
-      // the file should not be packed into archive
+      await flushPendingBuffers();
       const filename = path.relative(filesystem.getRootPath(), file.filename);
       await copyFile(`${dest}.unpacked`, filesystem.getRootPath(), filename);
     } else {
-      const transformed = metadata[file.filename].transformed;
-      const stream = fs.createReadStream(transformed ? transformed.path : file.filename);
-      await streamTransformedFile(stream, out);
+      const fileMeta = metadata[file.filename];
+      if (fileMeta.cachedBuffer) {
+        pendingBuffers.push(fileMeta.cachedBuffer);
+        fileMeta.cachedBuffer = undefined;
+      } else {
+        await flushPendingBuffers();
+        const transformed = fileMeta.transformed;
+        const stream = fs.createReadStream(transformed ? transformed.path : file.filename);
+        await streamTransformedFile(stream, out);
+      }
     }
   }
+  await flushPendingBuffers();
+
   for (const file of links.filter((f) => f.unpack)) {
-    // the symlink needs to be recreated outside in .unpacked
     const filename = path.relative(filesystem.getRootPath(), file.filename);
     const link = await fs.readlink(file.filename);
     await createSymlink(dest, filename, link);
@@ -209,6 +231,25 @@ export function readFileSync(filesystem: Filesystem, filename: string, info: Fil
     } finally {
       fs.closeSync(fd);
     }
+  }
+  return buffer;
+}
+
+export function readFileWithFd(
+  fd: number,
+  filesystem: Filesystem,
+  filename: string,
+  info: FilesystemFileEntry,
+) {
+  let buffer = Buffer.alloc(info.size);
+  if (info.size <= 0) {
+    return buffer;
+  }
+  if (info.unpacked) {
+    buffer = fs.readFileSync(path.join(`${filesystem.getRootPath()}.unpacked`, filename));
+  } else {
+    const offset = 8 + filesystem.getHeaderSize() + parseInt(info.offset);
+    fs.readSync(fd, buffer, 0, info.size, offset);
   }
   return buffer;
 }

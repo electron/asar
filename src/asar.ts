@@ -23,17 +23,17 @@ import { GlobOptionsWithFileTypesFalse } from 'glob';
  * @param pattern - literal prefix [for backward compatibility] or glob pattern
  * @param unpackDirs - Array of directory paths previously marked as unpacked
  */
-function isUnpackedDir(dirPath: string, pattern: string, unpackDirs: string[]) {
+function isUnpackedDir(dirPath: string, pattern: string, unpackDirs: Set<string>) {
   if (dirPath.startsWith(pattern) || minimatch(dirPath, pattern)) {
-    if (!unpackDirs.includes(dirPath)) {
-      unpackDirs.push(dirPath);
-    }
+    unpackDirs.add(dirPath);
     return true;
   } else {
-    return unpackDirs.some(
-      (unpackDir) =>
-        dirPath.startsWith(unpackDir) && !path.relative(unpackDir, dirPath).startsWith('..'),
-    );
+    for (const unpackDir of unpackDirs) {
+      if (dirPath.startsWith(unpackDir) && !path.relative(unpackDir, dirPath).startsWith('..')) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
@@ -93,7 +93,7 @@ export async function createPackageFromFiles(
   const filesystem = new Filesystem(src);
   const files: BasicFilesArray = [];
   const links: BasicFilesArray = [];
-  const unpackDirs: string[] = [];
+  const unpackDirs = new Set<string>();
 
   let filenamesSorted: string[] = [];
   if (options.ordering) {
@@ -124,15 +124,20 @@ export async function createPackageFromFiles(
     let missing = 0;
     const total = filenames.length;
 
+    const filenameSet = new Set(filenames);
+    const sortedSet = new Set<string>();
+
     for (const file of ordering) {
-      if (!filenamesSorted.includes(file) && filenames.includes(file)) {
+      if (!sortedSet.has(file) && filenameSet.has(file)) {
         filenamesSorted.push(file);
+        sortedSet.add(file);
       }
     }
 
     for (const file of filenames) {
-      if (!filenamesSorted.includes(file)) {
+      if (!sortedSet.has(file)) {
         filenamesSorted.push(file);
+        sortedSet.add(file);
         missing += 1;
       }
     }
@@ -142,53 +147,72 @@ export async function createPackageFromFiles(
     filenamesSorted = filenames;
   }
 
-  const handleFile = async function (filename: string) {
-    if (!metadata[filename]) {
-      const fileType = await determineFileType(filename);
-      if (!fileType) {
-        throw new Error('Unknown file type for file: ' + filename);
-      }
+  const shouldUnpackPath = function (
+    filename: string,
+    relativePath: string,
+    unpack: string | undefined,
+    unpackDir: string | undefined,
+  ) {
+    let shouldUnpack = false;
+    if (unpack) {
+      shouldUnpack = minimatch(filename, unpack, { matchBase: true });
+    }
+    if (!shouldUnpack && unpackDir) {
+      shouldUnpack = isUnpackedDir(relativePath, unpackDir, unpackDirs);
+    }
+    return shouldUnpack;
+  };
+
+  // Batch-resolve metadata for files missing it (parallelized)
+  const missingMetadata = filenamesSorted.filter((f) => !metadata[f]);
+  if (missingMetadata.length > 0) {
+    const resolved = await Promise.all(
+      missingMetadata.map(async (filename) => {
+        const fileType = await determineFileType(filename);
+        if (!fileType) {
+          throw new Error('Unknown file type for file: ' + filename);
+        }
+        return [filename, fileType] as const;
+      }),
+    );
+    for (const [filename, fileType] of resolved) {
       metadata[filename] = fileType;
     }
+  }
+
+  // Process files in original sorted order to preserve header key ordering
+  for (const filename of filenamesSorted) {
     const file = metadata[filename];
-
-    const shouldUnpackPath = function (
-      relativePath: string,
-      unpack: string | undefined,
-      unpackDir: string | undefined,
-    ) {
-      let shouldUnpack = false;
-      if (unpack) {
-        shouldUnpack = minimatch(filename, unpack, { matchBase: true });
-      }
-      if (!shouldUnpack && unpackDir) {
-        shouldUnpack = isUnpackedDir(relativePath, unpackDir, unpackDirs);
-      }
-      return shouldUnpack;
-    };
-
     let shouldUnpack: boolean;
     switch (file.type) {
       case 'directory':
-        shouldUnpack = shouldUnpackPath(path.relative(src, filename), undefined, options.unpackDir);
+        shouldUnpack = shouldUnpackPath(
+          filename,
+          path.relative(src, filename),
+          undefined,
+          options.unpackDir,
+        );
         filesystem.insertDirectory(filename, shouldUnpack);
         break;
       case 'file':
         shouldUnpack = shouldUnpackPath(
+          filename,
           path.relative(src, path.dirname(filename)),
           options.unpack,
           options.unpackDir,
         );
         files.push({ filename, unpack: shouldUnpack });
-        return filesystem.insertFile(
+        await filesystem.insertFile(
           filename,
           () => fs.createReadStream(filename),
           shouldUnpack,
           file,
           options,
         );
+        break;
       case 'link':
         shouldUnpack = shouldUnpackPath(
+          filename,
           path.relative(src, filename),
           options.unpack,
           options.unpackDir,
@@ -197,26 +221,10 @@ export async function createPackageFromFiles(
         filesystem.insertLink(filename, shouldUnpack);
         break;
     }
-    return Promise.resolve();
-  };
+  }
 
-  const insertsDone = async function () {
-    await fs.mkdirp(path.dirname(dest));
-    return writeFilesystem(dest, filesystem, { files, links }, metadata);
-  };
-
-  const names = filenamesSorted.slice();
-
-  const next = async function (name?: string) {
-    if (!name) {
-      return insertsDone();
-    }
-
-    await handleFile(name);
-    return next(names.shift());
-  };
-
-  return next(names.shift());
+  await fs.mkdirp(path.dirname(dest));
+  return writeFilesystem(dest, filesystem, { files, links }, metadata);
 }
 
 export type AsarStream = {
@@ -360,6 +368,22 @@ export function extractAll(archivePath: string, dest: string) {
   // create destination directory
   fs.mkdirpSync(dest);
 
+  // Read the entire data section at once — one syscall instead of one per file.
+  const headerSize = filesystem.getHeaderSize();
+  const archiveSize = fs.statSync(archivePath).size;
+  const dataStart = 8 + headerSize;
+  const dataSize = archiveSize - dataStart;
+  let dataBuf: Buffer | null = null;
+  if (dataSize > 0) {
+    dataBuf = Buffer.alloc(dataSize);
+    const fd = fs.openSync(archivePath, 'r');
+    try {
+      fs.readSync(fd, dataBuf, 0, dataSize, dataStart);
+    } finally {
+      fs.closeSync(fd);
+    }
+  }
+
   const extractionErrors: Error[] = [];
   for (const fullPath of filenames) {
     // Remove leading slash
@@ -391,7 +415,16 @@ export function extractAll(archivePath: string, dest: string) {
     } else {
       // it's a file, try to extract it
       try {
-        const content = readFileSync(filesystem, filename, file);
+        let content: Buffer;
+        if (file.unpacked) {
+          content = fs.readFileSync(path.join(`${filesystem.getRootPath()}.unpacked`, filename));
+        } else if (file.size <= 0) {
+          content = Buffer.alloc(0);
+        } else {
+          // Slice from the pre-read data buffer — zero-copy view
+          const offset = parseInt(file.offset);
+          content = dataBuf!.subarray(offset, offset + file.size);
+        }
         fs.writeFileSync(destFilename, content);
         if (file.executable) {
           fs.chmodSync(destFilename, '755');

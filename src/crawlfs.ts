@@ -11,6 +11,7 @@ export type CrawledFileType = {
     path: string;
     stat: Stats;
   };
+  cachedBuffer?: Buffer;
 };
 
 export async function determineFileType(filename: string): Promise<CrawledFileType | null> {
@@ -36,27 +37,32 @@ export async function crawl(dir: string, options: GlobOptionsWithFileTypesFalse)
     crawled.sort().map(async (filename) => [filename, await determineFileType(filename)] as const),
   );
   const links: string[] = [];
+  const linkSet = new Set<string>();
   const filenames = results
     .map(([filename, type]) => {
       if (type) {
         metadata[filename] = type;
-        if (type.type === 'link') links.push(filename);
+        if (type.type === 'link') {
+          links.push(filename);
+          linkSet.add(filename);
+        }
       }
       return filename;
     })
     .filter((filename) => {
+      if (links.length === 0) return true;
       // Newer glob can return files inside symlinked directories, to avoid
-      // those appearing in archives we need to manually exclude theme here
-      const exactLinkIndex = links.findIndex((link) => filename === link);
-      return links.every((link, index) => {
-        if (index === exactLinkIndex) {
-          return true;
+      // those appearing in archives we need to manually exclude them here
+      const isExactLink = linkSet.has(filename);
+      for (const link of links) {
+        if (isExactLink && filename === link) continue;
+        if (filename.startsWith(link)) {
+          // symlink may point outside the directory: https://github.com/electron/asar/issues/303
+          const relativePath = path.relative(link, path.dirname(filename));
+          if (!relativePath.startsWith('..')) return false;
         }
-        const isFileWithinSymlinkDir = filename.startsWith(link);
-        // symlink may point outside the directory: https://github.com/electron/asar/issues/303
-        const relativePath = path.relative(link, path.dirname(filename));
-        return !isFileWithinSymlinkDir || relativePath.startsWith('..');
-      });
+      }
+      return true;
     });
   return [filenames, metadata] as const;
 }

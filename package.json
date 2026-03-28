@@ -36,6 +36,8 @@
     "prettier": "prettier \"src/**/*.{ts,cts,mts}\" \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs}\"",
     "prettier:check": "yarn prettier --check",
     "prettier:write": "yarn prettier --write",
+    "benchmark": "yarn build && npx tsx benchmark/run.ts",
+    "benchmark:quick": "yarn build && npx tsx benchmark/run.ts small",
     "prepack": "yarn build",
     "prepare": "husky"
   },
