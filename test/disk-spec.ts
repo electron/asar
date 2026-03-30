@@ -3,7 +3,12 @@ import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import path from 'node:path';
 
 import { createPackage, getRawHeader, uncacheAll } from '../src/asar.js';
-import { readArchiveHeaderSync, readFilesystemSync, readFileSync, uncacheFilesystem } from '../src/disk.js';
+import {
+  readArchiveHeaderSync,
+  readFilesystemSync,
+  readFileSync,
+  uncacheFilesystem,
+} from '../src/disk.js';
 import { useTmpDir } from './util/tmpDir.js';
 import { Pickle } from '../src/pickle.js';
 import { Filesystem, FilesystemFileEntry } from '../src/filesystem.js';
