@@ -43,7 +43,4 @@ jobs:
       - name: Build
         run: yarn build
       - name: Test
-        env:
-          ELECTRON_INTEGRITY_DIGEST_TEST_MAJOR_VERSION: '41'
-          ELECTRON_INTEGRITY_DIGEST_TEST_RELEASE_CHANNEL: 'auto'
         run: yarn test
