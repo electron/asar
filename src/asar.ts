@@ -443,13 +443,3 @@ export function extractAll(archivePath: string, dest: string) {
 }
 
 export { uncacheAll, uncacheFilesystem as uncache, FileRecord, DirectoryRecord } from './disk.js';
-export {
-  calculateIntegrityDigestForApp,
-  getStoredIntegrityDigestForApp,
-  setStoredIntegrityDigestForApp,
-  InvalidAppPathError,
-  InvalidAsarIntegrityError,
-  MissingIntegrityDigestError,
-  MultipleDifferentIntegrityDigestsError,
-  UnknownIntegrityDigestVersionError,
-} from './integrity-digest.js';
