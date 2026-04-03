@@ -1,10 +1,75 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import path from 'node:path';
 
 import { createPackage, getRawHeader, uncacheAll } from '../src/asar.js';
-import { readArchiveHeaderSync, readFilesystemSync, uncacheFilesystem } from '../src/disk.js';
+import {
+  readArchiveHeaderSync,
+  readFilesystemSync,
+  readFileSync,
+  uncacheFilesystem,
+} from '../src/disk.js';
 import { useTmpDir } from './util/tmpDir.js';
+import { Pickle } from '../src/pickle.js';
+import { Filesystem, FilesystemFileEntry } from '../src/filesystem.js';
+
+/**
+ * Builds a minimal asar archive buffer with a single file entry using the given offset/size.
+ * Returns the archive buffer and the header size (for constructing a matching Filesystem).
+ */
+function buildAsar(
+  fileOffset: string,
+  fileSize: number,
+  contentLength: number,
+): { buf: Buffer; headerSize: number } {
+  const header = JSON.stringify({
+    files: {
+      'test.txt': {
+        offset: fileOffset,
+        size: fileSize,
+        unpacked: false,
+        executable: false,
+      },
+    },
+  });
+
+  const headerPickle = Pickle.createEmpty();
+  headerPickle.writeString(header);
+  const headerBuf = headerPickle.toBuffer();
+
+  const sizePickle = Pickle.createEmpty();
+  sizePickle.writeUInt32(headerBuf.length);
+  const sizeBuf = sizePickle.toBuffer();
+
+  const content = Buffer.alloc(contentLength, 0x41); // fill with 'A'
+  return {
+    buf: Buffer.concat([sizeBuf, headerBuf, content]),
+    headerSize: headerBuf.length,
+  };
+}
+
+function writeTestAsar(name: string, buf: Buffer): string {
+  const p = path.resolve('tmp', name);
+  fs.mkdirpSync(path.dirname(p));
+  fs.writeFileSync(p, buf);
+  return p;
+}
+
+function makeFilesystem(archivePath: string, headerSize: number): Filesystem {
+  const filesystem = new Filesystem(archivePath);
+  filesystem.setHeader({ files: Object.create(null) }, headerSize);
+  return filesystem;
+}
+
+function makeFileInfo(offset: string, size: number): FilesystemFileEntry {
+  return {
+    offset,
+    size,
+    unpacked: false,
+    executable: false,
+    integrity: { hash: '', algorithm: 'SHA256', blocks: [], blockSize: 0 },
+  };
+}
 
 describe('disk', () => {
   const { testRunDir, createFixture } = useTmpDir(uncacheAll);
@@ -124,6 +189,81 @@ describe('disk', () => {
       expect(() => JSON.parse(headerString)).not.toThrow();
       expect(header).toHaveProperty('files');
       expect(header.files).toHaveProperty('b');
+    });
+  });
+
+  describe('readFileSync offset validation', () => {
+    beforeAll(() => {
+      fs.mkdirpSync('tmp');
+    });
+
+    it('should reject NaN offset', () => {
+      const { buf, headerSize } = buildAsar('not-a-number', 10, 10);
+      const archivePath = writeTestAsar('nan-offset.asar', buf);
+      const filesystem = makeFilesystem(archivePath, headerSize);
+      const info = makeFileInfo('not-a-number', 10);
+
+      expect(() => readFileSync(filesystem, 'test.txt', info)).toThrow(
+        'Invalid file offset in archive header',
+      );
+    });
+
+    it('should reject negative offset', () => {
+      const { buf, headerSize } = buildAsar('-100', 10, 10);
+      const archivePath = writeTestAsar('negative-offset.asar', buf);
+      const filesystem = makeFilesystem(archivePath, headerSize);
+      const info = makeFileInfo('-100', 10);
+
+      expect(() => readFileSync(filesystem, 'test.txt', info)).toThrow(
+        'Invalid file offset in archive header',
+      );
+    });
+
+    it('should reject offset exceeding Number.MAX_SAFE_INTEGER', () => {
+      const unsafeOffset = '9007199254740993'; // Number.MAX_SAFE_INTEGER + 1
+      const { buf, headerSize } = buildAsar(unsafeOffset, 10, 10);
+      const archivePath = writeTestAsar('unsafe-offset.asar', buf);
+      const filesystem = makeFilesystem(archivePath, headerSize);
+      const info = makeFileInfo(unsafeOffset, 10);
+
+      expect(() => readFileSync(filesystem, 'test.txt', info)).toThrow(
+        'Invalid file offset in archive header',
+      );
+    });
+
+    it('should reject offset + size beyond archive file boundary', () => {
+      const { buf, headerSize } = buildAsar('0', 9999, 10);
+      const archivePath = writeTestAsar('overflow-offset.asar', buf);
+      const filesystem = makeFilesystem(archivePath, headerSize);
+      const info = makeFileInfo('0', 9999);
+
+      expect(() => readFileSync(filesystem, 'test.txt', info)).toThrow(
+        'File entry extends beyond archive boundary',
+      );
+    });
+
+    it('should reject offset that places read beyond archive end', () => {
+      const { buf, headerSize } = buildAsar('99999', 10, 10);
+      const archivePath = writeTestAsar('past-end-offset.asar', buf);
+      const filesystem = makeFilesystem(archivePath, headerSize);
+      const info = makeFileInfo('99999', 10);
+
+      expect(() => readFileSync(filesystem, 'test.txt', info)).toThrow(
+        'File entry extends beyond archive boundary',
+      );
+    });
+
+    it('should read file successfully with valid offset', () => {
+      const content = 'hello';
+      const { buf, headerSize } = buildAsar('0', content.length, content.length);
+      // Overwrite the content area with our actual content
+      buf.write(content, buf.length - content.length);
+      const archivePath = writeTestAsar('valid-offset.asar', buf);
+      const filesystem = makeFilesystem(archivePath, headerSize);
+      const info = makeFileInfo('0', content.length);
+
+      const result = readFileSync(filesystem, 'test.txt', info);
+      expect(result.toString('utf8')).toBe(content);
     });
   });
 });
