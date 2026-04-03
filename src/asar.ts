@@ -3,6 +3,7 @@ import { minimatch } from 'minimatch';
 
 import { wrappedFs as fs } from './wrapped-fs.js';
 import { Filesystem, FilesystemEntry } from './filesystem.js';
+import { ensureWithin } from './path-validation.js';
 import {
   BasicFilesArray,
   BasicStreamArray,
@@ -388,11 +389,8 @@ export function extractAll(archivePath: string, dest: string) {
   for (const fullPath of filenames) {
     // Remove leading slash
     const filename = fullPath.substr(1);
-    const destFilename = path.join(dest, filename);
+    const destFilename = ensureWithin(dest, filename);
     const file = filesystem.getFile(filename, followLinks);
-    if (path.relative(dest, destFilename).startsWith('..')) {
-      throw new Error(`${fullPath}: file "${destFilename}" writes out of the package`);
-    }
     if ('files' in file) {
       // it's a directory, create it and continue with the next entry
       fs.mkdirpSync(destFilename);

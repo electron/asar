@@ -3,6 +3,7 @@ import { wrappedFs as fs } from './wrapped-fs.js';
 import { Pickle } from './pickle.js';
 import { Filesystem, FilesystemFileEntry } from './filesystem.js';
 import { CrawledFileType } from './crawlfs.js';
+import { ensureWithin } from './path-validation.js';
 import { Stats } from 'node:fs';
 import stream from 'node:stream/promises';
 
@@ -366,7 +367,8 @@ export function readFileSync(filesystem: Filesystem, filename: string, info: Fil
   }
   if (info.unpacked) {
     // it's an unpacked file, copy it.
-    buffer = fs.readFileSync(path.join(`${filesystem.getRootPath()}.unpacked`, filename));
+    const unpackedDir = `${filesystem.getRootPath()}.unpacked`;
+    buffer = fs.readFileSync(ensureWithin(unpackedDir, filename));
   } else {
     // Node throws an exception when reading 0 bytes into a 0-size buffer,
     // so we short-circuit the read in this case.
