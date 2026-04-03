@@ -49,7 +49,7 @@
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
     "@types/node": "^22.12.0",
-    "electron": "^35.7.5",
+    "electron": "^39.8.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
