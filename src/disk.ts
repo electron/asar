@@ -316,6 +316,7 @@ export function readArchiveHeaderSync(archivePath: string): ArchiveHeader {
   let size: number;
   let headerBuf: Buffer;
   try {
+    const archiveSize = fs.fstatSync(fd).size;
     const sizeBuf = Buffer.alloc(8);
     if (fs.readSync(fd, sizeBuf, 0, 8, null) !== 8) {
       throw new Error('Unable to read header size');
@@ -323,6 +324,11 @@ export function readArchiveHeaderSync(archivePath: string): ArchiveHeader {
 
     const sizePickle = Pickle.createFromBuffer(sizeBuf);
     size = sizePickle.createIterator().readUInt32();
+    if (size < 0 || size > archiveSize - 8) {
+      throw new Error(
+        `Header size ${size} exceeds archive size ${archiveSize}. The archive is corrupted.`,
+      );
+    }
     headerBuf = Buffer.alloc(size);
     if (fs.readSync(fd, headerBuf, 0, size, null) !== size) {
       throw new Error('Unable to read header');
@@ -361,39 +367,38 @@ export function uncacheAll() {
 }
 
 export function readFileSync(filesystem: Filesystem, filename: string, info: FilesystemFileEntry) {
-  let buffer = Buffer.alloc(info.size);
   if (info.size <= 0) {
-    return buffer;
+    return Buffer.alloc(0);
   }
   if (info.unpacked) {
     // it's an unpacked file, copy it.
     const unpackedDir = `${filesystem.getRootPath()}.unpacked`;
-    buffer = fs.readFileSync(ensureWithin(unpackedDir, filename));
-  } else {
-    // Node throws an exception when reading 0 bytes into a 0-size buffer,
-    // so we short-circuit the read in this case.
-    const fd = fs.openSync(filesystem.getRootPath(), 'r');
-    try {
-      const fileOffset = parseInt(info.offset);
-      if (Number.isNaN(fileOffset) || fileOffset < 0 || !Number.isSafeInteger(fileOffset)) {
-        throw new Error(`Invalid file offset in archive header: ${info.offset}`);
-      }
-      const offset = 8 + filesystem.getHeaderSize() + fileOffset;
-      if (!Number.isSafeInteger(offset)) {
-        throw new Error(`Computed offset exceeds safe integer range`);
-      }
-      const archiveSize = fs.fstatSync(fd).size;
-      if (offset < 0 || offset + info.size > archiveSize) {
-        throw new Error(
-          `File entry extends beyond archive boundary (offset=${offset}, size=${info.size}, archiveSize=${archiveSize})`,
-        );
-      }
-      fs.readSync(fd, buffer, 0, info.size, offset);
-    } finally {
-      fs.closeSync(fd);
-    }
+    return fs.readFileSync(ensureWithin(unpackedDir, filename));
   }
-  return buffer;
+  // Node throws an exception when reading 0 bytes into a 0-size buffer,
+  // so we short-circuit the read in this case.
+  const fd = fs.openSync(filesystem.getRootPath(), 'r');
+  try {
+    const fileOffset = parseInt(info.offset);
+    if (Number.isNaN(fileOffset) || fileOffset < 0 || !Number.isSafeInteger(fileOffset)) {
+      throw new Error(`Invalid file offset in archive header: ${info.offset}`);
+    }
+    const offset = 8 + filesystem.getHeaderSize() + fileOffset;
+    if (!Number.isSafeInteger(offset)) {
+      throw new Error(`Computed offset exceeds safe integer range`);
+    }
+    const archiveSize = fs.fstatSync(fd).size;
+    if (offset < 0 || offset + info.size > archiveSize) {
+      throw new Error(
+        `File entry extends beyond archive boundary (offset=${offset}, size=${info.size}, archiveSize=${archiveSize})`,
+      );
+    }
+    const buffer = Buffer.alloc(info.size);
+    fs.readSync(fd, buffer, 0, info.size, offset);
+    return buffer;
+  } finally {
+    fs.closeSync(fd);
+  }
 }
 
 export function readFileWithFd(
