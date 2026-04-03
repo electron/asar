@@ -114,7 +114,7 @@ describe('DoS validation', () => {
 
       uncacheAll();
       expect(() => extractFile(archivePath, 'evil.txt')).toThrowError(
-        /extends beyond archive size .* The archive is corrupted/,
+        /extends beyond archive boundary/,
       );
     });
 
@@ -134,7 +134,7 @@ describe('DoS validation', () => {
 
       uncacheAll();
       expect(() => extractFile(archivePath, 'evil.txt')).toThrowError(
-        /extends beyond archive size .* The archive is corrupted/,
+        /extends beyond archive boundary/,
       );
     });
 
