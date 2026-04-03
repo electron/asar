@@ -7,6 +7,7 @@ import { wrappedFs as fs } from './wrapped-fs.js';
 import { CrawledFileType } from './crawlfs.js';
 
 const UINT32_MAX = 2 ** 32 - 1;
+const SYMLINK_MAX_DEPTH = 40; // matches Linux SYMLOOP_MAX
 
 // Files smaller than this use buffer-based integrity hashing (avoids stream overhead).
 // Files larger than this use streaming to avoid holding large buffers in memory.
@@ -241,11 +242,24 @@ export class Filesystem {
     return files;
   }
 
-  getNode(p: string, followLinks: boolean = true): FilesystemEntry {
+  getNode(
+    p: string,
+    followLinks: boolean = true,
+    depth: number = 0,
+    visited: Set<string> = new Set(),
+  ): FilesystemEntry {
     const node = this.searchNodeFromDirectory(path.dirname(p));
     const name = path.basename(p);
     if ('link' in node && followLinks) {
-      return this.getNode(path.join(node.link, name));
+      const resolvedPath = path.join(node.link, name);
+      if (visited.has(resolvedPath)) {
+        throw new Error(`"${p}": circular symlink detected at "${resolvedPath}"`);
+      }
+      if (depth >= SYMLINK_MAX_DEPTH) {
+        throw new Error(`"${p}": too many levels of symbolic links (>${SYMLINK_MAX_DEPTH})`);
+      }
+      visited.add(resolvedPath);
+      return this.getNode(resolvedPath, followLinks, depth + 1, visited);
     }
     if (name) {
       return (node as FilesystemDirectoryEntry).files[name];
@@ -254,8 +268,13 @@ export class Filesystem {
     }
   }
 
-  getFile(p: string, followLinks: boolean = true): FilesystemEntry {
-    const info = this.getNode(p, followLinks);
+  getFile(
+    p: string,
+    followLinks: boolean = true,
+    depth: number = 0,
+    visited: Set<string> = new Set(),
+  ): FilesystemEntry {
+    const info = this.getNode(p, followLinks, depth, visited);
 
     if (!info) {
       throw new Error(`"${p}" was not found in this archive`);
@@ -263,7 +282,15 @@ export class Filesystem {
 
     // if followLinks is false we don't resolve symlinks
     if ('link' in info && followLinks) {
-      return this.getFile(info.link, followLinks);
+      const link = (info as FilesystemLinkEntry).link;
+      if (visited.has(link)) {
+        throw new Error(`"${p}": circular symlink detected at "${link}"`);
+      }
+      if (depth >= SYMLINK_MAX_DEPTH) {
+        throw new Error(`"${p}": too many levels of symbolic links (>${SYMLINK_MAX_DEPTH})`);
+      }
+      visited.add(link);
+      return this.getFile(link, followLinks, depth + 1, visited);
     } else {
       return info;
     }
