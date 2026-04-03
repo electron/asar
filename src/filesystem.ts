@@ -203,7 +203,7 @@ export class Filesystem {
     src: string = fs.realpathSync(this.src),
   ) {
     const link = this.resolveLink(src, parentPath, symlink);
-    if (link.startsWith('..')) {
+    if (path.isAbsolute(link) || path.normalize(link).startsWith('..')) {
       throw new Error(`${p}: file "${link}" links out of the package`);
     }
     const node = this.searchNodeFromPath(p) as FilesystemLinkEntry;

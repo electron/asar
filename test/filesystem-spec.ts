@@ -228,4 +228,64 @@ describe('filesystem', () => {
       expect('link' in result).toBe(true);
     });
   });
+
+  describe('insertLink symlink validation', () => {
+    it('should reject symlinks that resolve outside the package via deeply nested traversal', () => {
+      const src = '/package';
+      const filesystem = new Filesystem(src);
+      expect(() => {
+        filesystem.insertLink(
+          path.join(src, 'a', 'b', 'link'),
+          false,
+          path.join(src, 'a', 'b'), // parentPath
+          '../../../etc/passwd', // symlink traverses out of /package
+          src,
+        );
+      }).toThrow('links out of the package');
+    });
+
+    it('should reject symlinks that traverse out via normalized path (e.g. valid/../../../etc/passwd)', () => {
+      const src = '/package';
+      const filesystem = new Filesystem(src);
+      expect(() => {
+        filesystem.insertLink(
+          path.join(src, 'link'),
+          false,
+          path.join(src, 'subdir'), // parentPath
+          'valid/../../../etc/passwd', // symlink that normalizes to ../../etc/passwd
+          src,
+        );
+      }).toThrow('links out of the package');
+    });
+
+    it('should reject symlinks that directly traverse out with ..', () => {
+      const src = '/package';
+      const filesystem = new Filesystem(src);
+      expect(() => {
+        filesystem.insertLink(path.join(src, 'link'), false, src, '../../etc/passwd', src);
+      }).toThrow('links out of the package');
+    });
+
+    it('should allow symlinks that stay within the package', () => {
+      const src = '/package';
+      const filesystem = new Filesystem(src);
+      expect(() => {
+        filesystem.insertLink(
+          path.join(src, 'link'),
+          false,
+          path.join(src, 'subdir'), // parentPath
+          '../other-file.txt', // resolves to /package/other-file.txt
+          src,
+        );
+      }).not.toThrow();
+    });
+
+    it('should allow symlinks to files in subdirectories', () => {
+      const src = '/package';
+      const filesystem = new Filesystem(src);
+      expect(() => {
+        filesystem.insertLink(path.join(src, 'link'), false, src, 'subdir/file.txt', src);
+      }).not.toThrow();
+    });
+  });
 });
