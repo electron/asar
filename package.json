@@ -26,10 +26,10 @@
     "provenance": true
   },
   "scripts": {
-    "build": "tsgo",
+    "build": "tsc",
     "build:docs": "typedoc src/asar.ts",
     "test": "yarn vitest run && xvfb-maybe electron node_modules/vitest/vitest.mjs run",
-    "test:typecheck": "cd test && tsgo",
+    "test:typecheck": "cd test && tsc",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "lint": "oxfmt --check && oxlint && yarn test:typecheck",
