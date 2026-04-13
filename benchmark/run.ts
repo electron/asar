@@ -15,13 +15,7 @@ import {
 } from '../lib/asar.js';
 import { crawl } from '../lib/crawlfs.js';
 import { getFileIntegrity } from '../lib/integrity.js';
-import {
-  FIXTURES,
-  generateFixture,
-  cleanFixtures,
-  formatBytes,
-  type FixtureConfig,
-} from './generate-fixtures.js';
+import { FIXTURES, generateFixture, formatBytes, type FixtureConfig } from './generate-fixtures.js';
 
 // ─── Benchmark harness ───────────────────────────────────────────────
 
@@ -85,9 +79,7 @@ async function benchmark(
 }
 
 function printResult(result: BenchmarkResult) {
-  const throughput = result.throughputMBps
-    ? ` | ${result.throughputMBps.toFixed(1)} MB/s`
-    : '';
+  const throughput = result.throughputMBps ? ` | ${result.throughputMBps.toFixed(1)} MB/s` : '';
   console.log(
     `  ${result.name.padEnd(40)} ` +
       `avg=${result.avgMs.toFixed(2).padStart(9)}ms  ` +
@@ -136,10 +128,7 @@ async function benchmarkCrawl(fixtureDir: string, config: FixtureConfig): Promis
   );
 }
 
-async function benchmarkPack(
-  fixtureDir: string,
-  config: FixtureConfig,
-): Promise<BenchmarkResult> {
+async function benchmarkPack(fixtureDir: string, config: FixtureConfig): Promise<BenchmarkResult> {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'asar-bench-pack-'));
   const destFile = path.join(tmpDir, `${config.name}.asar`);
   const dataSize = getDirectorySize(fixtureDir);
@@ -359,7 +348,11 @@ async function main() {
   printSection('Generating fixtures');
   const fixtureDirs = new Map<string, string>();
   const activeFixtures = FIXTURES.filter(
-    (f) => !filterArg || f.name === filterArg || f.name.startsWith(filterArg + '-') || filterArg === 'all',
+    (f) =>
+      !filterArg ||
+      f.name === filterArg ||
+      f.name.startsWith(filterArg + '-') ||
+      filterArg === 'all',
   );
 
   for (const config of activeFixtures) {
@@ -368,9 +361,7 @@ async function main() {
     const elapsed = (performance.now() - start).toFixed(1);
     const totalSize = getDirectorySize(dir);
     const fileCount = getFileCount(dir);
-    console.log(
-      `  ${config.name}: ${fileCount} files, ${formatBytes(totalSize)} (${elapsed}ms)`,
-    );
+    console.log(`  ${config.name}: ${fileCount} files, ${formatBytes(totalSize)} (${elapsed}ms)`);
     fixtureDirs.set(config.name, dir);
   }
 

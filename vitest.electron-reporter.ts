@@ -1,17 +1,17 @@
-import { RunnerTestFile, Task } from "vitest"
-import { Reporter } from "vitest/reporters"
+import { RunnerTestFile, Task } from 'vitest';
+import { Reporter } from 'vitest/reporters';
 
 function countFailures(tasks: Task[]): number {
-  let count = 0
+  let count = 0;
   for (const task of tasks) {
     if (task.result?.state === 'fail') {
-      count++
+      count++;
     }
     if ('tasks' in task && task.tasks) {
-      count += countFailures(task.tasks)
+      count += countFailures(task.tasks);
     }
   }
-  return count
+  return count;
 }
 
 export default class ElectronExitReporter implements Reporter {
@@ -20,18 +20,18 @@ export default class ElectronExitReporter implements Reporter {
       return;
     }
 
-    let failureCount = 0
+    let failureCount = 0;
 
     for (const file of files) {
       if (file.result?.state === 'fail') {
-        failureCount++
+        failureCount++;
       }
       if (file.tasks) {
-        failureCount += countFailures(file.tasks)
+        failureCount += countFailures(file.tasks);
       }
     }
 
-    const hasExecutionErrors = errors && errors.length > 0
+    const hasExecutionErrors = errors && errors.length > 0;
     const exitCode = failureCount > 0 || hasExecutionErrors ? 1 : 0;
 
     // In Electron, vitest calls process.exit() after onFinished with its own

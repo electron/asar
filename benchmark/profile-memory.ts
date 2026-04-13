@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { generateFixture, formatBytes, FIXTURES } from './generate-fixtures.js';
-import { createPackage, createPackageFromFiles, uncache } from '../lib/asar.js';
+import { createPackage, createPackageFromFiles } from '../lib/asar.js';
 import { crawl } from '../lib/crawlfs.js';
 
 function getMemoryUsage() {
@@ -15,8 +15,8 @@ function printMem(label: string, before: NodeJS.MemoryUsage, after: NodeJS.Memor
   const rssDelta = after.rss - before.rss;
   console.log(
     `  ${label.padEnd(30)} ` +
-    `heap: ${formatBytes(after.heapUsed).padStart(10)} (Δ ${(heapDelta >= 0 ? '+' : '') + formatBytes(heapDelta)})  ` +
-    `rss: ${formatBytes(after.rss).padStart(10)} (Δ ${(rssDelta >= 0 ? '+' : '') + formatBytes(rssDelta)})`
+      `heap: ${formatBytes(after.heapUsed).padStart(10)} (Δ ${(heapDelta >= 0 ? '+' : '') + formatBytes(heapDelta)})  ` +
+      `rss: ${formatBytes(after.rss).padStart(10)} (Δ ${(rssDelta >= 0 ? '+' : '') + formatBytes(rssDelta)})`,
   );
 }
 
@@ -59,9 +59,11 @@ async function profileFixture(name: string) {
     printMem('createPackage (after)', before, after);
     console.log(
       `  ${'peak heap'.padEnd(30)} ${formatBytes(peakHeap).padStart(10)} (Δ +${formatBytes(peakHeap - before.heapUsed)})  ` +
-      `rss: ${formatBytes(peakRss).padStart(10)} (Δ +${formatBytes(peakRss - before.rss)})`
+        `rss: ${formatBytes(peakRss).padStart(10)} (Δ +${formatBytes(peakRss - before.rss)})`,
     );
-    console.log(`  ${'data / peak-heap-delta'.padEnd(30)} ${((peakHeap - before.heapUsed) / dataSize).toFixed(2)}x data size`);
+    console.log(
+      `  ${'data / peak-heap-delta'.padEnd(30)} ${((peakHeap - before.heapUsed) / dataSize).toFixed(2)}x data size`,
+    );
   }
 
   // Measure: createPackageFromFiles (pre-crawled)
@@ -90,9 +92,11 @@ async function profileFixture(name: string) {
     printMem('createPackageFromFiles (after)', before, after);
     console.log(
       `  ${'peak heap'.padEnd(30)} ${formatBytes(peakHeap).padStart(10)} (Δ +${formatBytes(peakHeap - before.heapUsed)})  ` +
-      `rss: ${formatBytes(peakRss).padStart(10)} (Δ +${formatBytes(peakRss - before.rss)})`
+        `rss: ${formatBytes(peakRss).padStart(10)} (Δ +${formatBytes(peakRss - before.rss)})`,
     );
-    console.log(`  ${'data / peak-heap-delta'.padEnd(30)} ${((peakHeap - before.heapUsed) / dataSize).toFixed(2)}x data size`);
+    console.log(
+      `  ${'data / peak-heap-delta'.padEnd(30)} ${((peakHeap - before.heapUsed) / dataSize).toFixed(2)}x data size`,
+    );
   }
 
   fs.rmSync(tmpDir, { recursive: true, force: true });

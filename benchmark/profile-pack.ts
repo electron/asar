@@ -8,7 +8,8 @@ const config = FIXTURES.find((f) => f.name === 'many-small-files')!;
 const fixtureDir = generateFixture(config);
 
 // Get all files
-const allFiles = fs.readdirSync(fixtureDir, { withFileTypes: true, recursive: true })
+const allFiles = fs
+  .readdirSync(fixtureDir, { withFileTypes: true, recursive: true })
   .filter((e) => e.isFile())
   .map((e) => path.join(e.parentPath, e.name));
 

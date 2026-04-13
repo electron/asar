@@ -26,16 +26,14 @@
     "provenance": true
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsgo",
     "build:docs": "typedoc src/asar.ts",
-    "test": "yarn lint && yarn vitest run && xvfb-maybe electron node_modules/vitest/vitest.mjs run",
-    "test:typecheck": "cd test && tsc",
+    "test": "yarn vitest run && xvfb-maybe electron node_modules/vitest/vitest.mjs run",
+    "test:typecheck": "cd test && tsgo",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "lint": "yarn prettier:check && yarn test:typecheck",
-    "prettier": "prettier \"src/**/*.{ts,cts,mts}\" \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs}\"",
-    "prettier:check": "yarn prettier --check",
-    "prettier:write": "yarn prettier --write",
+    "lint": "oxfmt --check && oxlint && yarn test:typecheck",
+    "lint:fix": "yarn oxfmt && yarn oxlint --fix",
     "benchmark": "yarn build && tsx benchmark/run.ts",
     "benchmark:quick": "yarn build && tsx benchmark/run.ts small",
     "prepack": "yarn build",
@@ -44,7 +42,8 @@
   "dependencies": {
     "commander": "^13.1.0",
     "glob": "^13.0.2",
-    "minimatch": "^10.0.1"
+    "minimatch": "^10.0.1",
+    "typescript": "^6.0.2"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
@@ -52,10 +51,11 @@
     "electron": "^39.8.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
+    "oxfmt": "0.42.0",
+    "oxlint": "1.57.0",
+    "oxlint-tsgolint": "0.18.1",
     "tsx": "^4.21.0",
-    "typedoc": "~0.25.13",
-    "typescript": "^5.5.4",
+    "typedoc": "~0.28.0",
     "vitest": "^3.2.4",
     "xvfb-maybe": "^0.2.1"
   },
@@ -66,9 +66,9 @@
     }
   },
   "lint-staged": {
-    "*.{json,md}": "prettier --write --experimental-cli",
+    "*.{json,md}": "oxfmt",
     "*.{js,ts, cjs, mjs, cts, mts}": [
-      "prettier --write --experimental-cli"
+      "oxfmt"
     ]
   }
 }

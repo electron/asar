@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { generateFixture, FIXTURES } from './generate-fixtures.js';
-import { createPackage, extractAll, listPackage, getRawHeader, uncache } from '../lib/asar.js';
+import { createPackage, extractAll, uncache } from '../lib/asar.js';
 import { readArchiveHeaderSync, readFilesystemSync } from '../lib/disk.js';
 
 const config = FIXTURES.find((f) => f.name === 'many-small-files')!;
@@ -12,7 +12,9 @@ const archiveFile = path.join(tmpDir, 'test.asar');
 await createPackage(fixtureDir, archiveFile);
 const archiveSize = fs.statSync(archiveFile).size;
 
-console.log(`=== Extract breakdown: ${config.fileCount} files, archive ${(archiveSize / 1024).toFixed(0)} KB ===\n`);
+console.log(
+  `=== Extract breakdown: ${config.fileCount} files, archive ${(archiveSize / 1024).toFixed(0)} KB ===\n`,
+);
 
 // 1. Header parsing
 {
@@ -27,7 +29,9 @@ console.log(`=== Extract breakdown: ${config.fileCount} files, archive ${(archiv
   const filesystem = readFilesystemSync(archiveFile);
   const t = performance.now();
   const files = filesystem.listFiles();
-  console.log(`listFiles:            ${(performance.now() - t).toFixed(2)}ms (${files.length} entries)`);
+  console.log(
+    `listFiles:            ${(performance.now() - t).toFixed(2)}ms (${files.length} entries)`,
+  );
 
   // 3. getFile lookups
   const followLinks = process.platform === 'win32';
@@ -63,7 +67,9 @@ console.log(`=== Extract breakdown: ${config.fileCount} files, archive ${(archiv
     }
   }
   fs.closeSync(fd);
-  console.log(`readSync (individual): ${(performance.now() - t).toFixed(2)}ms (${totalRead} bytes)`);
+  console.log(
+    `readSync (individual): ${(performance.now() - t).toFixed(2)}ms (${totalRead} bytes)`,
+  );
 
   // 5. Read all data in one shot
   const t2 = performance.now();
@@ -139,13 +145,17 @@ console.log(`=== Extract breakdown: ${config.fileCount} files, archive ${(archiv
 
   let t = performance.now();
   for (const d of dirEntries) filesystem.insertDirectory(d, false);
-  console.log(`insertDirectory:      ${(performance.now() - t).toFixed(1)}ms (${dirEntries.length})`);
+  console.log(
+    `insertDirectory:      ${(performance.now() - t).toFixed(1)}ms (${dirEntries.length})`,
+  );
 
   t = performance.now();
   for (const f of fileEntries) {
     await filesystem.insertFile(f, () => fs.createReadStream(f), false, metadata[f]);
   }
-  console.log(`insertFile (all):     ${(performance.now() - t).toFixed(1)}ms (${fileEntries.length})`);
+  console.log(
+    `insertFile (all):     ${(performance.now() - t).toFixed(1)}ms (${fileEntries.length})`,
+  );
 }
 
 fs.rmSync(tmpDir, { recursive: true, force: true });
