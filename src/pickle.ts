@@ -211,8 +211,8 @@ export class Pickle {
   }
 
   writeBytes(data: string, length: number, method?: undefined): boolean;
-  writeBytes(data: number | BigInt, length: number, method: Function): boolean;
-  writeBytes(data: string | number | BigInt, length: number, method?: Function): boolean {
+  writeBytes(data: number | bigint, length: number, method: Function): boolean;
+  writeBytes(data: string | number | bigint, length: number, method?: Function): boolean {
     const dataLength = alignInt(length, SIZE_UINT32);
     const newSize = this.writeOffset + dataLength;
     if (newSize > this.capacityAfterHeader) {

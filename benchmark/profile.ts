@@ -3,7 +3,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { generateFixture, FIXTURES } from './generate-fixtures.js';
 import { crawl } from '../lib/crawlfs.js';
-import { createPackage, createPackageFromFiles, extractAll, uncache } from '../lib/asar.js';
+import { createPackageFromFiles, extractAll, uncache } from '../lib/asar.js';
 
 const config = FIXTURES.find((f) => f.name === 'many-small-files')!;
 const fixtureDir = generateFixture(config);
@@ -48,7 +48,8 @@ console.log('=== Profiling many-small-files (10,000 x ~256B = 2.4MB) ===\n');
   const { getFileIntegrity } = await import('../lib/integrity.js');
 
   // Hash 10,000 small files via streams
-  const files = fs.readdirSync(fixtureDir, { withFileTypes: true, recursive: true })
+  const files = fs
+    .readdirSync(fixtureDir, { withFileTypes: true, recursive: true })
     .filter((e) => e.isFile())
     .map((e) => path.join(e.parentPath, e.name));
 
@@ -76,7 +77,8 @@ console.log('=== Profiling many-small-files (10,000 x ~256B = 2.4MB) ===\n');
 // Profile: how much time is file I/O vs stream setup?
 {
   console.log('--- STREAM vs BUFFER READ ---');
-  const files = fs.readdirSync(fixtureDir, { withFileTypes: true, recursive: true })
+  const files = fs
+    .readdirSync(fixtureDir, { withFileTypes: true, recursive: true })
     .filter((e) => e.isFile())
     .map((e) => path.join(e.parentPath, e.name));
 
@@ -87,7 +89,10 @@ console.log('=== Profiling many-small-files (10,000 x ~256B = 2.4MB) ===\n');
       const s = fs.createReadStream(file);
       const chunks: Buffer[] = [];
       s.on('data', (c) => chunks.push(c as Buffer));
-      s.on('end', () => { Buffer.concat(chunks); resolve(); });
+      s.on('end', () => {
+        Buffer.concat(chunks);
+        resolve();
+      });
       s.on('error', reject);
     });
   }

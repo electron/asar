@@ -32,10 +32,8 @@
     "test:typecheck": "cd test && tsc",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "lint": "yarn prettier:check && yarn test:typecheck",
-    "prettier": "prettier \"src/**/*.{ts,cts,mts}\" \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs}\"",
-    "prettier:check": "yarn prettier --check",
-    "prettier:write": "yarn prettier --write",
+    "lint": "oxfmt --check . && oxlint",
+    "lint:fix": "oxfmt --write . && oxlint --fix",
     "benchmark": "yarn build && tsx benchmark/run.ts",
     "benchmark:quick": "yarn build && tsx benchmark/run.ts small",
     "prepack": "yarn build",
@@ -52,26 +50,25 @@
     "electron": "^39.8.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.59.0",
+    "oxlint-tsgolint": "^0.20.0",
     "tsx": "^4.21.0",
-    "typedoc": "~0.25.13",
-    "typescript": "^5.5.4",
+    "typedoc": "~0.28.0",
+    "typescript": "^6.0.2",
     "vitest": "^3.2.4",
     "xvfb-maybe": "^0.2.1"
   },
-  "resolutions": {
-    "fsevents": "npm:@electron/fsevents@2.3.3-fork"
-  },
-  "packageManager": "yarn@4.10.3+sha512.c38cafb5c7bb273f3926d04e55e1d8c9dfa7d9c3ea1f36a4868fa028b9e5f72298f0b7f401ad5eb921749eb012eb1c3bb74bf7503df3ee43fd600d14a018266f",
   "dependenciesMeta": {
     "electron": {
       "built": true
     }
   },
   "lint-staged": {
-    "*.{json,md}": "prettier --write --experimental-cli",
-    "*.{js,ts, cjs, mjs, cts, mts}": [
-      "prettier --write --experimental-cli"
+    "*.{json,md}": "oxfmt --write",
+    "*.{js,ts,cjs,mjs,cts,mts}": [
+      "oxlint --fix",
+      "oxfmt --write"
     ]
   }
 }
