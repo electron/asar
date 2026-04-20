@@ -2,21 +2,15 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
     "sourceMap": true,
+    "rootDir": "src",
     "outDir": "lib",
-    "types": [
-      "node"
-    ],
-    "typeRoots": [
-      "node_modules/@types",
-      "src/types"
-    ],
+    "types": ["node"],
+    "typeRoots": ["node_modules/@types", "src/types"],
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedLocals": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

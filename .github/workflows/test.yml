@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
       - name: Lint
-        run: yarn prettier:check
+        run: yarn lint
       - name: Build
         run: yarn build
       - name: Test

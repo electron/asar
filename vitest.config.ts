@@ -10,9 +10,6 @@ export default defineConfig({
     testTimeout: 10000,
     fileParallelism: false,
     pool: 'forks',
-    reporters: [
-      'default',
-      new ElectronExitReporter(),
-    ]
+    reporters: ['default', new ElectronExitReporter()],
   },
 });

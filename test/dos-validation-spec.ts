@@ -10,7 +10,7 @@ import { TEST_APPS_DIR } from './util/constants.js';
  * Helper to build a minimal asar archive binary from a header object
  * and optional file content buffer.
  */
-function buildAsar(header: object, fileContent?: Buffer): Buffer {
+function buildAsar(header: object, fileContent?: Buffer<ArrayBuffer>): Buffer {
   const headerString = JSON.stringify(header);
   const headerPickle = Pickle.createEmpty();
   headerPickle.writeString(headerString);
