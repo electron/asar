@@ -11,7 +11,6 @@ __metadata:
   dependencies:
     "@tsconfig/node22": "npm:^22.0.1"
     "@types/node": "npm:^22.12.0"
-    commander: "npm:^13.1.0"
     electron: "npm:^39.8.4"
     glob: "npm:^13.0.2"
     husky: "npm:^9.1.7"
@@ -1430,13 +1429,6 @@ __metadata:
   version: 2.0.20
   resolution: "colorette@npm:2.0.20"
   checksum: 10c0/e94116ff33b0ff56f3b83b9ace895e5bf87c2a7a47b3401b8c3f3226e050d5ef76cf4072fb3325f9dc24d1698f9b730baf4e05eeaf861d74a1883073f4c98a40
-  languageName: node
-  linkType: hard
-
-"commander@npm:^13.1.0":
-  version: 13.1.0
-  resolution: "commander@npm:13.1.0"
-  checksum: 10c0/7b8c5544bba704fbe84b7cab2e043df8586d5c114a4c5b607f83ae5060708940ed0b5bd5838cf8ce27539cde265c1cbd59ce3c8c6b017ed3eec8943e3a415164
   languageName: node
   linkType: hard
 
