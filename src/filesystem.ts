@@ -115,6 +115,12 @@ export class Filesystem {
     file: CrawledFileType,
     options: {
       transform?: (filePath: string) => NodeJS.ReadWriteStream | void;
+      /**
+       * Set when the file content comes from a stream rather than a file on
+       * disk at `p`. In that case `p` is only the destination path inside the
+       * archive, so integrity must be computed from the stream.
+       */
+      fromStream?: boolean;
     } = {},
   ): Promise<void> {
     const dirNode = this.searchNodeFromPath(path.dirname(p)) as FilesystemDirectoryEntry;
@@ -145,14 +151,18 @@ export class Filesystem {
       node.executable = true;
     }
 
-    if (size <= BUFFER_HASH_THRESHOLD) {
+    if (!options.fromStream && size <= BUFFER_HASH_THRESHOLD) {
       // Fully synchronous fast path — no Promise, no stream, no microtask yield
       try {
         const fileBuffer = fs.readFileSync(p);
-        node.integrity = getFileIntegrityFromBuffer(fileBuffer);
-        file.cachedBuffer = fileBuffer;
-        this.offset += BigInt(size);
-        return Promise.resolve();
+        // Only trust the buffer if it matches the size recorded in the header;
+        // otherwise the file at `p` is not the content being archived.
+        if (fileBuffer.length === size) {
+          node.integrity = getFileIntegrityFromBuffer(fileBuffer);
+          file.cachedBuffer = fileBuffer;
+          this.offset += BigInt(size);
+          return Promise.resolve();
+        }
       } catch {
         // Fall through to stream path
       }
