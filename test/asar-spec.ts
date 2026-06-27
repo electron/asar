@@ -19,7 +19,9 @@ import {
   type AsarStreamType,
 } from '../src/asar.js';
 import { crawl } from '../src/crawlfs.js';
+import { getFileIntegrityFromBuffer } from '../src/integrity.js';
 import { useTmpDir } from './util/tmpDir.js';
+import { Transform } from 'node:stream';
 
 describe('asar', () => {
   const { testRunDir, tmpDir, createFixture } = useTmpDir(uncacheAll);
@@ -553,6 +555,37 @@ describe('asar', () => {
         transform: () => undefined,
       });
       expect(extractFile(dest, 'file.txt').toString()).toBe('content');
+    });
+
+    it('should compute integrity over the transformed bytes that are actually stored', async () => {
+      const src = createFixture('transform-integrity', {
+        'file.txt': 'hello world',
+      });
+      const dest = path.join(testRunDir, 'transform-integrity.asar');
+
+      // A transform that changes the bytes (uppercases the content).
+      const upperCaseTransform = () =>
+        new Transform({
+          transform(chunk: Buffer, _enc, cb) {
+            cb(null, Buffer.from(chunk.toString().toUpperCase()));
+          },
+        });
+
+      await createPackageWithOptions(src, dest, {
+        transform: upperCaseTransform,
+      });
+
+      // The bytes actually stored in the archive are the transformed (uppercased) bytes.
+      const storedBytes = extractFile(dest, 'file.txt');
+      expect(storedBytes.toString()).toBe('HELLO WORLD');
+
+      const node = statFile(dest, 'file.txt') as { integrity: { hash: string; blocks: string[] } };
+      const expected = getFileIntegrityFromBuffer(storedBytes);
+
+      // The header integrity must match the bytes that are actually stored,
+      // not the original (pre-transform) bytes.
+      expect(node.integrity.hash).toBe(expected.hash);
+      expect(node.integrity.blocks).toEqual(expected.blocks);
     });
   });
 
