@@ -287,5 +287,38 @@ describe('filesystem', () => {
         filesystem.insertLink(path.join(src, 'link'), false, src, 'subdir/file.txt', src);
       }).not.toThrow();
     });
+
+    it('should store an absolute symlink target pointing inside the package as a correct in-package relative link', () => {
+      const src = '/package';
+      const filesystem = new Filesystem(src);
+      // Absolute target that points back inside the package. With path.join this
+      // was mangled into a broken relative link (e.g. "subdir/package/..."),
+      // because join swallowed the leading separator of the absolute target.
+      const link = filesystem.insertLink(
+        path.join(src, 'subdir', 'link'),
+        false,
+        path.join(src, 'subdir'), // parentPath
+        path.join(src, 'inner', 'file.txt'), // absolute target inside the package
+        src,
+      );
+      expect(link).toBe(path.join('inner', 'file.txt'));
+    });
+
+    it('should reject an absolute symlink target pointing outside the package', () => {
+      const src = '/package';
+      const filesystem = new Filesystem(src);
+      // Absolute target outside the package. With path.join this previously
+      // bypassed the out-of-package guard; with path.resolve it correctly
+      // resolves to a "../"-prefixed path and is rejected.
+      expect(() => {
+        filesystem.insertLink(
+          path.join(src, 'link'),
+          false,
+          path.join(src, 'subdir'), // parentPath
+          '/etc/passwd', // absolute target outside the package
+          src,
+        );
+      }).toThrow('links out of the package');
+    });
   });
 });

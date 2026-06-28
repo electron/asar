@@ -218,7 +218,13 @@ export class Filesystem {
   }
 
   private resolveLink(src: string, parentPath: string, symlink: string) {
-    const target = path.join(parentPath, symlink);
+    // Use path.resolve (not path.join) so that an absolute symlink target is
+    // honored as-is instead of being concatenated onto parentPath. With join,
+    // an absolute target's leading separator is swallowed, producing a broken
+    // relative link for in-package targets and silently bypassing the
+    // out-of-package guard for targets outside the package. resolve handles
+    // both absolute and relative targets through a single code path.
+    const target = path.resolve(parentPath, symlink);
     const link = path.relative(src, target);
     return link;
   }
