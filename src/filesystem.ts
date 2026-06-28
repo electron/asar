@@ -191,7 +191,9 @@ export class Filesystem {
     if (process.platform !== 'win32' && file.stat.mode & 0o100) {
       node.executable = true;
     }
-    node.integrity = await getFileIntegrity(streamGenerator());
+    // Integrity must be computed over the transformed bytes that are actually
+    // stored in the archive, not the original (pre-transform) source bytes.
+    node.integrity = await getFileIntegrity(fs.createReadStream(file.transformed.path));
     this.offset += BigInt(size);
   }
 
