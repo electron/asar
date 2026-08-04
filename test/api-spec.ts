@@ -1,12 +1,15 @@
 import { describe, it, beforeEach, expect } from 'vitest';
 import { wrappedFs as fs } from '../src/wrapped-fs.js';
+import { createHash } from 'node:crypto';
 import os from 'node:os';
+import path from 'node:path';
 import {
   createPackage,
   createPackageFromStreams,
   createPackageWithOptions,
   extractAll,
   extractFile,
+  getRawHeader,
   listPackage,
   statFile,
 } from '../src/asar.js';
@@ -217,6 +220,44 @@ describe('api', () => {
     await compFiles(out, 'test/expected/packthis-read-stream-symlink.asar');
     extractAll(out, 'tmp/extractthis-read-stream-symlink/');
     return compDirs('tmp/extractthis-read-stream-symlink/', src);
+  });
+
+  it('should compute stream package integrity from stream content, not from a same-named file in the CWD', async () => {
+    const realContent = 'REAL-APP-CONTENT\n';
+    const decoyContent = 'DECOY-CONTENT-IN-CWD\n';
+
+    const work = await fs.mkdtemp(path.join(os.tmpdir(), 'asar-stream-integrity-'));
+    const srcFile = path.join(work, 'real.js');
+    await fs.writeFile(srcFile, realContent);
+
+    // a decoy file in the CWD at the same relative path as the archive destination path
+    const cwdDir = path.join(work, 'cwd');
+    await fs.mkdirp(cwdDir);
+    await fs.writeFile(path.join(cwdDir, 'index.js'), decoyContent);
+
+    const out = path.join(TEST_APPS_DIR, 'packthis-stream-integrity.asar');
+    const stat = await fs.lstat(srcFile);
+    const originalCwd = process.cwd();
+    process.chdir(cwdDir);
+    try {
+      await createPackageFromStreams(out, [
+        {
+          path: 'index.js',
+          type: 'file',
+          unpacked: false,
+          streamGenerator: () => fs.createReadStream(srcFile),
+          stat,
+        },
+      ]);
+    } finally {
+      process.chdir(originalCwd);
+    }
+
+    expect(extractFile(out, 'index.js').toString()).toEqual(realContent);
+    const header = JSON.parse(getRawHeader(out).headerString);
+    expect(header.files['index.js'].integrity.hash).toEqual(
+      createHash('sha256').update(realContent).digest('hex'),
+    );
   });
 
   it('should throw when using NodeJS.ReadableStreams with symlink outside package', async () => {
