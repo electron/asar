@@ -407,10 +407,8 @@ export function extractAll(archivePath: string, dest: string) {
         // it's a file, try to extract it
         try {
           if (file.unpacked) {
-            fs.writeFileSync(
-              destFilename,
-              fs.readFileSync(path.join(`${filesystem.getRootPath()}.unpacked`, filename)),
-            );
+            const unpackedDir = `${filesystem.getRootPath()}.unpacked`;
+            fs.writeFileSync(destFilename, fs.readFileSync(ensureWithin(unpackedDir, filename)));
           } else {
             const offset = parseInt(file.offset);
             if (Number.isNaN(offset) || offset < 0 || !Number.isSafeInteger(offset)) {
