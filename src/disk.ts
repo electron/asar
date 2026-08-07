@@ -401,6 +401,50 @@ export function readFileSync(filesystem: Filesystem, filename: string, info: Fil
   }
 }
 
+/**
+ * Upper bound for a single `fs.readSync()` call when copying file contents out of an archive.
+ *
+ * `fs.readSync()` truncates its `length` argument to a signed 32-bit integer, so a single
+ * read of 2 GiB or more wraps to a negative value and fails with `ERR_OUT_OF_RANGE`.
+ * Chunking also keeps peak memory flat instead of scaling with the size of the archive.
+ */
+const EXTRACT_CHUNK_SIZE = 64 * 1024 * 1024;
+
+/**
+ * Copy `size` bytes starting at `position` from an already-open archive descriptor straight
+ * to `destPath`, without buffering the whole entry in memory.
+ */
+export function extractFileWithFd(
+  fd: number,
+  destPath: string,
+  position: number,
+  size: number,
+  chunkSize: number = EXTRACT_CHUNK_SIZE,
+) {
+  const out = fs.openSync(destPath, 'w');
+  try {
+    if (size <= 0) {
+      return;
+    }
+    const buffer = Buffer.alloc(Math.min(size, chunkSize));
+    let copied = 0;
+    while (copied < size) {
+      const wanted = Math.min(buffer.length, size - copied);
+      // `readSync` is allowed to return fewer bytes than requested, so always loop on the result.
+      const read = fs.readSync(fd, buffer, 0, wanted, position + copied);
+      if (read <= 0) {
+        throw new Error(
+          `Unexpected end of archive while extracting "${destPath}" (read ${copied} of ${size} bytes)`,
+        );
+      }
+      fs.writeSync(out, buffer, 0, read);
+      copied += read;
+    }
+  } finally {
+    fs.closeSync(out);
+  }
+}
+
 export function readFileWithFd(
   fd: number,
   filesystem: Filesystem,

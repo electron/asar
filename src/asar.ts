@@ -8,6 +8,7 @@ import {
   BasicFilesArray,
   BasicStreamArray,
   InputMetadata,
+  extractFileWithFd,
   readArchiveHeaderSync,
   readFilesystemSync,
   readFileSync,
@@ -369,68 +370,64 @@ export function extractAll(archivePath: string, dest: string) {
   // create destination directory
   fs.mkdirpSync(dest);
 
-  // Read the entire data section at once — one syscall instead of one per file.
-  const headerSize = filesystem.getHeaderSize();
-  const archiveSize = fs.statSync(archivePath).size;
-  const dataStart = 8 + headerSize;
-  const dataSize = archiveSize - dataStart;
-  let dataBuf: Buffer | null = null;
-  if (dataSize > 0) {
-    dataBuf = Buffer.alloc(dataSize);
-    const fd = fs.openSync(archivePath, 'r');
-    try {
-      fs.readSync(fd, dataBuf, 0, dataSize, dataStart);
-    } finally {
-      fs.closeSync(fd);
-    }
-  }
+  // Open the archive once and stream each entry out of it, instead of re-opening per file.
+  // Reading the whole data section into a single buffer is not an option: `fs.readSync()`
+  // truncates its `length` to a signed 32-bit int, so archives with 2 GiB or more of data
+  // fail with `ERR_OUT_OF_RANGE`, and smaller ones still cost their full size in memory.
+  const dataStart = 8 + filesystem.getHeaderSize();
+  const fd = fs.openSync(archivePath, 'r');
 
   const extractionErrors: Error[] = [];
-  for (const fullPath of filenames) {
-    // Remove leading slash
-    const filename = fullPath.substr(1);
-    const destFilename = ensureWithin(dest, filename);
-    const file = filesystem.getFile(filename, followLinks);
-    if ('files' in file) {
-      // it's a directory, create it and continue with the next entry
-      fs.mkdirpSync(destFilename);
-    } else if ('link' in file) {
-      // it's a symlink, create a symlink
-      const linkSrcPath = path.dirname(path.join(dest, file.link));
-      const linkDestPath = path.dirname(destFilename);
-      const relativePath = path.relative(linkDestPath, linkSrcPath);
-      // try to delete output file, because we can't overwrite a link
-      try {
-        fs.unlinkSync(destFilename);
-      } catch {}
-      const linkTo = path.join(relativePath, path.basename(file.link));
-      if (path.relative(dest, linkSrcPath).startsWith('..')) {
-        throw new Error(
-          `${fullPath}: file "${file.link}" links out of the package to "${linkSrcPath}"`,
-        );
-      }
-      fs.symlinkSync(linkTo, destFilename);
-    } else {
-      // it's a file, try to extract it
-      try {
-        let content: Buffer;
-        if (file.unpacked) {
-          content = fs.readFileSync(path.join(`${filesystem.getRootPath()}.unpacked`, filename));
-        } else if (file.size <= 0) {
-          content = Buffer.alloc(0);
-        } else {
-          // Slice from the pre-read data buffer — zero-copy view
-          const offset = parseInt(file.offset);
-          content = dataBuf!.subarray(offset, offset + file.size);
+  try {
+    for (const fullPath of filenames) {
+      // Remove leading slash
+      const filename = fullPath.substr(1);
+      const destFilename = ensureWithin(dest, filename);
+      const file = filesystem.getFile(filename, followLinks);
+      if ('files' in file) {
+        // it's a directory, create it and continue with the next entry
+        fs.mkdirpSync(destFilename);
+      } else if ('link' in file) {
+        // it's a symlink, create a symlink
+        const linkSrcPath = path.dirname(path.join(dest, file.link));
+        const linkDestPath = path.dirname(destFilename);
+        const relativePath = path.relative(linkDestPath, linkSrcPath);
+        // try to delete output file, because we can't overwrite a link
+        try {
+          fs.unlinkSync(destFilename);
+        } catch {}
+        const linkTo = path.join(relativePath, path.basename(file.link));
+        if (path.relative(dest, linkSrcPath).startsWith('..')) {
+          throw new Error(
+            `${fullPath}: file "${file.link}" links out of the package to "${linkSrcPath}"`,
+          );
         }
-        fs.writeFileSync(destFilename, content);
-        if (file.executable) {
-          fs.chmodSync(destFilename, '755');
+        fs.symlinkSync(linkTo, destFilename);
+      } else {
+        // it's a file, try to extract it
+        try {
+          if (file.unpacked) {
+            fs.writeFileSync(
+              destFilename,
+              fs.readFileSync(path.join(`${filesystem.getRootPath()}.unpacked`, filename)),
+            );
+          } else {
+            const offset = parseInt(file.offset);
+            if (Number.isNaN(offset) || offset < 0 || !Number.isSafeInteger(offset)) {
+              throw new Error(`Invalid file offset in archive header: ${file.offset}`);
+            }
+            extractFileWithFd(fd, destFilename, dataStart + offset, file.size);
+          }
+          if (file.executable) {
+            fs.chmodSync(destFilename, '755');
+          }
+        } catch (e) {
+          extractionErrors.push(e as Error);
         }
-      } catch (e) {
-        extractionErrors.push(e as Error);
       }
     }
+  } finally {
+    fs.closeSync(fd);
   }
   if (extractionErrors.length) {
     throw new Error(
