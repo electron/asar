@@ -40,12 +40,15 @@ export class Filesystem {
   private header: FilesystemEntry;
   private headerSize: number;
   private offset: bigint;
+  // SHA-256 of contents already stored => the offset those contents live at
+  private contentOffsets: Map<string, string>;
 
   constructor(src: string) {
     this.src = path.resolve(src);
     this.header = { files: Object.create(null) };
     this.headerSize = 0;
     this.offset = BigInt(0);
+    this.contentOffsets = new Map();
   }
 
   getRootPath() {
@@ -116,14 +119,17 @@ export class Filesystem {
     options: {
       transform?: (filePath: string) => NodeJS.ReadWriteStream | void;
     } = {},
-  ): Promise<void> {
+  ): Promise<boolean> {
     const dirNode = this.searchNodeFromPath(path.dirname(p)) as FilesystemDirectoryEntry;
     const node = this.searchNodeFromPath(p) as FilesystemFileEntry;
     if (shouldUnpack || dirNode.unpacked) {
       node.size = file.stat.size;
       node.unpacked = true;
+      // Unpacked files are copied out of the archive as standalone files, so every
+      // copy is written even when their contents are identical.
       return getFileIntegrity(streamGenerator()).then((integrity) => {
         node.integrity = integrity;
+        return false;
       });
     }
 
@@ -139,29 +145,58 @@ export class Filesystem {
       throw new Error(`${p}: file size can not be larger than 4.2GB`);
     }
 
-    node.size = size;
-    node.offset = this.offset.toString();
-    if (process.platform !== 'win32' && file.stat.mode & 0o100) {
-      node.executable = true;
-    }
+    const executable = process.platform !== 'win32' && (file.stat.mode & 0o100) !== 0;
 
     if (size <= BUFFER_HASH_THRESHOLD) {
       // Fully synchronous fast path — no Promise, no stream, no microtask yield
       try {
         const fileBuffer = fs.readFileSync(p);
-        node.integrity = getFileIntegrityFromBuffer(fileBuffer);
-        file.cachedBuffer = fileBuffer;
-        this.offset += BigInt(size);
-        return Promise.resolve();
+        const integrity = getFileIntegrityFromBuffer(fileBuffer);
+        const duplicate = this.storeFileEntry(node, size, executable, integrity);
+        if (!duplicate) {
+          file.cachedBuffer = fileBuffer;
+        }
+        return Promise.resolve(duplicate);
       } catch {
         // Fall through to stream path
       }
     }
 
-    return getFileIntegrity(streamGenerator()).then((integrity) => {
-      node.integrity = integrity;
-      this.offset += BigInt(size);
-    });
+    return getFileIntegrity(streamGenerator()).then((integrity) =>
+      this.storeFileEntry(node, size, executable, integrity),
+    );
+  }
+
+  /**
+   * Fills in a file entry and reserves the region of the archive that holds its
+   * contents, growing the archive by `size` bytes. When a file with identical
+   * contents was already inserted, the entry instead points at the offset of those
+   * contents and the archive is left unchanged — the caller must then skip writing
+   * the contents.
+   *
+   * @returns whether the contents were already stored by an earlier file
+   */
+  private storeFileEntry(
+    node: FilesystemFileEntry,
+    size: number,
+    executable: boolean,
+    integrity: FileIntegrity,
+  ): boolean {
+    const sharedOffset = this.contentOffsets.get(integrity.hash);
+
+    node.size = size;
+    node.offset = sharedOffset ?? this.offset.toString();
+    if (executable) {
+      node.executable = true;
+    }
+    node.integrity = integrity;
+
+    if (sharedOffset !== undefined) {
+      return true;
+    }
+    this.contentOffsets.set(integrity.hash, node.offset);
+    this.offset += BigInt(size);
+    return false;
   }
 
   private async insertFileAsync(
@@ -170,7 +205,7 @@ export class Filesystem {
     file: CrawledFileType,
     node: FilesystemFileEntry,
     transformed: NodeJS.ReadWriteStream,
-  ) {
+  ): Promise<boolean> {
     const tmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'asar-'));
     const tmpfile = path.join(tmpdir, path.basename(p));
     const out = fs.createWriteStream(tmpfile);
@@ -186,15 +221,17 @@ export class Filesystem {
       throw new Error(`${p}: file size can not be larger than 4.2GB`);
     }
 
-    node.size = size;
-    node.offset = this.offset.toString();
-    if (process.platform !== 'win32' && file.stat.mode & 0o100) {
-      node.executable = true;
-    }
     // Integrity must be computed over the transformed bytes that are actually
     // stored in the archive, not the original (pre-transform) source bytes.
-    node.integrity = await getFileIntegrity(fs.createReadStream(file.transformed.path));
-    this.offset += BigInt(size);
+    const integrity = await getFileIntegrity(fs.createReadStream(file.transformed.path));
+    const executable = process.platform !== 'win32' && (file.stat.mode & 0o100) !== 0;
+    const duplicate = this.storeFileEntry(node, size, executable, integrity);
+    if (duplicate) {
+      // Nothing will read these transformed bytes again, so don't leave them behind
+      file.transformed = undefined;
+      fs.rmSync(tmpdir, { recursive: true, force: true });
+    }
+    return duplicate;
   }
 
   insertLink(
