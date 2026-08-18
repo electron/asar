@@ -4,6 +4,9 @@ import crypto from 'node:crypto';
 
 const BENCHMARK_DIR = path.join(import.meta.dirname, 'fixtures');
 
+/** How many distinct contents duplicated files are drawn from */
+const DUPLICATE_POOL_SIZE = 64;
+
 export type FixtureConfig = {
   name: string;
   fileCount: number;
@@ -13,6 +16,8 @@ export type FixtureConfig = {
   depth: number;
   /** Number of subdirectories per level */
   breadth: number;
+  /** Fraction of files that reuse the contents of an earlier file (0 by default) */
+  duplicateRatio?: number;
 };
 
 export const FIXTURES: FixtureConfig[] = [
@@ -22,6 +27,14 @@ export const FIXTURES: FixtureConfig[] = [
   { name: 'few-large-files', fileCount: 20, avgFileSize: 1024 * 1024, depth: 2, breadth: 2 },
   { name: 'many-small-files', fileCount: 10000, avgFileSize: 256, depth: 3, breadth: 10 },
   { name: 'deep-tree', fileCount: 1000, avgFileSize: 2048, depth: 10, breadth: 2 },
+  {
+    name: 'duplicate-heavy',
+    fileCount: 3000,
+    avgFileSize: 4096,
+    depth: 4,
+    breadth: 4,
+    duplicateRatio: 0.5,
+  },
 ];
 
 function generateRandomContent(size: number): Buffer {
@@ -59,13 +72,25 @@ export function generateFixture(config: FixtureConfig): string {
     }
   }
 
+  // Contents that duplicated files are drawn from, mimicking the repeated
+  // licenses/READMEs/vendored copies that show up across `node_modules`
+  const duplicateRatio = config.duplicateRatio ?? 0;
+  const duplicatePool: Buffer[] = [];
+
   // Distribute files across directories
   for (let i = 0; i < config.fileCount; i++) {
     const dir = dirs[i % dirs.length];
-    // Vary file sizes: 50% to 150% of average
-    const sizeVariation = 0.5 + Math.random();
-    const size = Math.max(1, Math.floor(config.avgFileSize * sizeVariation));
-    const content = generateRandomContent(size);
+    let content: Buffer;
+    if (duplicatePool.length > 0 && Math.random() < duplicateRatio) {
+      content = duplicatePool[i % duplicatePool.length];
+    } else {
+      // Vary file sizes: 50% to 150% of average
+      const sizeVariation = 0.5 + Math.random();
+      content = generateRandomContent(Math.max(1, Math.floor(config.avgFileSize * sizeVariation)));
+      if (duplicatePool.length < DUPLICATE_POOL_SIZE) {
+        duplicatePool.push(content);
+      }
+    }
     const ext = ['.txt', '.js', '.json', '.bin', '.dat'][i % 5];
     const filePath = path.join(fixtureDir, dir, `file_${i}${ext}`);
     fs.writeFileSync(filePath, content);

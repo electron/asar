@@ -195,22 +195,23 @@ export async function createPackageFromFiles(
         );
         filesystem.insertDirectory(filename, shouldUnpack);
         break;
-      case 'file':
+      case 'file': {
         shouldUnpack = shouldUnpackPath(
           filename,
           path.relative(src, path.dirname(filename)),
           options.unpack,
           options.unpackDir,
         );
-        files.push({ filename, unpack: shouldUnpack });
-        await filesystem.insertFile(
+        const duplicate = await filesystem.insertFile(
           filename,
           () => fs.createReadStream(filename),
           shouldUnpack,
           file,
           options,
         );
+        files.push({ filename, unpack: shouldUnpack, duplicate });
         break;
+      }
       case 'link':
         shouldUnpack = shouldUnpackPath(
           filename,
@@ -277,18 +278,23 @@ export async function createPackageFromStreams(dest: string, streams: AsarStream
       case 'directory':
         filesystem.insertDirectory(filename, stream.unpacked);
         break;
-      case 'file':
+      case 'file': {
+        const duplicate = await filesystem.insertFile(
+          filename,
+          stream.streamGenerator,
+          stream.unpacked,
+          { type: 'file', stat: stream.stat },
+        );
         files.push({
           filename,
           streamGenerator: stream.streamGenerator,
           link: undefined,
           mode: stream.stat.mode,
           unpack: stream.unpacked,
+          duplicate,
         });
-        return filesystem.insertFile(filename, stream.streamGenerator, stream.unpacked, {
-          type: 'file',
-          stat: stream.stat,
-        });
+        break;
+      }
       case 'link':
         links.push({
           filename,

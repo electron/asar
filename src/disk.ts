@@ -183,6 +183,8 @@ export type InputMetadata = {
 export type BasicFilesArray = {
   filename: string;
   unpack: boolean;
+  /** Contents shared with an earlier file, already written to the archive */
+  duplicate?: boolean;
 }[];
 
 export type BasicStreamArray = {
@@ -191,6 +193,8 @@ export type BasicStreamArray = {
   mode: Stats['mode'];
   unpack: boolean;
   link: string | undefined; // only for symlinks, should refactor as part of larger project refactor in follow-up PR
+  /** Contents shared with an earlier file, already written to the archive */
+  duplicate?: boolean;
 }[];
 
 export type FilesystemFilesAndLinks<T extends BasicFilesArray | BasicStreamArray> = {
@@ -221,6 +225,9 @@ const writeFileListToStream = async function (
   };
 
   for (const file of files) {
+    if (file.duplicate) {
+      continue;
+    }
     if (file.unpack) {
       await flushPendingBuffers();
       const filename = path.relative(filesystem.getRootPath(), file.filename);
@@ -270,6 +277,9 @@ export async function streamFilesystem(
 
   const { files, links } = lists;
   for await (const file of files) {
+    if (file.duplicate) {
+      continue;
+    }
     // the file should not be packed into archive
     if (file.unpack) {
       const targetFile = path.join(`${dest}.unpacked`, file.filename);

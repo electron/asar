@@ -21,6 +21,7 @@ import {
 import { crawl } from '../src/crawlfs.js';
 import { getFileIntegrityFromBuffer } from '../src/integrity.js';
 import { useTmpDir } from './util/tmpDir.js';
+import { compDirs } from './util/compareDirectories.js';
 import { Transform } from 'node:stream';
 
 describe('asar', () => {
@@ -724,6 +725,192 @@ describe('asar', () => {
       for (let i = 1; i < 20; i += 2) {
         expect(fs.existsSync(path.join(`${dest}.unpacked`, `file${i}.node`))).toBe(true);
       }
+    });
+  });
+
+  describe('deduplication', () => {
+    const fileEntry = (archive: string, filename: string) =>
+      statFile(archive, filename) as { offset: string; size: number };
+
+    /** Number of bytes the archive stores after its 8-byte size field and header. */
+    const payloadSize = (archive: string) =>
+      fs.statSync(archive).size - getRawHeader(archive).headerSize - 8;
+
+    it('should store identical file contents only once', async () => {
+      const shared = 'x'.repeat(4096);
+      const unique = 'y'.repeat(4096);
+      const src = createFixture('dedupe-shared', {
+        'a.txt': shared,
+        'dir/b.txt': shared,
+        'dir/nested/c.txt': shared,
+        'unique.txt': unique,
+      });
+      const dest = path.join(testRunDir, 'dedupe-shared.asar');
+      await createPackage(src, dest);
+
+      // Archive lookups split on path.sep, so nested paths need native separators
+      const nestedB = path.join('dir', 'b.txt');
+      const nestedC = path.join('dir', 'nested', 'c.txt');
+
+      const first = fileEntry(dest, 'a.txt');
+      expect(fileEntry(dest, nestedB).offset).toBe(first.offset);
+      expect(fileEntry(dest, nestedC).offset).toBe(first.offset);
+      expect(fileEntry(dest, 'unique.txt').offset).not.toBe(first.offset);
+
+      // Only the two distinct payloads are stored
+      expect(payloadSize(dest)).toBe(shared.length + unique.length);
+
+      expect(extractFile(dest, 'a.txt').toString()).toBe(shared);
+      expect(extractFile(dest, nestedB).toString()).toBe(shared);
+      expect(extractFile(dest, nestedC).toString()).toBe(shared);
+      expect(extractFile(dest, 'unique.txt').toString()).toBe(unique);
+    });
+
+    it('should extract deduplicated archives to the original file tree', async () => {
+      const src = createFixture('dedupe-extract', {
+        'a.txt': 'same',
+        'dir/b.txt': 'same',
+        'dir/c.bin': crypto.randomBytes(2048),
+        'dir/nested/d.bin': 'different',
+      });
+      fs.copyFileSync(path.join(src, 'dir/c.bin'), path.join(src, 'copy-of-c.bin'));
+
+      const dest = path.join(testRunDir, 'dedupe-extract.asar');
+      await createPackage(src, dest);
+      const extractDir = path.join(testRunDir, 'dedupe-extract-out');
+      extractAll(dest, extractDir);
+
+      await compDirs(src, extractDir);
+    });
+
+    it(
+      'should dedupe files larger than the buffer hashing threshold',
+      { timeout: 30000 },
+      async () => {
+        const big = crypto.randomBytes(3 * 1024 * 1024);
+        const src = createFixture('dedupe-large', { 'big.bin': big, 'dir/big-copy.bin': big });
+        const dest = path.join(testRunDir, 'dedupe-large.asar');
+        await createPackage(src, dest);
+
+        const copy = path.join('dir', 'big-copy.bin');
+        expect(fileEntry(dest, copy).offset).toBe(fileEntry(dest, 'big.bin').offset);
+        expect(payloadSize(dest)).toBe(big.length);
+        expect(extractFile(dest, copy)).toEqual(big);
+      },
+    );
+
+    it('should not dedupe different contents of the same size', async () => {
+      const src = createFixture('dedupe-same-size', {
+        'a.txt': 'aaaa',
+        'b.txt': 'bbbb',
+      });
+      const dest = path.join(testRunDir, 'dedupe-same-size.asar');
+      await createPackage(src, dest);
+
+      expect(fileEntry(dest, 'b.txt').offset).not.toBe(fileEntry(dest, 'a.txt').offset);
+      expect(extractFile(dest, 'a.txt').toString()).toBe('aaaa');
+      expect(extractFile(dest, 'b.txt').toString()).toBe('bbbb');
+    });
+
+    it('should share contents between files that differ only by executable bit', async function () {
+      if (process.platform === 'win32') return;
+      const src = createFixture('dedupe-executable', {
+        'script.sh': '#!/bin/bash\necho hi',
+        'copy.sh': '#!/bin/bash\necho hi',
+      });
+      fs.chmodSync(path.join(src, 'script.sh'), 0o755);
+
+      const dest = path.join(testRunDir, 'dedupe-executable.asar');
+      await createPackage(src, dest);
+      expect(fileEntry(dest, 'copy.sh').offset).toBe(fileEntry(dest, 'script.sh').offset);
+
+      const extractDir = path.join(testRunDir, 'dedupe-executable-out');
+      extractAll(dest, extractDir);
+      expect(fs.statSync(path.join(extractDir, 'script.sh')).mode & 0o111).toBeGreaterThan(0);
+      expect(fs.statSync(path.join(extractDir, 'copy.sh')).mode & 0o111).toBe(0);
+    });
+
+    it('should write every unpacked copy of duplicated contents', async () => {
+      const shared = 'shared native blob';
+      const src = createFixture('dedupe-unpacked', {
+        'a.node': shared,
+        'dir/b.node': shared,
+        'packed.txt': shared,
+      });
+      const dest = path.join(testRunDir, 'dedupe-unpacked.asar');
+      await createPackageWithOptions(src, dest, { unpack: '*.node' });
+
+      expect(fs.readFileSync(path.join(`${dest}.unpacked`, 'a.node'), 'utf8')).toBe(shared);
+      expect(fs.readFileSync(path.join(`${dest}.unpacked`, 'dir', 'b.node'), 'utf8')).toBe(shared);
+      // Unpacked files live outside the archive, so the packed copy is still stored
+      expect(extractFile(dest, 'packed.txt').toString()).toBe(shared);
+    });
+
+    it('should dedupe on the transformed contents', async () => {
+      const src = createFixture('dedupe-transform', {
+        'a.txt': 'abc',
+        'b.txt': 'cba',
+        'c.txt': 'xyz',
+      });
+      const dest = path.join(testRunDir, 'dedupe-transform.asar');
+      // Sorting each file's bytes makes `a.txt` and `b.txt` identical once transformed
+      await createPackageWithOptions(src, dest, {
+        transform: () =>
+          new Transform({
+            transform(chunk, _encoding, callback) {
+              callback(null, Buffer.from([...chunk].sort((a, b) => a - b)));
+            },
+          }),
+      });
+
+      expect(fileEntry(dest, 'b.txt').offset).toBe(fileEntry(dest, 'a.txt').offset);
+      expect(fileEntry(dest, 'c.txt').offset).not.toBe(fileEntry(dest, 'a.txt').offset);
+      expect(extractFile(dest, 'a.txt').toString()).toBe('abc');
+      expect(extractFile(dest, 'b.txt').toString()).toBe('abc');
+      expect(extractFile(dest, 'c.txt').toString()).toBe('xyz');
+    });
+
+    it('should dedupe archives created from streams', async () => {
+      const shared = Buffer.from('shared stream contents');
+      const streams = (): AsarStreamType[] => [
+        {
+          type: 'file',
+          path: 'a.txt',
+          unpacked: false,
+          streamGenerator: () => Readable.from(shared),
+          stat: { mode: 0o644, size: shared.length },
+        },
+        {
+          type: 'file',
+          path: 'b.txt',
+          unpacked: false,
+          streamGenerator: () => Readable.from(shared),
+          stat: { mode: 0o644, size: shared.length },
+        },
+      ];
+
+      const dest = path.join(testRunDir, 'dedupe-streams.asar');
+      await createPackageFromStreams(dest, streams());
+
+      expect(fileEntry(dest, 'b.txt').offset).toBe(fileEntry(dest, 'a.txt').offset);
+      expect(payloadSize(dest)).toBe(shared.length);
+      expect(extractFile(dest, 'b.txt')).toEqual(shared);
+    });
+
+    it('should keep empty files working alongside duplicates', async () => {
+      const src = createFixture('dedupe-empty', {
+        'empty1.txt': '',
+        'empty2.txt': '',
+        'a.txt': 'dup',
+        'b.txt': 'dup',
+      });
+      const dest = path.join(testRunDir, 'dedupe-empty.asar');
+      await createPackage(src, dest);
+
+      expect(extractFile(dest, 'empty1.txt').length).toBe(0);
+      expect(extractFile(dest, 'empty2.txt').length).toBe(0);
+      expect(payloadSize(dest)).toBe('dup'.length);
+      expect(extractFile(dest, 'b.txt').toString()).toBe('dup');
     });
   });
 });
