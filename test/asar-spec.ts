@@ -748,17 +748,21 @@ describe('asar', () => {
       const dest = path.join(testRunDir, 'dedupe-shared.asar');
       await createPackage(src, dest);
 
+      // Archive lookups split on path.sep, so nested paths need native separators
+      const nestedB = path.join('dir', 'b.txt');
+      const nestedC = path.join('dir', 'nested', 'c.txt');
+
       const first = fileEntry(dest, 'a.txt');
-      expect(fileEntry(dest, 'dir/b.txt').offset).toBe(first.offset);
-      expect(fileEntry(dest, 'dir/nested/c.txt').offset).toBe(first.offset);
+      expect(fileEntry(dest, nestedB).offset).toBe(first.offset);
+      expect(fileEntry(dest, nestedC).offset).toBe(first.offset);
       expect(fileEntry(dest, 'unique.txt').offset).not.toBe(first.offset);
 
       // Only the two distinct payloads are stored
       expect(payloadSize(dest)).toBe(shared.length + unique.length);
 
       expect(extractFile(dest, 'a.txt').toString()).toBe(shared);
-      expect(extractFile(dest, 'dir/b.txt').toString()).toBe(shared);
-      expect(extractFile(dest, 'dir/nested/c.txt').toString()).toBe(shared);
+      expect(extractFile(dest, nestedB).toString()).toBe(shared);
+      expect(extractFile(dest, nestedC).toString()).toBe(shared);
       expect(extractFile(dest, 'unique.txt').toString()).toBe(unique);
     });
 
@@ -788,9 +792,10 @@ describe('asar', () => {
         const dest = path.join(testRunDir, 'dedupe-large.asar');
         await createPackage(src, dest);
 
-        expect(fileEntry(dest, 'dir/big-copy.bin').offset).toBe(fileEntry(dest, 'big.bin').offset);
+        const copy = path.join('dir', 'big-copy.bin');
+        expect(fileEntry(dest, copy).offset).toBe(fileEntry(dest, 'big.bin').offset);
         expect(payloadSize(dest)).toBe(big.length);
-        expect(extractFile(dest, 'dir/big-copy.bin')).toEqual(big);
+        expect(extractFile(dest, copy)).toEqual(big);
       },
     );
 
@@ -836,7 +841,7 @@ describe('asar', () => {
       await createPackageWithOptions(src, dest, { unpack: '*.node' });
 
       expect(fs.readFileSync(path.join(`${dest}.unpacked`, 'a.node'), 'utf8')).toBe(shared);
-      expect(fs.readFileSync(path.join(`${dest}.unpacked`, 'dir/b.node'), 'utf8')).toBe(shared);
+      expect(fs.readFileSync(path.join(`${dest}.unpacked`, 'dir', 'b.node'), 'utf8')).toBe(shared);
       // Unpacked files live outside the archive, so the packed copy is still stored
       expect(extractFile(dest, 'packed.txt').toString()).toBe(shared);
     });
