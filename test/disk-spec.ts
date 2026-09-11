@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { createPackage, getRawHeader, uncacheAll } from '../src/asar.js';
 import {
+  extractFileWithFd,
   readArchiveHeaderSync,
   readFilesystemSync,
   readFileSync,
@@ -317,6 +318,82 @@ describe('disk', () => {
       const { filesystem } = setupUnpacked('unpacked-escape-fd');
       const info = makeUnpackedInfo('outside'.length);
       expect(() => readFileWithFd(-1, filesystem, '../outside.txt', info)).toThrow('outside');
+    });
+  });
+
+  describe('extractFileWithFd', () => {
+    /**
+     * `fs.readSync()` truncates its `length` argument to a signed 32-bit integer, so entries
+     * of 2 GiB or more cannot be copied with a single read. Materialising such an archive in
+     * a test is impractical, so the chunk size is lowered instead to exercise the same loop.
+     */
+    const writeSource = (dir: string, name: string, contents: Buffer) => {
+      const srcPath = path.join(dir, name);
+      fs.writeFileSync(srcPath, contents);
+      return srcPath;
+    };
+
+    it('copies contents that span multiple chunks', () => {
+      const dir = tmpDir('extract-multi-chunk');
+      const payload = Buffer.from('the quick brown fox jumps over the lazy dog');
+      const prefix = Buffer.from('HEADER');
+      const srcPath = writeSource(dir, 'multi-chunk.bin', Buffer.concat([prefix, payload]));
+      const destPath = path.join(dir, 'multi-chunk.out');
+
+      const fd = fs.openSync(srcPath, 'r');
+      try {
+        extractFileWithFd(fd, destPath, prefix.length, payload.length, 7);
+      } finally {
+        fs.closeSync(fd);
+      }
+
+      expect(fs.readFileSync(destPath).equals(payload)).toBe(true);
+    });
+
+    it('copies contents smaller than a single chunk', () => {
+      const dir = tmpDir('extract-small');
+      const payload = Buffer.from('short');
+      const srcPath = writeSource(dir, 'small.bin', payload);
+      const destPath = path.join(dir, 'small.out');
+
+      const fd = fs.openSync(srcPath, 'r');
+      try {
+        extractFileWithFd(fd, destPath, 0, payload.length, 1024);
+      } finally {
+        fs.closeSync(fd);
+      }
+
+      expect(fs.readFileSync(destPath).equals(payload)).toBe(true);
+    });
+
+    it('creates an empty file for zero-length entries', () => {
+      const dir = tmpDir('extract-empty');
+      const srcPath = writeSource(dir, 'empty-src.bin', Buffer.from('ignored'));
+      const destPath = path.join(dir, 'empty.out');
+
+      const fd = fs.openSync(srcPath, 'r');
+      try {
+        extractFileWithFd(fd, destPath, 0, 0);
+      } finally {
+        fs.closeSync(fd);
+      }
+
+      expect(fs.readFileSync(destPath).length).toBe(0);
+    });
+
+    it('throws when the archive ends before the entry does', () => {
+      const dir = tmpDir('extract-truncated');
+      const srcPath = writeSource(dir, 'truncated.bin', Buffer.from('only ten b'));
+      const destPath = path.join(dir, 'truncated.out');
+
+      const fd = fs.openSync(srcPath, 'r');
+      try {
+        expect(() => extractFileWithFd(fd, destPath, 0, 1000, 4)).toThrow(
+          /Unexpected end of archive/,
+        );
+      } finally {
+        fs.closeSync(fd);
+      }
     });
   });
 });
