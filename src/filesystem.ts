@@ -157,8 +157,8 @@ export class Filesystem {
       // Fully synchronous fast path — no Promise, no stream, no microtask yield
       try {
         const fileBuffer = fs.readFileSync(p);
-        // Only trust the buffer if it matches the size recorded in the header;
-        // otherwise the file at `p` is not the content being archived.
+        // Don't trust a buffer that doesn't match the size recorded in the header;
+        // hash the stream instead.
         if (fileBuffer.length === size) {
           const integrity = getFileIntegrityFromBuffer(fileBuffer);
           const duplicate = this.storeFileEntry(node, size, executable, integrity);

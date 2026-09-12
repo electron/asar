@@ -226,7 +226,8 @@ describe('api', () => {
     const realContent = 'REAL-APP-CONTENT\n';
     const decoyContent = 'DECOY-CONTENT-IN-CWD\n';
 
-    const work = await fs.mkdtemp(path.join(os.tmpdir(), 'asar-stream-integrity-'));
+    const work = path.join(TEST_APPS_DIR, 'stream-integrity');
+    await fs.mkdirp(work);
     const srcFile = path.join(work, 'real.js');
     await fs.writeFile(srcFile, realContent);
 
@@ -238,6 +239,7 @@ describe('api', () => {
     const out = path.join(TEST_APPS_DIR, 'packthis-stream-integrity.asar');
     const stat = await fs.lstat(srcFile);
     const originalCwd = process.cwd();
+    // process.chdir() throws in worker threads; this relies on vitest's `pool: 'forks'`
     process.chdir(cwdDir);
     try {
       await createPackageFromStreams(out, [
