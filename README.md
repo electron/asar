@@ -12,6 +12,7 @@ ASAR is a simple extensive archive format. It concatenates all files together wi
 * Support random access
 * Use JSON to store file information
 * Very easy to write a parser
+* Store the contents of duplicated files only once
 
 ## CLI
 
@@ -103,6 +104,18 @@ console.log('done.');
 ```
 
 Please note that there is currently **no** error handling provided!
+
+### Deduplication
+
+Files with identical contents are stored once and shared: the first copy is
+written into the archive and every other copy's header entry points at that same
+`offset`. Nothing changes for readers — each file still has its own entry, size,
+integrity hash, and executable bit — but archives with duplicated contents (a
+common shape for bundled `node_modules`) get smaller and pack faster, since the
+redundant bytes are never written.
+
+Unpacked files (`unpack` / `unpackDir`) are always written out in full, because
+they live on disk outside the archive.
 
 ### Transform
 
@@ -199,6 +212,9 @@ Structure of `header` is something like this:
 `offset` and `size` records the information to read the file from archive, the
 `offset` starts from 0 so you have to manually add the size of `header_size` and
 `header` to the `offset` to get the real offset of the file.
+
+Files with identical contents share a single copy in the archive, so more than
+one entry can point at the same `offset`.
 
 `offset` is a UINT64 number represented in string, because there is no way to
 precisely represent UINT64 in JavaScript `Number`. `size` is a JavaScript

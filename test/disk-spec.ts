@@ -7,6 +7,7 @@ import {
   readArchiveHeaderSync,
   readFilesystemSync,
   readFileSync,
+  readFileWithFd,
   uncacheFilesystem,
 } from '../src/disk.js';
 import { useTmpDir } from './util/tmpDir.js';
@@ -72,7 +73,7 @@ function makeFileInfo(offset: string, size: number): FilesystemFileEntry {
 }
 
 describe('disk', () => {
-  const { testRunDir, createFixture } = useTmpDir(uncacheAll);
+  const { testRunDir, tmpDir, createFixture } = useTmpDir(uncacheAll);
 
   describe('caching', () => {
     it('uncacheFilesystem should return true for cached and false for uncached', async () => {
@@ -264,6 +265,58 @@ describe('disk', () => {
 
       const result = readFileSync(filesystem, 'test.txt', info);
       expect(result.toString('utf8')).toBe(content);
+    });
+  });
+
+  describe('unpacked file reads', () => {
+    function makeUnpackedInfo(size: number): FilesystemFileEntry {
+      return {
+        offset: '0',
+        size,
+        unpacked: true,
+        executable: false,
+        integrity: { hash: '', algorithm: 'SHA256', blocks: [], blockSize: 0 },
+      };
+    }
+
+    /**
+     * Sets up an archive whose `.unpacked` directory contains a benign file,
+     * plus an `outside.txt` file that lives next to the archive (outside the
+     * `.unpacked` directory). Returns the filesystem and the on-disk paths.
+     */
+    function setupUnpacked(name: string) {
+      const baseDir = tmpDir(name);
+      const archivePath = path.join(baseDir, `${name}.asar`);
+      const unpackedDir = `${archivePath}.unpacked`;
+      fs.mkdirpSync(unpackedDir);
+      fs.writeFileSync(path.join(unpackedDir, 'inside.txt'), 'inside');
+      fs.writeFileSync(path.join(baseDir, 'outside.txt'), 'outside');
+      const filesystem = makeFilesystem(archivePath, 16);
+      return { filesystem, archivePath };
+    }
+
+    it('readFileSync reads unpacked files within the unpacked directory', () => {
+      const { filesystem } = setupUnpacked('unpacked-read-sync');
+      const info = makeUnpackedInfo('inside'.length);
+      expect(readFileSync(filesystem, 'inside.txt', info).toString('utf8')).toBe('inside');
+    });
+
+    it('readFileSync throws when filename escapes the unpacked directory', () => {
+      const { filesystem } = setupUnpacked('unpacked-escape-sync');
+      const info = makeUnpackedInfo('outside'.length);
+      expect(() => readFileSync(filesystem, '../outside.txt', info)).toThrow('outside');
+    });
+
+    it('readFileWithFd reads unpacked files within the unpacked directory', () => {
+      const { filesystem } = setupUnpacked('unpacked-read-fd');
+      const info = makeUnpackedInfo('inside'.length);
+      expect(readFileWithFd(-1, filesystem, 'inside.txt', info).toString('utf8')).toBe('inside');
+    });
+
+    it('readFileWithFd throws when filename escapes the unpacked directory', () => {
+      const { filesystem } = setupUnpacked('unpacked-escape-fd');
+      const info = makeUnpackedInfo('outside'.length);
+      expect(() => readFileWithFd(-1, filesystem, '../outside.txt', info)).toThrow('outside');
     });
   });
 });

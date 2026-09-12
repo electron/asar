@@ -15,10 +15,10 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # tag: v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # tag: v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # tag: v6.4.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # tag: v7.0.0
         with:
           node-version: 22.12.x
           package-manager-cache: false
@@ -27,7 +27,7 @@ jobs:
       - name: Build API documentation
         run: yarn build:docs
       - name: Azure login
-        uses: azure/login@532459ea530d8321f2fb9bb10d1e0bcf23869a43 # v3.0.0
+        uses: azure/login@f5d393ae46f8fde4be8b75f32e3fc50e654ad0ca # v3.0.1
         with:
           client-id: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_OIDC_TENANT_ID }}
