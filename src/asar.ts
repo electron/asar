@@ -284,6 +284,9 @@ export async function createPackageFromStreams(dest: string, streams: AsarStream
           stream.streamGenerator,
           stream.unpacked,
           { type: 'file', stat: stream.stat },
+          // `filename` is the destination path inside the archive, not a path
+          // on disk, so integrity must be computed from the stream.
+          { fromStream: true },
         );
         files.push({
           filename,
