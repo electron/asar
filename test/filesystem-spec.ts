@@ -1,9 +1,12 @@
 import { describe, it, beforeEach, expect } from 'vitest';
 import { wrappedFs as fs } from '../src/wrapped-fs.js';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 import { createSymlinkedApp } from './util/createSymlinkedApp.js';
 import { TEST_APPS_DIR } from './util/constants.js';
-import { Filesystem, FilesystemEntry } from '../src/filesystem.js';
+import { CrawledFileType } from '../src/crawlfs.js';
+import { Filesystem, FilesystemEntry, FilesystemFileEntry } from '../src/filesystem.js';
 import {
   createPackage,
   createPackageWithOptions,
@@ -85,6 +88,32 @@ describe('filesystem', () => {
       await createPackage(src, dest);
       const extractPath = path.join(...parts, 'file.txt');
       expect(extractFile(dest, extractPath).toString()).toBe('deep');
+    });
+  });
+
+  describe('insertFile', () => {
+    it('should hash the stream when the file at the path does not match the header size', async () => {
+      const src = path.join(TEST_APPS_DIR, 'insert-file-size-mismatch');
+      const p = path.join(src, 'file.txt');
+      await fs.mkdirp(src);
+      await fs.writeFile(p, 'on-disk content with a different size');
+
+      const streamContent = 'stream content';
+      const filesystem = new Filesystem(src);
+      const file: CrawledFileType = {
+        type: 'file',
+        stat: { mode: 0o644, size: streamContent.length },
+      };
+      await filesystem.insertFile(
+        p,
+        () => Readable.from([Buffer.from(streamContent)]),
+        false,
+        file,
+      );
+
+      const node = filesystem.getFile('file.txt') as FilesystemFileEntry;
+      expect(node.integrity.hash).toEqual(createHash('sha256').update(streamContent).digest('hex'));
+      expect(file.cachedBuffer).toBeUndefined();
     });
   });
 
