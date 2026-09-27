@@ -44,3 +44,20 @@ jobs:
         run: yarn build
       - name: Test
         run: yarn test
+
+  required-ci:
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Fail if any required job failed or was cancelled
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+        run: |
+          echo "One or more required jobs did not succeed:"
+          echo "  test: $TEST_RESULT"
+          exit 1
+      - name: We are done
+        run: echo "Hello World"
