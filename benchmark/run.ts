@@ -15,7 +15,7 @@ import {
 } from '../lib/asar.js';
 import { crawl } from '../lib/crawlfs.js';
 import { getFileIntegrity } from '../lib/integrity.js';
-import { FIXTURES, generateFixture, formatBytes, type FixtureConfig } from './generate-fixtures.js';
+import { FIXTURES, generateFixture, formatBytes, type FixtureConfig } from './generate-fixtures.ts';
 
 // ─── Benchmark harness ───────────────────────────────────────────────
 

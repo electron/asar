@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { generateFixture, FIXTURES } from './generate-fixtures.js';
+import { generateFixture, FIXTURES } from './generate-fixtures.ts';
 import { createPackage, extractAll, uncache } from '../lib/asar.js';
 import { readArchiveHeaderSync, readFilesystemSync } from '../lib/disk.js';
 
