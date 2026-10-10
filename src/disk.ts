@@ -437,7 +437,17 @@ export function extractFileWithFd(
           `Unexpected end of archive while extracting "${destPath}" (read ${copied} of ${size} bytes)`,
         );
       }
-      fs.writeSync(out, buffer, 0, read);
+      // `writeSync` is allowed to write fewer bytes than it was given, so loop on its result too.
+      let written = 0;
+      while (written < read) {
+        const wrote = fs.writeSync(out, buffer, written, read - written);
+        if (wrote <= 0) {
+          throw new Error(
+            `Write made no progress while extracting "${destPath}" (wrote ${copied + written} of ${size} bytes)`,
+          );
+        }
+        written += wrote;
+      }
       copied += read;
     }
   } finally {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { wrappedFs as fs } from '../src/wrapped-fs.js';
 import path from 'node:path';
 
@@ -379,6 +379,49 @@ describe('disk', () => {
       }
 
       expect(fs.readFileSync(destPath).length).toBe(0);
+    });
+
+    it('keeps writing when writeSync writes fewer bytes than it was given', () => {
+      const dir = tmpDir('extract-short-write');
+      const payload = Buffer.from('the quick brown fox jumps over the lazy dog');
+      const srcPath = writeSource(dir, 'short-write.bin', payload);
+      const destPath = path.join(dir, 'short-write.out');
+
+      // `writeSync` is allowed to write less than requested, so cap every call at 3 bytes.
+      const writeSync = fs.writeSync;
+      const shortWrite = (
+        out: number,
+        buffer: NodeJS.ArrayBufferView,
+        offset?: number | null,
+        length?: number | null,
+        position?: number | null,
+      ) => writeSync(out, buffer, offset, Math.min(length ?? buffer.byteLength, 3), position);
+      const spy = vi.spyOn(fs, 'writeSync').mockImplementation(shortWrite as typeof fs.writeSync);
+      const fd = fs.openSync(srcPath, 'r');
+      try {
+        extractFileWithFd(fd, destPath, 0, payload.length, 7);
+      } finally {
+        fs.closeSync(fd);
+        spy.mockRestore();
+      }
+
+      expect(fs.statSync(destPath).size).toBe(payload.length);
+      expect(fs.readFileSync(destPath).equals(payload)).toBe(true);
+    });
+
+    it('throws when writeSync makes no progress', () => {
+      const dir = tmpDir('extract-stalled-write');
+      const srcPath = writeSource(dir, 'stalled-write.bin', Buffer.from('some contents'));
+      const destPath = path.join(dir, 'stalled-write.out');
+
+      const spy = vi.spyOn(fs, 'writeSync').mockReturnValueOnce(0);
+      const fd = fs.openSync(srcPath, 'r');
+      try {
+        expect(() => extractFileWithFd(fd, destPath, 0, 13, 4)).toThrow(/made no progress/);
+      } finally {
+        fs.closeSync(fd);
+        spy.mockRestore();
+      }
     });
 
     it('throws when the archive ends before the entry does', () => {
