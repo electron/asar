@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
-import { generateFixture, FIXTURES } from './generate-fixtures.js';
+import { generateFixture, FIXTURES } from './generate-fixtures.ts';
 
 const config = FIXTURES.find((f) => f.name === 'many-small-files')!;
 const fixtureDir = generateFixture(config);

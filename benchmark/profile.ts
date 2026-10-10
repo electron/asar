@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { generateFixture, FIXTURES } from './generate-fixtures.js';
+import { generateFixture, FIXTURES } from './generate-fixtures.ts';
 import { crawl } from '../lib/crawlfs.js';
 import { createPackageFromFiles, extractAll, uncache } from '../lib/asar.js';
 

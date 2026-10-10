@@ -34,8 +34,8 @@
     "test:ui": "vitest --ui",
     "lint": "oxfmt --check . && oxlint",
     "lint:fix": "oxfmt --write . && oxlint --fix",
-    "benchmark": "yarn build && tsx benchmark/run.ts",
-    "benchmark:quick": "yarn build && tsx benchmark/run.ts small",
+    "benchmark": "yarn build && node --experimental-strip-types benchmark/run.ts",
+    "benchmark:quick": "yarn build && node --experimental-strip-types benchmark/run.ts small",
     "prepack": "yarn build",
     "prepare": "husky"
   },
@@ -52,7 +52,6 @@
     "oxfmt": "^0.71.0",
     "oxlint": "^1.59.0",
     "oxlint-tsgolint": "^0.20.0",
-    "tsx": "^4.21.0",
     "typedoc": "~0.28.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.16",
