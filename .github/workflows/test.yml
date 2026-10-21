@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          - '22.12.x'
+          - '22.23.4'
         os:
           - macos-latest
           - ubuntu-22.04
