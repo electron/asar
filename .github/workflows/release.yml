@@ -39,6 +39,6 @@ jobs:
         id: secret-service
         uses: electron/secret-service-action@3476425e8b30555aac15b1b7096938e254b0e155 # v1.0.0
       - name: Run semantic release
-        uses: electron/semantic-trusted-release@03517840010ba30fe5264f4875f4cff066b658d1 # v1.1.0
+        uses: electron/semantic-trusted-release@2a7b16df83a1f77339ad473654c5fbd2b32b193b # v1.1.1
         with:
           github-token: ${{ fromJSON(steps.secret-service.outputs.secrets).GITHUB_TOKEN }}
