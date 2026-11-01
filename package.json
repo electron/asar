@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "glob": "^13.0.2",
-    "minimatch": "^10.0.1"
+    "minimatch": "^11.0.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
