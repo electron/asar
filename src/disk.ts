@@ -250,7 +250,7 @@ const writeFileListToStream = async function (
   for (const file of links.filter((f) => f.unpack)) {
     const filename = path.relative(filesystem.getRootPath(), file.filename);
     const link = await fs.readlink(file.filename);
-    await createSymlink(dest, filename, link);
+    await createSymlink(filesystem, dest, filename, link);
   }
   return new Promise<void>((resolve, reject) => {
     out.on('error', reject);
@@ -293,7 +293,7 @@ export async function streamFilesystem(
 
   for (const file of links.filter((f) => f.unpack && f.link)) {
     // the symlink needs to be recreated outside in .unpacked
-    await createSymlink(dest, file.filename, file.link!);
+    await createSymlink(filesystem, dest, file.filename, file.link!);
   }
   return new Promise<void>((resolve, reject) => {
     out.on('error', reject);
@@ -449,11 +449,52 @@ async function createFilesystemWriteStream(filesystem: Filesystem, dest: string)
   return out;
 }
 
-async function createSymlink(dest: string, filepath: string, link: string) {
+/**
+ * The link the header records for `filepath`, and whether it points at a
+ * directory. The header is consulted instead of the file system because the
+ * target of a link does not have to be unpacked itself.
+ */
+function headerLinkTarget(filesystem: Filesystem, filepath: string) {
+  const normalized = path.normalize(filepath);
+  try {
+    const entry = filesystem.getFile(normalized, false);
+    if (!('link' in entry)) {
+      return undefined;
+    }
+    return { link: entry.link, directory: 'files' in filesystem.getFile(normalized, true) };
+  } catch {
+    return undefined;
+  }
+}
+
+async function createSymlink(filesystem: Filesystem, dest: string, filepath: string, link: string) {
+  const unpacked = `${dest}.unpacked`;
+  const linkPath = path.join(unpacked, filepath);
   // if symlink is within subdirectories, then we need to recreate dir structure
-  await fs.mkdirp(path.join(`${dest}.unpacked`, path.dirname(filepath)));
+  await fs.mkdirp(path.dirname(linkPath));
+  // Windows has to be told the type of a link when it is created: a link to a
+  // directory that is created without one is materialised as a file link, which
+  // can never be traversed.
+  let type: 'dir' | 'file' | undefined;
+  let header: ReturnType<typeof headerLinkTarget>;
+  let target = link;
+  if (process.platform === 'win32') {
+    header = headerLinkTarget(filesystem, filepath);
+    type = header?.directory ? 'dir' : 'file';
+    if (header?.directory) {
+      // point the link at the copy of the target inside .unpacked instead of at
+      // the path it was read from, which points back at the packaged directory
+      target = path.relative(path.dirname(linkPath), path.resolve(unpacked, header.link));
+    }
+  }
   // create symlink within unpacked dir
-  await fs.symlink(link, path.join(`${dest}.unpacked`, filepath)).catch(async (error) => {
+  await fs.symlink(target, linkPath, type).catch(async (error) => {
+    // A directory symlink needs Developer Mode or an elevated process. A junction
+    // is the only directory link that every user can create, and it stores an
+    // absolute path.
+    if (header?.directory && error.code === 'EPERM' && error.syscall === 'symlink') {
+      return fs.symlink(path.resolve(unpacked, header.link), linkPath, 'junction');
+    }
     if (error.code === 'EPERM' && error.syscall === 'symlink') {
       throw new Error(
         'Could not create symlinks for unpacked assets. On Windows, consider activating Developer Mode to allow non-admin users to create symlinks by following the instructions at https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development.',
