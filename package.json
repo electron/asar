@@ -5,7 +5,9 @@
   "type": "module",
   "exports": "./lib/asar.js",
   "types": "./lib/asar.d.ts",
-  "bin": "./bin/asar.mjs",
+  "bin": {
+    "asar": "bin/asar.mjs"
+  },
   "files": [
     "bin",
     "lib"
