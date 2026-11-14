@@ -68,13 +68,23 @@ export class Filesystem {
     this.headerSize = headerSize;
   }
 
-  searchNodeFromDirectory(p: string) {
+  /**
+   * Walks the directory path `p` from the root of the header.
+   *
+   * @param create - when true (used while packing), missing intermediate
+   * directories are created. When false (used for lookups), the header is left
+   * untouched and `undefined` is returned if a directory is missing.
+   */
+  searchNodeFromDirectory(p: string, create: boolean = true): FilesystemEntry | undefined {
     let json = this.header;
     const dirs = p.split(path.sep);
     for (const dir of dirs) {
       if (dir !== '.') {
         if ('files' in json) {
-          if (!json.files[dir]) {
+          if (!Object.hasOwn(json.files, dir) || !json.files[dir]) {
+            if (!create) {
+              return undefined;
+            }
             json.files[dir] = { files: Object.create(null) };
           }
           json = json.files[dir];
@@ -128,9 +138,13 @@ export class Filesystem {
   ): Promise<boolean> {
     const dirNode = this.searchNodeFromPath(path.dirname(p)) as FilesystemDirectoryEntry;
     const node = this.searchNodeFromPath(p) as FilesystemFileEntry;
+    const executable = process.platform !== 'win32' && (file.stat.mode & 0o100) !== 0;
     if (shouldUnpack || dirNode.unpacked) {
       node.size = file.stat.size;
       node.unpacked = true;
+      if (executable) {
+        node.executable = true;
+      }
       // Unpacked files are copied out of the archive as standalone files, so every
       // copy is written even when their contents are identical.
       return getFileIntegrity(streamGenerator()).then((integrity) => {
@@ -150,8 +164,6 @@ export class Filesystem {
     if (size > UINT32_MAX) {
       throw new Error(`${p}: file size can not be larger than 4.2GB`);
     }
-
-    const executable = process.platform !== 'win32' && (file.stat.mode & 0o100) !== 0;
 
     if (!options.fromStream && size <= BUFFER_HASH_THRESHOLD) {
       // Fully synchronous fast path — no Promise, no stream, no microtask yield
@@ -302,8 +314,12 @@ export class Filesystem {
     followLinks: boolean = true,
     depth: number = 0,
     visited: Set<string> = new Set(),
-  ): FilesystemEntry {
-    const node = this.searchNodeFromDirectory(path.dirname(p));
+  ): FilesystemEntry | undefined {
+    // Lookups must not mutate the (cached) header, so don't create missing directories.
+    const node = this.searchNodeFromDirectory(path.dirname(p), false);
+    if (!node) {
+      return undefined;
+    }
     const name = path.basename(p);
     if ('link' in node && followLinks) {
       const resolvedPath = path.join(node.link, name);
@@ -317,7 +333,11 @@ export class Filesystem {
       return this.getNode(resolvedPath, followLinks, depth + 1, visited);
     }
     if (name) {
-      return (node as FilesystemDirectoryEntry).files[name];
+      if (!('files' in node)) {
+        return undefined;
+      }
+      // The header is parsed from JSON, so guard against Object.prototype members.
+      return Object.hasOwn(node.files, name) ? node.files[name] : undefined;
     } else {
       return node;
     }
