@@ -913,4 +913,32 @@ describe('asar', () => {
       expect(extractFile(dest, 'b.txt').toString()).toBe('dup');
     });
   });
+
+  describe('unpacked symlinks', () => {
+    it('should unpack a symlink to a directory as a link to that directory', async () => {
+      const src = createFixture('unpacked-dir-link', { 'real/file.txt': 'hello' });
+      const target = path.join(src, 'real');
+      // A junction is the only directory link that can be created without
+      // Developer Mode, so it is what a Windows checkout of this test uses.
+      fs.symlinkSync(
+        process.platform === 'win32' ? target : path.relative(src, target),
+        path.join(src, 'var'),
+        process.platform === 'win32' ? 'junction' : 'dir',
+      );
+
+      const dest = path.join(testRunDir, 'unpacked-dir-link.asar');
+      await createPackageWithOptions(src, dest, { unpack: '*' });
+
+      const unpackedLink = path.join(`${dest}.unpacked`, 'var');
+      expect(fs.lstatSync(unpackedLink).isSymbolicLink()).toBe(true);
+      // A directory link created without a type is materialised as a file link
+      // on Windows, which can never be entered as a directory.
+      expect(fs.statSync(unpackedLink).isDirectory()).toBe(true);
+      expect(fs.readFileSync(path.join(unpackedLink, 'file.txt'), 'utf8')).toBe('hello');
+      // The link has to be recreated inside .unpacked, not point back at the source
+      expect(fs.realpathSync(unpackedLink).startsWith(fs.realpathSync(`${dest}.unpacked`))).toBe(
+        true,
+      );
+    });
+  });
 });
