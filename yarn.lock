@@ -35,7 +35,7 @@ __metadata:
     electron:
       built: true
   bin:
-    asar: ./bin/asar.mjs
+    asar: bin/asar.mjs
   languageName: unknown
   linkType: soft
 
