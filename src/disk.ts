@@ -6,6 +6,7 @@ import { CrawledFileType } from './crawlfs.js';
 import { ensureWithin } from './path-validation.js';
 import { Stats } from 'node:fs';
 import stream from 'node:stream/promises';
+import { Writable } from 'node:stream';
 
 let filesystemCache: Record<string, Filesystem | undefined> = Object.create(null);
 
@@ -166,14 +167,47 @@ async function copyFile(dest: string, src: string, filename: string) {
 }
 
 async function streamTransformedFile(
-  stream: NodeJS.ReadableStream,
-  outStream: NodeJS.WritableStream,
+  input: NodeJS.ReadableStream,
+  outStream: Writable,
+  filename: string,
+  expectedSize: number,
 ) {
-  return new Promise<void>((resolve, reject) => {
-    stream.pipe(outStream, { end: false });
-    stream.on('error', reject);
-    stream.on('end', () => resolve());
+  let bytesWritten = 0;
+  // Give each pipeline its own destination: pipeline retains listeners after completion.
+  const sink = new Writable({
+    write(chunk: Buffer, _encoding, callback) {
+      bytesWritten += chunk.length;
+      outStream.write(chunk, callback);
+    },
+    final(callback) {
+      if (bytesWritten !== expectedSize) {
+        callback(
+          new Error(
+            `${filename}: file size changed while packing (expected ${expectedSize} bytes, got ${bytesWritten})`,
+          ),
+        );
+      } else {
+        callback();
+      }
+    },
   });
+  const onError = (error: Error) => sink.destroy(error);
+  outStream.on('error', onError);
+  try {
+    await stream.pipeline(input, sink);
+  } catch (error) {
+    // The per-file sink must not close the shared output on success.
+    // On failure, wait for the archive descriptor to close before rejecting.
+    if (!outStream.closed) {
+      await new Promise<void>((resolve) => {
+        outStream.once('close', resolve);
+        outStream.destroy();
+      });
+    }
+    throw error;
+  } finally {
+    outStream.removeListener('error', onError);
+  }
 }
 
 export type InputMetadata = {
@@ -205,7 +239,7 @@ export type FilesystemFilesAndLinks<T extends BasicFilesArray | BasicStreamArray
 const writeFileListToStream = async function (
   dest: string,
   filesystem: Filesystem,
-  out: NodeJS.WritableStream,
+  out: Writable,
   lists: FilesystemFilesAndLinks<BasicFilesArray>,
   metadata: InputMetadata,
 ) {
@@ -241,7 +275,16 @@ const writeFileListToStream = async function (
         await flushPendingBuffers();
         const transformed = fileMeta.transformed;
         const stream = fs.createReadStream(transformed ? transformed.path : file.filename);
-        await streamTransformedFile(stream, out);
+        await streamTransformedFile(
+          stream,
+          out,
+          file.filename,
+          (
+            filesystem.getFile(
+              path.relative(filesystem.getRootPath(), file.filename),
+            ) as FilesystemFileEntry
+          ).size,
+        );
       }
     }
   }
@@ -287,7 +330,12 @@ export async function streamFilesystem(
       const writeStream = fs.createWriteStream(targetFile, { mode: file.mode });
       await stream.pipeline(file.streamGenerator(), writeStream);
     } else {
-      await streamTransformedFile(file.streamGenerator(), out);
+      await streamTransformedFile(
+        file.streamGenerator(),
+        out,
+        file.filename,
+        (filesystem.getFile(file.filename) as FilesystemFileEntry).size,
+      );
     }
   }
 
