@@ -336,12 +336,16 @@ export class Filesystem {
     p: string,
     followLinks: boolean = true,
     depth: number = 0,
-    visited: Set<string> = new Set(),
+    // Kept for signature compatibility; file link cycles are tracked in getFile.
+    _visited: Set<string> = new Set(),
   ): FilesystemEntry | undefined {
     // Lookups must not mutate the (cached) header, so don't create missing directories.
     // Directory symlinks in the parent path are always followed (like lstat);
     // followLinks only applies to the last component, in getFile.
-    const node = this.searchNodeFromDirectory(path.dirname(p), false, depth, visited);
+    // Each directory walk tracks its own cycles, since a later file link hop may
+    // legitimately pass through the same directory link again. `depth` is still
+    // carried over, so the total number of hops stays capped.
+    const node = this.searchNodeFromDirectory(path.dirname(p), false, depth, new Set());
     if (!node) {
       return undefined;
     }
@@ -363,7 +367,7 @@ export class Filesystem {
     depth: number = 0,
     visited: Set<string> = new Set(),
   ): FilesystemEntry {
-    const info = this.getNode(p, followLinks, depth, visited);
+    const info = this.getNode(p, followLinks, depth);
 
     if (!info) {
       throw new Error(`"${p}" was not found in this archive`);

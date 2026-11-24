@@ -157,6 +157,43 @@ describe('filesystem', () => {
       expect(extractFile(dest, path.join('c', 'h.txt')).toString()).toBe('deep');
     });
 
+    it('should read a file link whose target goes back through the same directory symlink', async () => {
+      if (process.platform === 'win32') return;
+      const src = createFixture('same-dir-link-twice', { 'd/y.txt': 'why' });
+      fs.symlinkSync('d', path.join(src, 'a'));
+      // stored as a/y.txt, so reading a/x.txt walks through `a` twice
+      fs.symlinkSync(path.join('..', 'a', 'y.txt'), path.join(src, 'd', 'x.txt'));
+      const dest = path.join(testRunDir, 'same-dir-link-twice.asar');
+      await createPackage(src, dest);
+
+      expect(statFile(dest, path.join('d', 'x.txt'), false)).toEqual({
+        link: path.join('a', 'y.txt'),
+      });
+      expect(extractFile(dest, path.join('a', 'x.txt')).toString()).toBe('why');
+      expect(statFile(dest, path.join('a', 'x.txt'))).toEqual(
+        statFile(dest, path.join('d', 'y.txt')),
+      );
+    });
+
+    it('should read a file link that goes through a second symlink to the same directory', async () => {
+      if (process.platform === 'win32') return;
+      const src = createFixture('two-links-one-dir', { 'd/y.txt': 'why' });
+      fs.symlinkSync('d', path.join(src, 'a'));
+      fs.symlinkSync('d', path.join(src, 'b'));
+      fs.symlinkSync(path.join('..', 'b', 'y.txt'), path.join(src, 'd', 'x.txt'));
+      const dest = path.join(testRunDir, 'two-links-one-dir.asar');
+      await createPackage(src, dest);
+
+      expect(statFile(dest, path.join('d', 'x.txt'), false)).toEqual({
+        link: path.join('b', 'y.txt'),
+      });
+      expect(extractFile(dest, path.join('a', 'x.txt')).toString()).toBe('why');
+      expect(extractFile(dest, path.join('b', 'x.txt')).toString()).toBe('why');
+      expect(statFile(dest, path.join('a', 'x.txt'))).toEqual(
+        statFile(dest, path.join('d', 'y.txt')),
+      );
+    });
+
     it('should still read paths directly below a directory symlink and plain paths', async () => {
       if (process.platform === 'win32') return;
       const { testPath } = await createSymlinkedApp('nested-dir-link-regression');
