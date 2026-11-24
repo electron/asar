@@ -136,6 +136,22 @@ describe('asar', () => {
       const stat = fs.statSync(path.join(extractDir, 'script.sh'));
       expect(stat.mode & 0o111).toBeGreaterThan(0);
     });
+
+    it('should preserve executable bit of unpacked files through pack/extract', async function () {
+      if (process.platform === 'win32') return;
+      const src = createFixture('executable-unpacked', { 'run.sh': '#!/bin/sh\necho hi' });
+      fs.chmodSync(path.join(src, 'run.sh'), 0o755);
+
+      const dest = path.join(testRunDir, 'executable-unpacked.asar');
+      await createPackageWithOptions(src, dest, { unpack: '*.sh' });
+      expect(statFile(dest, 'run.sh')).toMatchObject({ unpacked: true, executable: true });
+
+      const extractDir = path.join(testRunDir, 'executable-unpacked-extracted');
+      extractAll(dest, extractDir);
+
+      const stat = fs.statSync(path.join(extractDir, 'run.sh'));
+      expect(stat.mode & 0o111).toBeGreaterThan(0);
+    });
   });
 
   describe('special filenames', () => {

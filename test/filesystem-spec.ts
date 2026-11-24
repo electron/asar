@@ -50,6 +50,35 @@ describe('filesystem', () => {
       expect('link' in statFollowed).toBe(false);
     });
 
+    it('should not add missing paths to the archive listing when a lookup fails', async () => {
+      const src = createFixture('lookup-read-only', { 'dir/file.txt': 'content' });
+      const dest = path.join(testRunDir, 'lookup-read-only.asar');
+      await createPackage(src, dest);
+
+      const before = listPackage(dest, { isPack: false });
+      expect(() => statFile(dest, path.join('missing', 'nested', 'x.txt'))).toThrow(
+        /was not found in this archive/,
+      );
+      expect(() => extractFile(dest, path.join('dir', 'missing', 'x.txt'))).toThrow(
+        /was not found in this archive/,
+      );
+      expect(listPackage(dest, { isPack: false })).toEqual(before);
+    });
+
+    it('should not resolve Object.prototype members as archive entries', async () => {
+      const src = createFixture('lookup-prototype', { 'dir/file.txt': 'content' });
+      const dest = path.join(testRunDir, 'lookup-prototype.asar');
+      await createPackage(src, dest);
+
+      expect(() => statFile(dest, 'toString')).toThrow(/"toString" was not found in this archive/);
+      expect(() => statFile(dest, path.join('dir', 'hasOwnProperty'))).toThrow(
+        /was not found in this archive/,
+      );
+      expect(() => statFile(dest, path.join('constructor', 'x.txt'))).toThrow(
+        /was not found in this archive/,
+      );
+    });
+
     it('should list files with isPack option showing pack/unpack state', async () => {
       const src = createFixture('pack-list', {
         'packed.txt': 'packed',
