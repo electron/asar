@@ -73,12 +73,19 @@ export class Filesystem {
    *
    * @param create - when true (used while packing), missing intermediate
    * directories are created. When false (used for lookups), the header is left
-   * untouched and `undefined` is returned if a directory is missing.
+   * untouched, `undefined` is returned if a directory is missing, and directory
+   * symlinks are followed at every level of `p`.
    */
-  searchNodeFromDirectory(p: string, create: boolean = true): FilesystemEntry | undefined {
+  searchNodeFromDirectory(
+    p: string,
+    create: boolean = true,
+    depth: number = 0,
+    visited: Set<string> = new Set(),
+  ): FilesystemEntry | undefined {
     let json = this.header;
     const dirs = p.split(path.sep);
-    for (const dir of dirs) {
+    for (let i = 0; i < dirs.length; i++) {
+      const dir = dirs[i];
       if (dir !== '.') {
         if ('files' in json) {
           if (!Object.hasOwn(json.files, dir) || !json.files[dir]) {
@@ -88,6 +95,22 @@ export class Filesystem {
             json.files[dir] = { files: Object.create(null) };
           }
           json = json.files[dir];
+          if (!create && 'link' in json) {
+            // Continue the lookup from the link's target (stored relative to the
+            // archive root) with the remaining components.
+            const resolvedPath = path.join(json.link, ...dirs.slice(i + 1));
+            if (path.isAbsolute(resolvedPath) || resolvedPath.startsWith('..')) {
+              return undefined;
+            }
+            if (visited.has(resolvedPath)) {
+              throw new Error(`"${p}": circular symlink detected at "${resolvedPath}"`);
+            }
+            if (depth >= SYMLINK_MAX_DEPTH) {
+              throw new Error(`"${p}": too many levels of symbolic links (>${SYMLINK_MAX_DEPTH})`);
+            }
+            visited.add(resolvedPath);
+            return this.searchNodeFromDirectory(resolvedPath, false, depth + 1, visited);
+          }
         } else {
           throw new Error('Unexpected directory state while traversing: ' + p);
         }
@@ -313,25 +336,20 @@ export class Filesystem {
     p: string,
     followLinks: boolean = true,
     depth: number = 0,
-    visited: Set<string> = new Set(),
+    // Kept for signature compatibility; file link cycles are tracked in getFile.
+    _visited: Set<string> = new Set(),
   ): FilesystemEntry | undefined {
     // Lookups must not mutate the (cached) header, so don't create missing directories.
-    const node = this.searchNodeFromDirectory(path.dirname(p), false);
+    // Directory symlinks in the parent path are always followed (like lstat);
+    // followLinks only applies to the last component, in getFile.
+    // Each directory walk tracks its own cycles, since a later file link hop may
+    // legitimately pass through the same directory link again. `depth` is still
+    // carried over, so the total number of hops stays capped.
+    const node = this.searchNodeFromDirectory(path.dirname(p), false, depth, new Set());
     if (!node) {
       return undefined;
     }
     const name = path.basename(p);
-    if ('link' in node && followLinks) {
-      const resolvedPath = path.join(node.link, name);
-      if (visited.has(resolvedPath)) {
-        throw new Error(`"${p}": circular symlink detected at "${resolvedPath}"`);
-      }
-      if (depth >= SYMLINK_MAX_DEPTH) {
-        throw new Error(`"${p}": too many levels of symbolic links (>${SYMLINK_MAX_DEPTH})`);
-      }
-      visited.add(resolvedPath);
-      return this.getNode(resolvedPath, followLinks, depth + 1, visited);
-    }
     if (name) {
       if (!('files' in node)) {
         return undefined;
@@ -349,7 +367,7 @@ export class Filesystem {
     depth: number = 0,
     visited: Set<string> = new Set(),
   ): FilesystemEntry {
-    const info = this.getNode(p, followLinks, depth, visited);
+    const info = this.getNode(p, followLinks, depth);
 
     if (!info) {
       throw new Error(`"${p}" was not found in this archive`);

@@ -109,6 +109,111 @@ describe('filesystem', () => {
       expect(JSON.parse(headerString)).toEqual(header);
     });
 
+    it('should read and stat paths more than one level below a directory symlink', async () => {
+      if (process.platform === 'win32') return;
+      const src = createFixture('nested-dir-link', {
+        'real/g.txt': 'top',
+        'real/sub/f.txt': 'hi\n',
+        'real/sub/deeper/h.txt': 'deep',
+      });
+      fs.symlinkSync('real', path.join(src, 'linkdir'));
+      const dest = path.join(testRunDir, 'nested-dir-link.asar');
+      await createPackage(src, dest);
+
+      expect(extractFile(dest, path.join('linkdir', 'sub', 'f.txt')).toString()).toBe('hi\n');
+      expect(extractFile(dest, path.join('linkdir', 'sub', 'deeper', 'h.txt')).toString()).toBe(
+        'deep',
+      );
+      expect(statFile(dest, path.join('linkdir', 'sub', 'f.txt'))).toEqual(
+        statFile(dest, path.join('real', 'sub', 'f.txt')),
+      );
+      expect(statFile(dest, path.join('linkdir', 'sub'))).toEqual(
+        statFile(dest, path.join('real', 'sub')),
+      );
+      // followLinks=false only applies to the last component, like lstat
+      expect(statFile(dest, path.join('linkdir', 'sub', 'f.txt'), false)).toEqual(
+        statFile(dest, path.join('real', 'sub', 'f.txt')),
+      );
+      expect(() => statFile(dest, path.join('linkdir', 'sub', 'missing.txt'))).toThrow(
+        /was not found in this archive/,
+      );
+    });
+
+    it('should resolve a directory symlink whose target is under another symlink', async () => {
+      if (process.platform === 'win32') return;
+      const src = createFixture('chained-dir-link', {
+        'real/sub/f.txt': 'hi',
+        'real/sub/deeper/h.txt': 'deep',
+      });
+      fs.symlinkSync('real', path.join(src, 'a'));
+      fs.symlinkSync(path.join('a', 'sub'), path.join(src, 'b'));
+      fs.symlinkSync(path.join('b', 'deeper'), path.join(src, 'c'));
+      const dest = path.join(testRunDir, 'chained-dir-link.asar');
+      await createPackage(src, dest);
+
+      expect(statFile(dest, 'b', false)).toEqual({ link: path.join('a', 'sub') });
+      expect(extractFile(dest, path.join('b', 'f.txt')).toString()).toBe('hi');
+      expect(extractFile(dest, path.join('b', 'deeper', 'h.txt')).toString()).toBe('deep');
+      expect(extractFile(dest, path.join('c', 'h.txt')).toString()).toBe('deep');
+    });
+
+    it('should read a file link whose target goes back through the same directory symlink', async () => {
+      if (process.platform === 'win32') return;
+      const src = createFixture('same-dir-link-twice', { 'd/y.txt': 'why' });
+      fs.symlinkSync('d', path.join(src, 'a'));
+      // stored as a/y.txt, so reading a/x.txt walks through `a` twice
+      fs.symlinkSync(path.join('..', 'a', 'y.txt'), path.join(src, 'd', 'x.txt'));
+      const dest = path.join(testRunDir, 'same-dir-link-twice.asar');
+      await createPackage(src, dest);
+
+      expect(statFile(dest, path.join('d', 'x.txt'), false)).toEqual({
+        link: path.join('a', 'y.txt'),
+      });
+      expect(extractFile(dest, path.join('a', 'x.txt')).toString()).toBe('why');
+      expect(statFile(dest, path.join('a', 'x.txt'))).toEqual(
+        statFile(dest, path.join('d', 'y.txt')),
+      );
+    });
+
+    it('should read a file link that goes through a second symlink to the same directory', async () => {
+      if (process.platform === 'win32') return;
+      const src = createFixture('two-links-one-dir', { 'd/y.txt': 'why' });
+      fs.symlinkSync('d', path.join(src, 'a'));
+      fs.symlinkSync('d', path.join(src, 'b'));
+      fs.symlinkSync(path.join('..', 'b', 'y.txt'), path.join(src, 'd', 'x.txt'));
+      const dest = path.join(testRunDir, 'two-links-one-dir.asar');
+      await createPackage(src, dest);
+
+      expect(statFile(dest, path.join('d', 'x.txt'), false)).toEqual({
+        link: path.join('b', 'y.txt'),
+      });
+      expect(extractFile(dest, path.join('a', 'x.txt')).toString()).toBe('why');
+      expect(extractFile(dest, path.join('b', 'x.txt')).toString()).toBe('why');
+      expect(statFile(dest, path.join('a', 'x.txt'))).toEqual(
+        statFile(dest, path.join('d', 'y.txt')),
+      );
+    });
+
+    it('should still read paths directly below a directory symlink and plain paths', async () => {
+      if (process.platform === 'win32') return;
+      const { testPath } = await createSymlinkedApp('nested-dir-link-regression');
+      const dest = path.join(testRunDir, 'nested-dir-link-regression.asar');
+      await createPackage(testPath, dest);
+      const listing = listPackage(dest, { isPack: false });
+
+      expect(extractFile(dest, path.join('var', 'file.txt')).toString()).toBe('hello world');
+      expect(extractFile(dest, path.join('private', 'var', 'file.txt')).toString()).toBe(
+        'hello world',
+      );
+      expect(extractFile(dest, path.join('private', 'var', 'app', 'file.txt')).toString()).toBe(
+        'hello world',
+      );
+      // var -> private/var, then app/file.txt -> ../file.txt
+      expect(extractFile(dest, path.join('var', 'app', 'file.txt')).toString()).toBe('hello world');
+      expect(statFile(dest, 'var', false)).toEqual({ link: path.join('private', 'var') });
+      expect(listPackage(dest, { isPack: false })).toEqual(listing);
+    });
+
     it('should handle deeply nested directories', async () => {
       const parts = Array.from({ length: 20 }, (_, i) => `d${i}`);
       const deepPath = parts.join('/');
@@ -223,6 +328,38 @@ describe('filesystem', () => {
       expect(() => filesystem.getNode('dirA/somefile')).toThrow(
         /circular symlink detected|too many levels of symbolic links/,
       );
+    });
+
+    it('should detect a directory symlink cycle above the parent directory', () => {
+      const header: FilesystemEntry = {
+        files: {
+          dirA: { link: 'dirB' },
+          dirB: { link: 'dirA' },
+          grow: { link: 'grow/sub' },
+        },
+      };
+      const filesystem = createFilesystemWithHeader(header);
+      expect(() => filesystem.getFile(path.join('dirA', 'sub', 'file'))).toThrow(
+        /circular symlink detected|too many levels of symbolic links/,
+      );
+      expect(() => filesystem.getFile(path.join('grow', 'sub', 'file'))).toThrow(
+        /circular symlink detected|too many levels of symbolic links/,
+      );
+    });
+
+    it('should resolve a directory symlink to its own parent a finite number of times', () => {
+      const file: FilesystemEntry = {
+        unpacked: false,
+        executable: false,
+        offset: '0',
+        size: 10,
+        integrity: { algorithm: 'SHA256', hash: 'abc', blockSize: 0, blocks: [] },
+      };
+      const header: FilesystemEntry = {
+        files: { dir: { files: { self: { link: 'dir' }, file } } },
+      };
+      const filesystem = createFilesystemWithHeader(header);
+      expect(filesystem.getFile(path.join('dir', 'self', 'self', 'self', 'file'))).toBe(file);
     });
 
     it('should enforce max symlink depth limit in getFile', () => {
